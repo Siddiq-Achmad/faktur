@@ -199,12 +199,12 @@ export function BusinessProfileForm() {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="mx-auto max-w-4xl space-y-8">
         {/* Logo Upload */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Company Logo</CardTitle>
-            <CardDescription>Upload your company logo (max 2MB)</CardDescription>
+        <Card className="border-border/50 shadow-sm">
+          <CardHeader className="space-y-1 pb-4">
+            <CardTitle className="text-base font-medium">Company Logo</CardTitle>
+            <CardDescription className="text-xs">Upload your company logo (max 2MB)</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-4">
@@ -248,21 +248,21 @@ export function BusinessProfileForm() {
         </Card>
 
         {/* Company Information */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Company Information</CardTitle>
-            <CardDescription>Basic information about your business</CardDescription>
+        <Card className="border-border/50 shadow-sm">
+          <CardHeader className="space-y-1 pb-4">
+            <CardTitle className="text-base font-medium">Company Information</CardTitle>
+            <CardDescription className="text-xs">Basic information about your business</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid gap-4 md:grid-cols-2">
+          <CardContent className="space-y-6">
+            <div className="grid gap-6 sm:grid-cols-2">
               <FormField
                 control={form.control}
                 name="companyName"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Company Name *</FormLabel>
+                  <FormItem className="space-y-2">
+                    <FormLabel className="text-sm font-medium">Company Name *</FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder="Acme Inc." />
+                      <Input {...field} placeholder="Acme Inc." className="h-10" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -272,10 +272,10 @@ export function BusinessProfileForm() {
                 control={form.control}
                 name="email"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Email *</FormLabel>
+                  <FormItem className="space-y-2">
+                    <FormLabel className="text-sm font-medium">Email *</FormLabel>
                     <FormControl>
-                      <Input {...field} type="email" placeholder="info@company.com" />
+                      <Input {...field} type="email" placeholder="info@company.com" className="h-10" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -283,15 +283,15 @@ export function BusinessProfileForm() {
               />
             </div>
 
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="grid gap-6 sm:grid-cols-2">
               <FormField
                 control={form.control}
                 name="phone"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Phone</FormLabel>
+                  <FormItem className="space-y-2">
+                    <FormLabel className="text-sm font-medium">Phone</FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder="+1 (555) 123-4567" />
+                      <Input {...field} placeholder="+1 (555) 123-4567" className="h-10" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -301,10 +301,10 @@ export function BusinessProfileForm() {
                 control={form.control}
                 name="website"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Website</FormLabel>
+                  <FormItem className="space-y-2">
+                    <FormLabel className="text-sm font-medium">Website</FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder="https://company.com" />
+                      <Input {...field} placeholder="https://company.com" className="h-10" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -315,12 +315,12 @@ export function BusinessProfileForm() {
         </Card>
 
         {/* Address */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Business Address</CardTitle>
-            <CardDescription>Your company's physical address</CardDescription>
+        <Card className="border-border/50 shadow-sm">
+          <CardHeader className="space-y-1 pb-4">
+            <CardTitle className="text-base font-medium">Business Address</CardTitle>
+            <CardDescription className="text-xs">Your company's physical address</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-6">
             <FormField
               control={form.control}
               name="address"
@@ -396,12 +396,12 @@ export function BusinessProfileForm() {
         </Card>
 
         {/* Tax Information */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Tax Information</CardTitle>
-            <CardDescription>Tax identification numbers</CardDescription>
+        <Card className="border-border/50 shadow-sm">
+          <CardHeader className="space-y-1 pb-4">
+            <CardTitle className="text-base font-medium">Tax Information</CardTitle>
+            <CardDescription className="text-xs">Tax identification numbers</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-6">
             <div className="grid gap-4 md:grid-cols-2">
               <FormField
                 control={form.control}
@@ -434,14 +434,14 @@ export function BusinessProfileForm() {
         </Card>
 
         {/* Bank Information */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Bank Information</CardTitle>
-            <CardDescription>
+        <Card className="border-border/50 shadow-sm">
+          <CardHeader className="space-y-1 pb-4">
+            <CardTitle className="text-base font-medium">Bank Information</CardTitle>
+            <CardDescription className="text-xs">
               Bank account details for payment instructions on invoices
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-6">
             <FormField
               control={form.control}
               name="bankName"
@@ -517,7 +517,7 @@ export function BusinessProfileForm() {
         </Card>
 
         <div className="flex justify-end">
-          <Button type="submit" disabled={upsertMutation.isPending}>
+          <Button type="submit" className="h-10 font-medium" disabled={upsertMutation.isPending}>
             {upsertMutation.isPending && (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             )}

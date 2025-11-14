@@ -22,6 +22,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { User, MapPin, FileText } from "lucide-react";
 
 const clientFormSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -89,24 +90,27 @@ export function ClientForm({ clientId, defaultValues }: ClientFormProps) {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Basic Information</CardTitle>
-            <CardDescription>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="mx-auto max-w-4xl space-y-8">
+        <Card className="border-border/50 shadow-sm">
+          <CardHeader className="space-y-1 pb-4">
+            <CardTitle className="flex items-center gap-2 text-base font-medium">
+              <User className="h-4 w-4 text-muted-foreground" />
+              Basic Information
+            </CardTitle>
+            <CardDescription className="text-xs">
               Enter the client's contact information
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid gap-4 md:grid-cols-2">
+          <CardContent className="space-y-6">
+            <div className="grid gap-6 sm:grid-cols-2">
               <FormField
                 control={form.control}
                 name="name"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Name *</FormLabel>
+                  <FormItem className="space-y-2">
+                    <FormLabel className="text-sm font-medium">Name *</FormLabel>
                     <FormControl>
-                      <Input placeholder="John Doe" {...field} />
+                      <Input placeholder="John Doe" className="h-10" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -117,12 +121,13 @@ export function ClientForm({ clientId, defaultValues }: ClientFormProps) {
                 control={form.control}
                 name="email"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Email *</FormLabel>
+                  <FormItem className="space-y-2">
+                    <FormLabel className="text-sm font-medium">Email *</FormLabel>
                     <FormControl>
                       <Input
                         type="email"
                         placeholder="john@example.com"
+                        className="h-10"
                         {...field}
                       />
                     </FormControl>
@@ -132,15 +137,15 @@ export function ClientForm({ clientId, defaultValues }: ClientFormProps) {
               />
             </div>
 
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="grid gap-6 sm:grid-cols-2">
               <FormField
                 control={form.control}
                 name="phone"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Phone</FormLabel>
+                  <FormItem className="space-y-2">
+                    <FormLabel className="text-sm font-medium">Phone</FormLabel>
                     <FormControl>
-                      <Input placeholder="+1 (555) 123-4567" {...field} />
+                      <Input placeholder="+1 (555) 123-4567" className="h-10" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -151,10 +156,10 @@ export function ClientForm({ clientId, defaultValues }: ClientFormProps) {
                 control={form.control}
                 name="company"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Company</FormLabel>
+                  <FormItem className="space-y-2">
+                    <FormLabel className="text-sm font-medium">Company</FormLabel>
                     <FormControl>
-                      <Input placeholder="Acme Corp" {...field} />
+                      <Input placeholder="Acme Corp" className="h-10" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -164,14 +169,17 @@ export function ClientForm({ clientId, defaultValues }: ClientFormProps) {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Address</CardTitle>
-            <CardDescription>
+        <Card className="border-border/50 shadow-sm">
+          <CardHeader className="space-y-1 pb-4">
+            <CardTitle className="flex items-center gap-2 text-base font-medium">
+              <MapPin className="h-4 w-4 text-muted-foreground" />
+              Address
+            </CardTitle>
+            <CardDescription className="text-xs">
               Enter the client's billing address
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-6">
             <FormField
               control={form.control}
               name="address"
@@ -248,19 +256,25 @@ export function ClientForm({ clientId, defaultValues }: ClientFormProps) {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Additional Information</CardTitle>
+        <Card className="border-border/50 shadow-sm">
+          <CardHeader className="space-y-1 pb-4">
+            <CardTitle className="flex items-center gap-2 text-base font-medium">
+              <FileText className="h-4 w-4 text-muted-foreground" />
+              Additional Information
+            </CardTitle>
+            <CardDescription className="text-xs">
+              Tax ID and additional notes
+            </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-6">
             <FormField
               control={form.control}
               name="taxId"
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Tax ID / VAT Number</FormLabel>
+                <FormItem className="space-y-2">
+                  <FormLabel className="text-sm font-medium">Tax ID / VAT Number</FormLabel>
                   <FormControl>
-                    <Input placeholder="Tax identification number" {...field} />
+                    <Input placeholder="Tax identification number" className="h-10" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -271,12 +285,12 @@ export function ClientForm({ clientId, defaultValues }: ClientFormProps) {
               control={form.control}
               name="notes"
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Notes</FormLabel>
+                <FormItem className="space-y-2">
+                  <FormLabel className="text-sm font-medium">Notes</FormLabel>
                   <FormControl>
                     <textarea
-                      className="flex min-h-[100px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-                      placeholder="Additional notes about this client"
+                      className="flex min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                      placeholder="Additional notes about this client..."
                       {...field}
                     />
                   </FormControl>
@@ -287,19 +301,25 @@ export function ClientForm({ clientId, defaultValues }: ClientFormProps) {
           </CardContent>
         </Card>
 
-        <div className="flex justify-end gap-4">
+        <div className="flex justify-end gap-3">
           <Button
             type="button"
             variant="outline"
+            className="h-10"
             onClick={() => router.push("/dashboard/clients")}
           >
             Cancel
           </Button>
           <Button
             type="submit"
+            className="h-10 font-medium"
             disabled={createMutation.isPending || updateMutation.isPending}
           >
-            {clientId ? "Update" : "Create"} Client
+            {createMutation.isPending || updateMutation.isPending
+              ? "Saving..."
+              : clientId
+              ? "Update Client"
+              : "Create Client"}
           </Button>
         </div>
       </form>
