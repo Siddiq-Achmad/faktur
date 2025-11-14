@@ -28,26 +28,36 @@ A modern, full-stack invoice management application built with Next.js 16, featu
 ### Phase 1: Foundation (Week 1-2)
 - [x] Project setup with Next.js 16 + Tailwind + shadcn/ui
 - [x] Global theming system with dark mode support
-- [ ] Database setup (SQLite + Drizzle ORM)
-- [ ] tRPC integration for type-safe API
-- [ ] Authentication system (Better Auth)
-- [ ] Install required shadcn/ui components
+- [x] Database setup (SQLite + Drizzle ORM)
+- [x] tRPC integration for type-safe API
+- [x] Authentication system (Better Auth)
+- [x] Install required shadcn/ui components (button, input, label, card, form)
+- [x] Create authentication pages (login/signup)
+- [x] Dashboard layout with sidebar navigation
+- [x] Additional UI components (dropdown-menu, separator, badge, avatar)
+- [x] Route structure for dashboard sections
 
 ### Phase 2: Core Features (Week 3-4)
-- [ ] **Invoice Management**
-  - [ ] Create, edit, delete invoices
-  - [ ] Auto-generated invoice numbers
-  - [ ] Line items with quantities, rates, and totals
-  - [ ] Tax calculations (VAT/GST/Sales Tax)
-  - [ ] Discounts (percentage or fixed amount)
-  - [ ] Invoice status tracking (Draft, Sent, Paid, Overdue, Cancelled)
-  - [ ] Issue date and due date management
+- [x] **Invoice Management**
+  - [x] Create, edit, delete invoices
+  - [x] Auto-generated invoice numbers
+  - [x] Line items with quantities, rates, and totals
+  - [x] Tax calculations (VAT/GST/Sales Tax)
+  - [x] Discounts (percentage or fixed amount)
+  - [x] Invoice status tracking (Draft, Sent, Paid, Overdue, Cancelled)
+  - [x] Issue date and due date management
+  - [x] Invoice list with filtering and actions
+  - [x] Invoice detail/view page
+  - [x] tRPC API integration
 
-- [ ] **Client Management**
-  - [ ] Client database with contact information
-  - [ ] Client billing addresses
-  - [ ] Quick client selection
-  - [ ] Client history tracking
+- [x] **Client Management**
+  - [x] Client CRUD tRPC routers
+  - [x] Client list page with table
+  - [x] Client create/edit form
+  - [x] Client detail page with invoice history
+  - [x] Client billing addresses (full address fields)
+  - [x] Quick client selection (in invoice form)
+  - [x] Client invoice history and statistics
 
 - [ ] **Business Profile**
   - [ ] Company information management
