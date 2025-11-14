@@ -5,6 +5,7 @@ A modern, full-stack invoice management application built with Next.js 16, featu
 ## 🚀 Tech Stack
 
 ### Frontend
+
 - **Framework:** Next.js 16.0.3 (App Router)
 - **UI Library:** React 19.2.0
 - **Styling:** Tailwind CSS v4
@@ -13,12 +14,14 @@ A modern, full-stack invoice management application built with Next.js 16, featu
 - **Type Safety:** TypeScript (strict mode)
 
 ### Backend & Database
+
 - **Database:** SQLite (file-based, ideal for small projects)
 - **ORM:** Drizzle ORM (lightweight and type-safe)
 - **API Layer:** tRPC (end-to-end type-safe APIs)
 - **Authentication:** Better Auth (modern auth for Next.js)
 
 ### Development Tools
+
 - **Package Manager:** pnpm
 - **Code Quality:** TypeScript, ESLint
 - **Version Control:** Git
@@ -26,6 +29,7 @@ A modern, full-stack invoice management application built with Next.js 16, featu
 ## 📋 Features Roadmap
 
 ### Phase 1: Foundation (Week 1-2)
+
 - [x] Project setup with Next.js 16 + Tailwind + shadcn/ui
 - [x] Global theming system with dark mode support
 - [x] Database setup (SQLite + Drizzle ORM)
@@ -38,7 +42,9 @@ A modern, full-stack invoice management application built with Next.js 16, featu
 - [x] Route structure for dashboard sections
 
 ### Phase 2: Core Features (Week 3-4)
+
 - [x] **Invoice Management**
+
   - [x] Create, edit, delete invoices
   - [x] Auto-generated invoice numbers
   - [x] Line items with quantities, rates, and totals
@@ -51,6 +57,7 @@ A modern, full-stack invoice management application built with Next.js 16, featu
   - [x] tRPC API integration
 
 - [x] **Client Management**
+
   - [x] Client CRUD tRPC routers
   - [x] Client list page with table
   - [x] Client create/edit form
@@ -67,7 +74,9 @@ A modern, full-stack invoice management application built with Next.js 16, featu
   - [x] Integration with invoice PDFs
 
 ### Phase 3: Enhanced Features (Week 5-6)
+
 - [x] **Dashboard & Analytics**
+
   - [x] Revenue overview (monthly, yearly)
   - [x] Outstanding invoices tracking
   - [x] Paid vs unpaid visualizations
@@ -75,6 +84,7 @@ A modern, full-stack invoice management application built with Next.js 16, featu
   - [x] Charts and trends (using recharts)
 
 - [x] **PDF Generation**
+
   - [x] Professional invoice templates
   - [x] Download invoices as PDF
   - [x] Business profile integration in PDFs
@@ -87,15 +97,8 @@ A modern, full-stack invoice management application built with Next.js 16, featu
   - [x] Automatic invoice status updates
 
 ### Phase 4: Advanced Features (Future)
-- [ ] Recurring invoices (weekly, monthly, yearly)
-- [ ] Estimates/Quotes with conversion to invoices
-- [ ] Multi-currency support
-- [ ] Expense tracking
-- [ ] Payment gateway integration (Stripe, PayPal)
+
 - [ ] Email notifications (using Resend)
-- [ ] Client portal for invoice viewing
-- [ ] Multi-user/team support with roles
-- [ ] Advanced reporting (tax reports, P&L)
 - [ ] Localization (multiple languages)
 
 ## 🏗️ Project Structure
@@ -128,33 +131,39 @@ faktur/
 ## 🛠️ Getting Started
 
 ### Prerequisites
+
 - Node.js 18+ installed
 - pnpm package manager
 
 ### Installation
 
 1. Clone the repository:
+
 ```bash
 git clone <repository-url>
 cd faktur
 ```
 
 2. Install dependencies:
+
 ```bash
 pnpm install
 ```
 
 3. Set up environment variables:
+
 ```bash
 cp .env.example .env.local
 ```
 
 4. Run database migrations:
+
 ```bash
 pnpm db:push
 ```
 
 5. Start the development server:
+
 ```bash
 pnpm dev
 ```
@@ -185,19 +194,10 @@ pnpm dev
 }
 ```
 
-## 🎨 Design System
-
-The application uses a comprehensive design system with:
-- **Color Scheme:** OKLCH color space for precise colors
-- **Dark Mode:** Full dark mode support
-- **Typography:** Geist Sans & Geist Mono fonts
-- **Components:** shadcn/ui component library
-- **Spacing:** Consistent spacing scale
-- **Shadows:** Professional shadow system (2xs to 2xl)
-
 ## 📝 Development Workflow
 
 ### Database Commands
+
 ```bash
 pnpm db:push         # Push schema changes
 pnpm db:studio       # Open Drizzle Studio
@@ -205,6 +205,7 @@ pnpm db:generate     # Generate migrations
 ```
 
 ### Development
+
 ```bash
 pnpm dev             # Start dev server
 pnpm build           # Build for production
@@ -215,6 +216,7 @@ pnpm lint            # Run ESLint
 ## 🔐 Authentication
 
 This project uses **Better Auth** for authentication, providing:
+
 - Session management
 - Social auth providers
 - Email/password authentication
@@ -224,60 +226,13 @@ This project uses **Better Auth** for authentication, providing:
 ## 🗄️ Database Schema
 
 ### Core Models
+
 - **Users:** Authentication and user profiles
 - **Invoices:** Invoice records with status tracking
 - **InvoiceItems:** Line items for each invoice
 - **Clients:** Client/customer information
 - **BusinessProfile:** Company information and settings
 - **Payments:** Payment records linked to invoices
-
-## 🚦 Implementation Steps
-
-Follow these steps for consistent development:
-
-1. **Week 1: Database & Auth Setup**
-   - Install Drizzle ORM and SQLite
-   - Create database schema
-   - Set up tRPC with Next.js
-   - Configure Better Auth
-   - Create authentication pages
-
-2. **Week 2: Component Foundation**
-   - Install required shadcn/ui components
-   - Create layout components
-   - Build navigation and sidebar
-   - Set up form components
-
-3. **Week 3: Invoice CRUD**
-   - Create invoice form
-   - Implement invoice list with filtering
-   - Add invoice detail view
-   - Build invoice status management
-
-4. **Week 4: Client Management** ✅
-   - Client CRUD operations
-   - Client selection components
-   - Client history view
-
-5. **Week 5: Dashboard & Analytics** ✅
-   - Revenue dashboard with real-time data
-   - Charts and visualizations (recharts)
-   - Activity feed showing recent invoices
-   - Statistics cards (revenue, outstanding, paid, overdue)
-   - Monthly/yearly revenue trends
-   - Invoice status distribution
-
-6. **Week 6: Business Profile & PDF** ✅
-   - Business profile management
-   - Company logo upload
-   - Professional PDF invoice templates
-   - PDF generation with @react-pdf/renderer
-   - Business info integration in PDFs
-
-7. **Future: Payment Tracking & Polish**
-   - Payment recording system
-   - Email templates (future)
-   - UI polish and testing
 
 ## 🤝 Contributing
 
@@ -297,5 +252,3 @@ MIT License - feel free to use this project for learning or as a template.
 - [Better Auth](https://better-auth.com) - Modern authentication
 
 ---
-
-**Built with ❤️ using Next.js 16 and modern web technologies**

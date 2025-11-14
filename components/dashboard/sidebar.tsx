@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
+import Image from "next/image";
 
 const navigation = [
   {
@@ -45,8 +46,13 @@ export function Sidebar() {
           href="/dashboard"
           className="flex items-center gap-2 font-semibold"
         >
-          <FileText className="h-6 w-6" />
-          <span className="text-xl">Faktur</span>
+          <Image
+            src={"/faktur-logo.png"}
+            alt="Faktur logo"
+            width={24}
+            height={24}
+          />
+          <span className="text-xl font-bold">Faktur</span>
         </Link>
       </div>
       <Separator />
@@ -54,7 +60,8 @@ export function Sidebar() {
         {navigation.map((item) => {
           const isActive =
             pathname === item.href ||
-            (item.href !== "/dashboard" && pathname?.startsWith(item.href + "/"));
+            (item.href !== "/dashboard" &&
+              pathname?.startsWith(item.href + "/"));
           return (
             <Link
               key={item.name}
