@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, Upload, X } from "lucide-react";
+import { Loader2, Upload, X, ImageIcon } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const businessProfileSchema = z.object({
@@ -45,6 +45,8 @@ export function BusinessProfileForm() {
   const { toast } = useToast();
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [uploadingLogo, setUploadingLogo] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { data: profile, isLoading } = trpc.businessProfile.get.useQuery();
   const upsertMutation = trpc.businessProfile.upsert.useMutation();
@@ -118,10 +120,7 @@ export function BusinessProfileForm() {
     }
   };
 
-  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
+  const processFile = async (file: File) => {
     // Validate file size (max 2MB)
     if (file.size > 2 * 1024 * 1024) {
       toast({
@@ -171,6 +170,40 @@ export function BusinessProfileForm() {
     reader.readAsDataURL(file);
   };
 
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    await processFile(file);
+  };
+
+  const handleDragEnter = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleDrop = async (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+
+    const file = e.dataTransfer.files?.[0];
+    if (file) {
+      await processFile(file);
+    }
+  };
+
   const handleDeleteLogo = async () => {
     try {
       await deleteLogoMutation.mutateAsync();
@@ -207,43 +240,90 @@ export function BusinessProfileForm() {
             <CardDescription className="text-xs">Upload your company logo (max 2MB)</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="flex items-center gap-4">
-              {logoPreview ? (
-                <div className="relative">
+            {logoPreview ? (
+              <div className="relative inline-block">
+                <div className="group relative overflow-hidden rounded-lg border border-border/50 bg-muted/30 p-4">
                   <img
                     src={logoPreview}
                     alt="Company logo"
-                    className="h-24 w-24 rounded-lg border object-contain"
+                    className="h-32 w-32 object-contain"
                   />
-                  <Button
-                    type="button"
-                    variant="destructive"
-                    size="icon"
-                    className="absolute -right-2 -top-2 h-6 w-6 rounded-full"
-                    onClick={handleDeleteLogo}
-                    disabled={deleteLogoMutation.isPending}
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/60 opacity-0 transition-opacity group-hover:opacity-100">
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="sm"
+                      onClick={handleDeleteLogo}
+                      disabled={deleteLogoMutation.isPending}
+                    >
+                      {deleteLogoMutation.isPending ? (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      ) : (
+                        <X className="mr-2 h-4 w-4" />
+                      )}
+                      Remove
+                    </Button>
+                  </div>
                 </div>
-              ) : (
-                <div className="flex h-24 w-24 items-center justify-center rounded-lg border-2 border-dashed">
-                  <Upload className="h-8 w-8 text-muted-foreground" />
-                </div>
-              )}
-              <div>
-                <Input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleLogoUpload}
-                  disabled={uploadingLogo}
-                  className="max-w-xs"
-                />
-                <p className="mt-2 text-sm text-muted-foreground">
-                  Recommended: Square image, PNG or JPG
-                </p>
               </div>
-            </div>
+            ) : (
+              <div
+                onDragEnter={handleDragEnter}
+                onDragLeave={handleDragLeave}
+                onDragOver={handleDragOver}
+                onDrop={handleDrop}
+                onClick={() => fileInputRef.current?.click()}
+                className={`
+                  group relative cursor-pointer overflow-hidden rounded-lg border-2 border-dashed
+                  transition-all duration-200
+                  ${isDragging
+                    ? 'border-primary bg-primary/5 scale-[1.02]'
+                    : 'border-border/50 bg-muted/20 hover:border-primary/50 hover:bg-muted/40'
+                  }
+                  ${uploadingLogo ? 'pointer-events-none opacity-60' : ''}
+                `}
+              >
+                <div className="flex flex-col items-center justify-center px-6 py-10">
+                  <div className={`
+                    mb-4 flex h-16 w-16 items-center justify-center rounded-full
+                    transition-all duration-200
+                    ${isDragging
+                      ? 'bg-primary/20 text-primary scale-110'
+                      : 'bg-muted text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary group-hover:animate-pulse'
+                    }
+                  `}>
+                    {uploadingLogo ? (
+                      <Loader2 className="h-8 w-8 animate-spin" />
+                    ) : (
+                      <ImageIcon className="h-8 w-8" />
+                    )}
+                  </div>
+
+                  <div className="text-center">
+                    <p className="mb-1 text-sm font-medium">
+                      {uploadingLogo
+                        ? 'Uploading...'
+                        : isDragging
+                        ? 'Drop your logo here'
+                        : 'Click to upload or drag and drop'
+                      }
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      PNG, JPG or WEBP (max 2MB)
+                    </p>
+                  </div>
+
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleLogoUpload}
+                    disabled={uploadingLogo}
+                    className="hidden"
+                  />
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
 
