@@ -99,6 +99,12 @@ export function InvoiceStatusChart() {
                 border: "1px solid hsl(var(--border))",
                 borderRadius: "6px",
               }}
+              labelStyle={{
+                color: "hsl(var(--foreground))",
+              }}
+              itemStyle={{
+                color: "hsl(var(--foreground))",
+              }}
               formatter={(value: number, name: string, props: any) => [
                 `${value} invoice${value !== 1 ? "s" : ""} (${formatCurrency(props.payload.total)})`,
                 props.payload.name,

@@ -102,6 +102,12 @@ export function RevenueChart() {
                 border: "1px solid hsl(var(--border))",
                 borderRadius: "6px",
               }}
+              labelStyle={{
+                color: "hsl(var(--foreground))",
+              }}
+              itemStyle={{
+                color: "hsl(var(--foreground))",
+              }}
               formatter={(value: number) => [formatCurrency(value), "Revenue"]}
             />
             <Area
