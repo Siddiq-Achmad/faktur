@@ -50,12 +50,14 @@ A modern, full-stack invoice management application built with Next.js 16, featu
   - [x] Invoice detail/view page
   - [x] tRPC API integration
 
-- [x] **Client Management (API Layer)**
+- [x] **Client Management**
   - [x] Client CRUD tRPC routers
-  - [ ] Client UI pages
-  - [ ] Client billing addresses UI
-  - [ ] Quick client selection (completed in invoice form)
-  - [ ] Client history tracking UI
+  - [x] Client list page with table
+  - [x] Client create/edit form
+  - [x] Client detail page with invoice history
+  - [x] Client billing addresses (full address fields)
+  - [x] Quick client selection (in invoice form)
+  - [x] Client invoice history and statistics
 
 - [ ] **Business Profile**
   - [ ] Company information management
