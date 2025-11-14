@@ -22,7 +22,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Separator } from "@/components/ui/separator";
-import { ArrowLeft, Pencil, Download, Loader2, ChevronDown } from "lucide-react";
+import { ArrowLeft, Pencil, Download, Loader2, ChevronDown, FileText } from "lucide-react";
 import { generateInvoicePDF } from "@/lib/pdf/generate-invoice-pdf";
 import { RecordPaymentDialog } from "@/components/payments/record-payment-dialog";
 import { PaymentHistory } from "@/components/payments/payment-history";
@@ -121,22 +121,29 @@ export default function InvoiceDetailPage({
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" asChild>
-            <Link href="/dashboard/invoices">
-              <ArrowLeft className="h-4 w-4" />
-            </Link>
-          </Button>
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">
-              {invoice.invoiceNumber}
-            </h1>
-            <p className="text-muted-foreground">Invoice Details</p>
+    <div className="space-y-8">
+      {/* Header Section */}
+      <div className="space-y-2">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Button variant="ghost" size="icon" className="h-10 w-10" asChild>
+              <Link href="/dashboard/invoices">
+                <ArrowLeft className="h-4 w-4" />
+              </Link>
+            </Button>
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                <FileText className="h-5 w-5" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-mono font-semibold tracking-tight">
+                  {invoice.invoiceNumber}
+                </h1>
+                <p className="text-sm text-muted-foreground">Invoice Details</p>
+              </div>
+            </div>
           </div>
-        </div>
-        <div className="flex gap-2">
+          <div className="flex gap-2">
           {invoice.status !== "paid" && invoice.status !== "cancelled" && (
             <RecordPaymentDialog
               invoiceId={id}
@@ -147,7 +154,7 @@ export default function InvoiceDetailPage({
             <DropdownMenuTrigger asChild>
               <Button
                 variant="outline"
-                size="sm"
+                className="h-10"
                 disabled={isDownloading}
               >
                 {isDownloading ? (
@@ -176,7 +183,7 @@ export default function InvoiceDetailPage({
               ))}
             </DropdownMenuContent>
           </DropdownMenu>
-          <Button size="sm" asChild>
+          <Button className="h-10" asChild>
             <Link href={`/dashboard/invoices/${id}/edit`}>
               <Pencil className="mr-2 h-4 w-4" />
               Edit
@@ -186,12 +193,13 @@ export default function InvoiceDetailPage({
       </div>
 
       <div className="grid gap-6 md:grid-cols-3">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-sm font-medium">Status</CardTitle>
+        <Card className="border-border/50 shadow-sm">
+          <CardHeader className="space-y-1 pb-4">
+            <CardTitle className="text-xs font-medium text-muted-foreground">Status</CardTitle>
           </CardHeader>
           <CardContent>
             <Badge
+              className="text-xs font-medium"
               style={{
                 backgroundColor: STATUS_COLORS[invoice.status],
                 color: "white",
@@ -203,23 +211,23 @@ export default function InvoiceDetailPage({
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-sm font-medium">Issue Date</CardTitle>
+        <Card className="border-border/50 shadow-sm">
+          <CardHeader className="space-y-1 pb-4">
+            <CardTitle className="text-xs font-medium text-muted-foreground">Issue Date</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold">
+            <p className="text-xl font-semibold">
               {format(new Date(invoice.issueDate), "MMM dd, yyyy")}
             </p>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-sm font-medium">Due Date</CardTitle>
+        <Card className="border-border/50 shadow-sm">
+          <CardHeader className="space-y-1 pb-4">
+            <CardTitle className="text-xs font-medium text-muted-foreground">Due Date</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold">
+            <p className="text-xl font-semibold">
               {format(new Date(invoice.dueDate), "MMM dd, yyyy")}
             </p>
           </CardContent>
@@ -227,65 +235,65 @@ export default function InvoiceDetailPage({
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Client Information</CardTitle>
+        <Card className="border-border/50 shadow-sm">
+          <CardHeader className="space-y-1 pb-4">
+            <CardTitle className="text-base font-medium">Client Information</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-2">
+          <CardContent className="space-y-3">
             <div>
-              <p className="text-sm font-medium">Name</p>
-              <p className="text-sm text-muted-foreground">{invoice.client?.name}</p>
+              <p className="text-xs font-medium text-muted-foreground">Name</p>
+              <p className="text-sm">{invoice.client?.name}</p>
             </div>
             <div>
-              <p className="text-sm font-medium">Email</p>
-              <p className="text-sm text-muted-foreground">{invoice.client?.email}</p>
+              <p className="text-xs font-medium text-muted-foreground">Email</p>
+              <p className="text-sm">{invoice.client?.email}</p>
             </div>
             {invoice.client?.phone && (
               <div>
-                <p className="text-sm font-medium">Phone</p>
-                <p className="text-sm text-muted-foreground">{invoice.client.phone}</p>
+                <p className="text-xs font-medium text-muted-foreground">Phone</p>
+                <p className="text-sm">{invoice.client.phone}</p>
               </div>
             )}
             {invoice.client?.company && (
               <div>
-                <p className="text-sm font-medium">Company</p>
-                <p className="text-sm text-muted-foreground">{invoice.client.company}</p>
+                <p className="text-xs font-medium text-muted-foreground">Company</p>
+                <p className="text-sm">{invoice.client.company}</p>
               </div>
             )}
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Payment Summary</CardTitle>
+        <Card className="border-border/50 shadow-sm">
+          <CardHeader className="space-y-1 pb-4">
+            <CardTitle className="text-base font-medium">Payment Summary</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-2">
+          <CardContent className="space-y-3">
             <div className="flex justify-between">
-              <span className="text-sm">Total Amount:</span>
-              <span className="text-sm font-medium">
-                USD {invoice.total.toFixed(2)}
+              <span className="text-sm text-muted-foreground">Total Amount</span>
+              <span className="text-sm font-mono font-medium">
+                ${invoice.total.toFixed(2)}
               </span>
             </div>
             <div className="flex justify-between">
-              <span className="text-sm">Amount Paid:</span>
-              <span className="text-sm font-medium">
-                USD {invoice.amountPaid.toFixed(2)}
+              <span className="text-sm text-muted-foreground">Amount Paid</span>
+              <span className="text-sm font-mono font-medium">
+                ${invoice.amountPaid.toFixed(2)}
               </span>
             </div>
-            <Separator />
-            <div className="flex justify-between">
-              <span className="font-medium">Balance Due:</span>
-              <span className="font-bold">
-                USD {(invoice.total - invoice.amountPaid).toFixed(2)}
+            <Separator className="bg-border/50" />
+            <div className="flex justify-between pt-1">
+              <span className="text-base font-semibold">Balance Due</span>
+              <span className="text-lg font-mono font-bold text-primary">
+                ${(invoice.total - invoice.amountPaid).toFixed(2)}
               </span>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Line Items</CardTitle>
+      <Card className="border-border/50 shadow-sm">
+        <CardHeader className="space-y-1 pb-4">
+          <CardTitle className="text-base font-medium">Line Items</CardTitle>
         </CardHeader>
         <CardContent>
           <Table>
@@ -300,47 +308,47 @@ export default function InvoiceDetailPage({
             <TableBody>
               {invoice.items?.map((item) => (
                 <TableRow key={item.id}>
-                  <TableCell>{item.description}</TableCell>
-                  <TableCell className="text-right">{item.quantity}</TableCell>
-                  <TableCell className="text-right">
-                    USD {item.rate.toFixed(2)}
+                  <TableCell className="text-sm">{item.description}</TableCell>
+                  <TableCell className="text-right text-sm">{item.quantity}</TableCell>
+                  <TableCell className="text-right font-mono text-sm">
+                    ${item.rate.toFixed(2)}
                   </TableCell>
-                  <TableCell className="text-right">
-                    USD {item.amount.toFixed(2)}
+                  <TableCell className="text-right font-mono text-sm font-medium">
+                    ${item.amount.toFixed(2)}
                   </TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
 
-          <div className="mt-6 space-y-2">
+          <div className="mt-6 space-y-3">
             <div className="flex justify-end gap-32">
-              <span className="text-sm text-muted-foreground">Subtotal:</span>
-              <span className="text-sm font-medium">
-                USD {invoice.subtotal.toFixed(2)}
+              <span className="text-sm text-muted-foreground">Subtotal</span>
+              <span className="font-mono text-sm font-medium">
+                ${invoice.subtotal.toFixed(2)}
               </span>
             </div>
             {invoice.discountAmount && invoice.discountAmount > 0 && (
               <div className="flex justify-end gap-32">
-                <span className="text-sm text-muted-foreground">Discount:</span>
-                <span className="text-sm font-medium text-green-600">
-                  -USD {invoice.discountAmount.toFixed(2)}
+                <span className="text-sm text-muted-foreground">Discount</span>
+                <span className="font-mono text-sm font-medium text-green-600">
+                  -${invoice.discountAmount.toFixed(2)}
                 </span>
               </div>
             )}
             <div className="flex justify-end gap-32">
               <span className="text-sm text-muted-foreground">
-                Tax ({invoice.taxRate}%):
+                Tax ({invoice.taxRate}%)
               </span>
-              <span className="text-sm font-medium">
-                USD {invoice.taxAmount.toFixed(2)}
+              <span className="font-mono text-sm font-medium">
+                ${invoice.taxAmount.toFixed(2)}
               </span>
             </div>
-            <Separator />
-            <div className="flex justify-end gap-32">
-              <span className="text-lg font-bold">Total:</span>
-              <span className="text-lg font-bold">
-                USD {invoice.total.toFixed(2)}
+            <Separator className="bg-border/50" />
+            <div className="flex justify-end gap-32 pt-1">
+              <span className="text-base font-semibold">Total</span>
+              <span className="font-mono text-lg font-bold text-primary">
+                ${invoice.total.toFixed(2)}
               </span>
             </div>
           </div>
@@ -350,12 +358,12 @@ export default function InvoiceDetailPage({
       {(invoice.notes || invoice.terms) && (
         <div className="grid gap-6 md:grid-cols-2">
           {invoice.notes && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Notes</CardTitle>
+            <Card className="border-border/50 shadow-sm">
+              <CardHeader className="space-y-1 pb-4">
+                <CardTitle className="text-base font-medium">Notes</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+                <p className="text-sm whitespace-pre-wrap">
                   {invoice.notes}
                 </p>
               </CardContent>
@@ -363,12 +371,12 @@ export default function InvoiceDetailPage({
           )}
 
           {invoice.terms && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Terms & Conditions</CardTitle>
+            <Card className="border-border/50 shadow-sm">
+              <CardHeader className="space-y-1 pb-4">
+                <CardTitle className="text-base font-medium">Terms & Conditions</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+                <p className="text-sm whitespace-pre-wrap">
                   {invoice.terms}
                 </p>
               </CardContent>
