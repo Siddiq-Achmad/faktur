@@ -1,7 +1,6 @@
 "use client";
 
-import { useSession, signOut } from "@/lib/auth/client";
-import { Button } from "@/components/ui/button";
+import { useSession } from "@/lib/auth/client";
 import {
   Card,
   CardContent,
@@ -9,56 +8,30 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
 
 export default function DashboardPage() {
-  const { data: session, isPending } = useSession();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (!isPending && !session) {
-      router.push("/login");
-    }
-  }, [session, isPending, router]);
-
-  if (isPending) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <p className="text-muted-foreground">Loading...</p>
-      </div>
-    );
-  }
-
-  if (!session) {
-    return null;
-  }
-
-  async function handleSignOut() {
-    await signOut();
-    router.push("/login");
-  }
+  const { data: session } = useSession();
 
   return (
-    <div className="container mx-auto p-6">
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Dashboard</h1>
-        <Button onClick={handleSignOut} variant="outline">
-          Sign Out
-        </Button>
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+        <p className="text-muted-foreground">
+          Welcome back, {session?.user?.name}!
+        </p>
       </div>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         <Card>
           <CardHeader>
-            <CardTitle>Welcome, {session.user?.name}!</CardTitle>
+            <CardTitle>Welcome!</CardTitle>
             <CardDescription>
               Your invoice management system is ready
             </CardDescription>
           </CardHeader>
           <CardContent>
             <p className="text-sm text-muted-foreground">
-              Email: {session.user?.email}
+              Email: {session?.user?.email}
             </p>
           </CardContent>
         </Card>
@@ -91,6 +64,7 @@ export default function DashboardPage() {
           <CardContent>
             <ul className="space-y-2 text-sm">
               <li>✓ Authentication setup complete</li>
+              <li>✓ Dashboard layout ready</li>
               <li>• Set up your business profile</li>
               <li>• Add your first client</li>
               <li>• Create your first invoice</li>

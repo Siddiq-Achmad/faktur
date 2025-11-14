@@ -31,8 +31,11 @@ A modern, full-stack invoice management application built with Next.js 16, featu
 - [x] Database setup (SQLite + Drizzle ORM)
 - [x] tRPC integration for type-safe API
 - [x] Authentication system (Better Auth)
-- [x] Install required shadcn/ui components
+- [x] Install required shadcn/ui components (button, input, label, card, form)
 - [x] Create authentication pages (login/signup)
+- [x] Dashboard layout with sidebar navigation
+- [x] Additional UI components (dropdown-menu, separator, badge, avatar)
+- [x] Route structure for dashboard sections
 
 ### Phase 2: Core Features (Week 3-4)
 - [ ] **Invoice Management**
