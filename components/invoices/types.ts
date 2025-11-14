@@ -36,7 +36,7 @@ export interface InvoiceData {
   } | null;
 }
 
-export type TemplateType = "classic" | "newyork" | "minimalist" | "creative" | "sakura" | "corporate";
+export type TemplateType = "classic" | "newyork" | "minimalist" | "elegant" | "sakura" | "corporate";
 
 export interface TemplateOption {
   value: TemplateType;
@@ -46,9 +46,9 @@ export interface TemplateOption {
 
 export const TEMPLATE_OPTIONS: TemplateOption[] = [
   { value: "classic", label: "Classic", description: "Traditional professional design" },
-  { value: "newyork", label: "New York", description: "Elegant with bold typography" },
+  { value: "newyork", label: "New York", description: "Bold editorial typography" },
   { value: "minimalist", label: "Minimalist", description: "Clean and minimal" },
-  { value: "creative", label: "Creative", description: "Sophisticated editorial design" },
+  { value: "elegant", label: "Elegant", description: "Sophisticated high-end design" },
   { value: "sakura", label: "Sakura", description: "Japanese-inspired, soft colors" },
   { value: "corporate", label: "Corporate", description: "Professional and structured" },
 ];

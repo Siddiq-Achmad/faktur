@@ -7,7 +7,7 @@ export type { InvoiceData } from "./types";
 export { ClassicTemplate } from "./templates/classic-template";
 export { NewYorkTemplate } from "./templates/newyork-template";
 export { MinimalistTemplate } from "./templates/minimalist-template";
-export { CreativeTemplate } from "./templates/creative-template";
+export { ElegantTemplate } from "./templates/elegant-template";
 export { SakuraTemplate } from "./templates/sakura-template";
 export { CorporateTemplate } from "./templates/corporate-template";
 

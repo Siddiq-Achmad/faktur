@@ -9,7 +9,7 @@ import {
 import { format } from "date-fns";
 import { InvoiceData } from "../types";
 
-// Creative Template - Sophisticated editorial design inspired by high-end magazines
+// Elegant Template - Sophisticated editorial design inspired by high-end magazines
 const styles = StyleSheet.create({
   page: {
     padding: 50,
@@ -258,7 +258,7 @@ const getStatusColor = (status: string) => {
   return { backgroundColor: "transparent" };
 };
 
-export function CreativeTemplate({ invoice }: { invoice: InvoiceData }) {
+export function ElegantTemplate({ invoice }: { invoice: InvoiceData }) {
   const statusColors = getStatusColor(invoice.status);
 
   return (

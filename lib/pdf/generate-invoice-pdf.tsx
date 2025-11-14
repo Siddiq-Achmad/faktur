@@ -3,7 +3,7 @@ import { InvoiceData, TemplateType } from "@/components/invoices/types";
 import { ClassicTemplate } from "@/components/invoices/templates/classic-template";
 import { NewYorkTemplate } from "@/components/invoices/templates/newyork-template";
 import { MinimalistTemplate } from "@/components/invoices/templates/minimalist-template";
-import { CreativeTemplate } from "@/components/invoices/templates/creative-template";
+import { ElegantTemplate } from "@/components/invoices/templates/elegant-template";
 import { SakuraTemplate } from "@/components/invoices/templates/sakura-template";
 import { CorporateTemplate } from "@/components/invoices/templates/corporate-template";
 
@@ -15,8 +15,8 @@ const getTemplate = (template: TemplateType, invoice: InvoiceData) => {
       return <NewYorkTemplate invoice={invoice} />;
     case "minimalist":
       return <MinimalistTemplate invoice={invoice} />;
-    case "creative":
-      return <CreativeTemplate invoice={invoice} />;
+    case "elegant":
+      return <ElegantTemplate invoice={invoice} />;
     case "sakura":
       return <SakuraTemplate invoice={invoice} />;
     case "corporate":
