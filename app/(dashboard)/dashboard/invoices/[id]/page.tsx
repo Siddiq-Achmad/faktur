@@ -22,7 +22,14 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Separator } from "@/components/ui/separator";
-import { ArrowLeft, Pencil, Download, Loader2, ChevronDown, FileText } from "lucide-react";
+import {
+  ArrowLeft,
+  Pencil,
+  Download,
+  Loader2,
+  ChevronDown,
+  FileText,
+} from "lucide-react";
 import { generateInvoicePDF } from "@/lib/pdf/generate-invoice-pdf";
 import { RecordPaymentDialog } from "@/components/payments/record-payment-dialog";
 import { PaymentHistory } from "@/components/payments/payment-history";
@@ -50,47 +57,51 @@ export default function InvoiceDetailPage({
 
     setIsDownloading(true);
     try {
-      await generateInvoicePDF({
-        invoiceNumber: invoice.invoiceNumber,
-        status: invoice.status,
-        issueDate: invoice.issueDate,
-        dueDate: invoice.dueDate,
-        subtotal: invoice.subtotal,
-        taxRate: invoice.taxRate,
-        taxAmount: invoice.taxAmount,
-        discountAmount: invoice.discountAmount || 0,
-        total: invoice.total,
-        notes: invoice.notes,
-        terms: invoice.terms,
-        client: invoice.client
-          ? {
-              name: invoice.client.name,
-              email: invoice.client.email,
-              phone: invoice.client.phone,
-              company: invoice.client.company,
-            }
-          : null,
-        items: invoice.items?.map((item) => ({
-          description: item.description,
-          quantity: item.quantity,
-          rate: item.rate,
-          amount: item.amount,
-        })) || [],
-        businessProfile: businessProfile
-          ? {
-              companyName: businessProfile.companyName,
-              email: businessProfile.email,
-              phone: businessProfile.phone,
-              address: businessProfile.address,
-              city: businessProfile.city,
-              state: businessProfile.state,
-              country: businessProfile.country,
-              postalCode: businessProfile.postalCode,
-              taxId: businessProfile.taxId,
-              logo: businessProfile.logo,
-            }
-          : null,
-      }, template);
+      await generateInvoicePDF(
+        {
+          invoiceNumber: invoice.invoiceNumber,
+          status: invoice.status,
+          issueDate: invoice.issueDate,
+          dueDate: invoice.dueDate,
+          subtotal: invoice.subtotal,
+          taxRate: invoice.taxRate,
+          taxAmount: invoice.taxAmount,
+          discountAmount: invoice.discountAmount || 0,
+          total: invoice.total,
+          notes: invoice.notes,
+          terms: invoice.terms,
+          client: invoice.client
+            ? {
+                name: invoice.client.name,
+                email: invoice.client.email,
+                phone: invoice.client.phone,
+                company: invoice.client.company,
+              }
+            : null,
+          items:
+            invoice.items?.map((item) => ({
+              description: item.description,
+              quantity: item.quantity,
+              rate: item.rate,
+              amount: item.amount,
+            })) || [],
+          businessProfile: businessProfile
+            ? {
+                companyName: businessProfile.companyName,
+                email: businessProfile.email,
+                phone: businessProfile.phone,
+                address: businessProfile.address,
+                city: businessProfile.city,
+                state: businessProfile.state,
+                country: businessProfile.country,
+                postalCode: businessProfile.postalCode,
+                taxId: businessProfile.taxId,
+                logo: businessProfile.logo,
+              }
+            : null,
+        },
+        template
+      );
     } catch (error) {
       console.error("Failed to generate PDF:", error);
     } finally {
@@ -144,12 +155,15 @@ export default function InvoiceDetailPage({
             </div>
           </div>
           <div className="flex gap-2">
-            {invoice.status !== "paid" && invoice.status !== "cancelled" && (
+            {invoice &&
+            invoice.status !== "paid" &&
+            invoice.status !== "cancelled" ? (
               <RecordPaymentDialog
                 invoiceId={id}
                 remainingBalance={invoice.total - invoice.amountPaid}
+                currency={"$"}
               />
-            )}
+            ) : null}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
@@ -190,12 +204,15 @@ export default function InvoiceDetailPage({
               </Link>
             </Button>
           </div>
+        </div>
       </div>
 
       <div className="grid gap-6 md:grid-cols-3">
         <Card className="border-border/50 shadow-sm">
           <CardHeader className="space-y-1 pb-4">
-            <CardTitle className="text-xs font-medium text-muted-foreground">Status</CardTitle>
+            <CardTitle className="text-xs font-medium text-muted-foreground">
+              Status
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <Badge
@@ -213,7 +230,9 @@ export default function InvoiceDetailPage({
 
         <Card className="border-border/50 shadow-sm">
           <CardHeader className="space-y-1 pb-4">
-            <CardTitle className="text-xs font-medium text-muted-foreground">Issue Date</CardTitle>
+            <CardTitle className="text-xs font-medium text-muted-foreground">
+              Issue Date
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-xl font-semibold">
@@ -224,7 +243,9 @@ export default function InvoiceDetailPage({
 
         <Card className="border-border/50 shadow-sm">
           <CardHeader className="space-y-1 pb-4">
-            <CardTitle className="text-xs font-medium text-muted-foreground">Due Date</CardTitle>
+            <CardTitle className="text-xs font-medium text-muted-foreground">
+              Due Date
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-xl font-semibold">
@@ -237,7 +258,9 @@ export default function InvoiceDetailPage({
       <div className="grid gap-6 md:grid-cols-2">
         <Card className="border-border/50 shadow-sm">
           <CardHeader className="space-y-1 pb-4">
-            <CardTitle className="text-base font-medium">Client Information</CardTitle>
+            <CardTitle className="text-base font-medium">
+              Client Information
+            </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             <div>
@@ -250,13 +273,17 @@ export default function InvoiceDetailPage({
             </div>
             {invoice.client?.phone && (
               <div>
-                <p className="text-xs font-medium text-muted-foreground">Phone</p>
+                <p className="text-xs font-medium text-muted-foreground">
+                  Phone
+                </p>
                 <p className="text-sm">{invoice.client.phone}</p>
               </div>
             )}
             {invoice.client?.company && (
               <div>
-                <p className="text-xs font-medium text-muted-foreground">Company</p>
+                <p className="text-xs font-medium text-muted-foreground">
+                  Company
+                </p>
                 <p className="text-sm">{invoice.client.company}</p>
               </div>
             )}
@@ -265,11 +292,15 @@ export default function InvoiceDetailPage({
 
         <Card className="border-border/50 shadow-sm">
           <CardHeader className="space-y-1 pb-4">
-            <CardTitle className="text-base font-medium">Payment Summary</CardTitle>
+            <CardTitle className="text-base font-medium">
+              Payment Summary
+            </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="flex justify-between">
-              <span className="text-sm text-muted-foreground">Total Amount</span>
+              <span className="text-sm text-muted-foreground">
+                Total Amount
+              </span>
               <span className="text-sm font-mono font-medium">
                 ${invoice.total.toFixed(2)}
               </span>
@@ -309,7 +340,9 @@ export default function InvoiceDetailPage({
               {invoice.items?.map((item) => (
                 <TableRow key={item.id}>
                   <TableCell className="text-sm">{item.description}</TableCell>
-                  <TableCell className="text-right text-sm">{item.quantity}</TableCell>
+                  <TableCell className="text-right text-sm">
+                    {item.quantity}
+                  </TableCell>
                   <TableCell className="text-right font-mono text-sm">
                     ${item.rate.toFixed(2)}
                   </TableCell>
@@ -363,9 +396,7 @@ export default function InvoiceDetailPage({
                 <CardTitle className="text-base font-medium">Notes</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-sm whitespace-pre-wrap">
-                  {invoice.notes}
-                </p>
+                <p className="text-sm whitespace-pre-wrap">{invoice.notes}</p>
               </CardContent>
             </Card>
           )}
@@ -373,12 +404,12 @@ export default function InvoiceDetailPage({
           {invoice.terms && (
             <Card className="border-border/50 shadow-sm">
               <CardHeader className="space-y-1 pb-4">
-                <CardTitle className="text-base font-medium">Terms & Conditions</CardTitle>
+                <CardTitle className="text-base font-medium">
+                  Terms & Conditions
+                </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-sm whitespace-pre-wrap">
-                  {invoice.terms}
-                </p>
+                <p className="text-sm whitespace-pre-wrap">{invoice.terms}</p>
               </CardContent>
             </Card>
           )}
@@ -386,7 +417,7 @@ export default function InvoiceDetailPage({
       )}
 
       {/* Payment History */}
-      <PaymentHistory invoiceId={id} />
+      {invoice && <PaymentHistory invoiceId={id} />}
     </div>
   );
 }
