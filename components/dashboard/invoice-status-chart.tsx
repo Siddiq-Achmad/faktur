@@ -5,11 +5,11 @@ import { Card } from "@/components/ui/card";
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from "recharts";
 
 const STATUS_COLORS: Record<string, string> = {
-  draft: "#94a3b8",
-  sent: "#3b82f6",
-  paid: "#22c55e",
-  overdue: "#ef4444",
-  cancelled: "#64748b",
+  draft: "hsl(var(--chart-3))",
+  sent: "hsl(var(--chart-2))",
+  paid: "hsl(var(--chart-1))",
+  overdue: "hsl(var(--destructive))",
+  cancelled: "hsl(var(--chart-5))",
 };
 
 const STATUS_LABELS: Record<string, string> = {
@@ -104,7 +104,7 @@ export function InvoiceStatusChart() {
               {chartData.map((entry, index) => (
                 <Cell
                   key={`cell-${index}`}
-                  fill={STATUS_COLORS[entry.status] || "#94a3b8"}
+                  fill={STATUS_COLORS[entry.status] || "hsl(var(--chart-4))"}
                 />
               ))}
             </Pie>
