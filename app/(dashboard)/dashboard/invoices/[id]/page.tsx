@@ -1,6 +1,6 @@
 "use client";
 
-import { use } from "react";
+import { use, useState } from "react";
 import Link from "next/link";
 import { format } from "date-fns";
 import { trpc } from "@/lib/trpc/client";
@@ -22,7 +22,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Separator } from "@/components/ui/separator";
-import { ArrowLeft, Pencil, Download } from "lucide-react";
+import { ArrowLeft, Pencil, Download, Loader2 } from "lucide-react";
+import { generateInvoicePDF } from "@/lib/pdf/generate-invoice-pdf";
 
 const statusColors = {
   draft: "secondary",
@@ -47,6 +48,47 @@ export default function InvoiceDetailPage({
 }) {
   const { id } = use(params);
   const { data: invoice, isLoading } = trpc.invoices.getById.useQuery({ id });
+  const [isDownloading, setIsDownloading] = useState(false);
+
+  const handleDownloadPDF = async () => {
+    if (!invoice) return;
+
+    setIsDownloading(true);
+    try {
+      await generateInvoicePDF({
+        invoiceNumber: invoice.invoiceNumber,
+        status: invoice.status,
+        issueDate: invoice.issueDate,
+        dueDate: invoice.dueDate,
+        currency: invoice.currency,
+        subtotal: invoice.subtotal,
+        taxRate: invoice.taxRate,
+        taxAmount: invoice.taxAmount,
+        discountAmount: invoice.discountAmount || 0,
+        total: invoice.total,
+        notes: invoice.notes,
+        terms: invoice.terms,
+        client: invoice.client
+          ? {
+              name: invoice.client.name,
+              email: invoice.client.email,
+              phone: invoice.client.phone,
+              company: invoice.client.company,
+            }
+          : null,
+        items: invoice.items?.map((item) => ({
+          description: item.description,
+          quantity: item.quantity,
+          rate: item.rate,
+          amount: item.amount,
+        })) || [],
+      });
+    } catch (error) {
+      console.error("Failed to generate PDF:", error);
+    } finally {
+      setIsDownloading(false);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -87,9 +129,18 @@ export default function InvoiceDetailPage({
           </div>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm">
-            <Download className="mr-2 h-4 w-4" />
-            Download PDF
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleDownloadPDF}
+            disabled={isDownloading}
+          >
+            {isDownloading ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <Download className="mr-2 h-4 w-4" />
+            )}
+            {isDownloading ? "Generating..." : "Download PDF"}
           </Button>
           <Button size="sm" asChild>
             <Link href={`/dashboard/invoices/${id}/edit`}>
