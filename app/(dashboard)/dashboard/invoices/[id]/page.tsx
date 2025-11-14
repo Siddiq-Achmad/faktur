@@ -144,52 +144,52 @@ export default function InvoiceDetailPage({
             </div>
           </div>
           <div className="flex gap-2">
-          {invoice.status !== "paid" && invoice.status !== "cancelled" && (
-            <RecordPaymentDialog
-              invoiceId={id}
-              remainingBalance={invoice.total - invoice.amountPaid}
-            />
-          )}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="outline"
-                className="h-10"
-                disabled={isDownloading}
-              >
-                {isDownloading ? (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                ) : (
-                  <Download className="mr-2 h-4 w-4" />
-                )}
-                {isDownloading ? "Generating..." : "Download PDF"}
-                {!isDownloading && <ChevronDown className="ml-2 h-4 w-4" />}
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56">
-              {TEMPLATE_OPTIONS.map((template) => (
-                <DropdownMenuItem
-                  key={template.value}
-                  onClick={() => handleDownloadPDF(template.value)}
-                  className="cursor-pointer"
+            {invoice.status !== "paid" && invoice.status !== "cancelled" && (
+              <RecordPaymentDialog
+                invoiceId={id}
+                remainingBalance={invoice.total - invoice.amountPaid}
+              />
+            )}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="h-10"
+                  disabled={isDownloading}
                 >
-                  <div className="flex flex-col">
-                    <span className="font-medium">{template.label}</span>
-                    <span className="text-xs text-muted-foreground">
-                      {template.description}
-                    </span>
-                  </div>
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-          <Button className="h-10" asChild>
-            <Link href={`/dashboard/invoices/${id}/edit`}>
-              <Pencil className="mr-2 h-4 w-4" />
-              Edit
-            </Link>
-          </Button>
-        </div>
+                  {isDownloading ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    <Download className="mr-2 h-4 w-4" />
+                  )}
+                  {isDownloading ? "Generating..." : "Download PDF"}
+                  {!isDownloading && <ChevronDown className="ml-2 h-4 w-4" />}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                {TEMPLATE_OPTIONS.map((template) => (
+                  <DropdownMenuItem
+                    key={template.value}
+                    onClick={() => handleDownloadPDF(template.value)}
+                    className="cursor-pointer"
+                  >
+                    <div className="flex flex-col">
+                      <span className="font-medium">{template.label}</span>
+                      <span className="text-xs text-muted-foreground">
+                        {template.description}
+                      </span>
+                    </div>
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <Button className="h-10" asChild>
+              <Link href={`/dashboard/invoices/${id}/edit`}>
+                <Pencil className="mr-2 h-4 w-4" />
+                Edit
+              </Link>
+            </Button>
+          </div>
       </div>
 
       <div className="grid gap-6 md:grid-cols-3">
