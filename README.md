@@ -80,10 +80,11 @@ A modern, full-stack invoice management application built with Next.js 16, featu
   - [x] Business profile integration in PDFs
   - [ ] Multiple template designs
 
-- [ ] **Payment Tracking**
-  - [ ] Mark invoices as paid (full or partial)
-  - [ ] Payment date and method recording
-  - [ ] Overdue status tracking
+- [x] **Payment Tracking**
+  - [x] Mark invoices as paid (full or partial)
+  - [x] Payment date and method recording
+  - [x] Payment history display
+  - [x] Automatic invoice status updates
 
 ### Phase 4: Advanced Features (Future)
 - [ ] Recurring invoices (weekly, monthly, yearly)

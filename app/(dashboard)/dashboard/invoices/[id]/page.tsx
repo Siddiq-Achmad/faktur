@@ -24,6 +24,8 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { ArrowLeft, Pencil, Download, Loader2 } from "lucide-react";
 import { generateInvoicePDF } from "@/lib/pdf/generate-invoice-pdf";
+import { RecordPaymentDialog } from "@/components/payments/record-payment-dialog";
+import { PaymentHistory } from "@/components/payments/payment-history";
 
 const statusColors = {
   draft: "secondary",
@@ -144,6 +146,13 @@ export default function InvoiceDetailPage({
           </div>
         </div>
         <div className="flex gap-2">
+          {invoice.status !== "paid" && invoice.status !== "cancelled" && (
+            <RecordPaymentDialog
+              invoiceId={id}
+              remainingBalance={invoice.total - invoice.amountPaid}
+              currency={invoice.currency}
+            />
+          )}
           <Button
             variant="outline"
             size="sm"
@@ -351,6 +360,9 @@ export default function InvoiceDetailPage({
           )}
         </div>
       )}
+
+      {/* Payment History */}
+      <PaymentHistory invoiceId={id} currency={invoice.currency} />
     </div>
   );
 }
