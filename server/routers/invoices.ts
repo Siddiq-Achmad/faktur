@@ -87,7 +87,7 @@ export const invoicesRouter = createTRPCRouter({
   getNextInvoiceNumber: protectedProcedure.query(async ({ ctx }) => {
     const result = await db
       .select({
-        maxNumber: sql<string>`MAX(CAST(SUBSTR(invoice_number, 5) AS INTEGER))`,
+        maxNumber: sql<string>`MAX(CAST(SUBSTR(invoiceNumber, 5) AS INTEGER))`,
       })
       .from(invoices)
       .where(eq(invoices.userId, ctx.userId));
@@ -152,7 +152,7 @@ export const invoicesRouter = createTRPCRouter({
       // Generate invoice number
       const result = await db
         .select({
-          maxNumber: sql<string>`MAX(CAST(SUBSTR(invoice_number, 5) AS INTEGER))`,
+          maxNumber: sql<string>`MAX(CAST(SUBSTR(invoiceNumber, 5) AS INTEGER))`,
         })
         .from(invoices)
         .where(eq(invoices.userId, ctx.userId));

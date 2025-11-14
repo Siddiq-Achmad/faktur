@@ -48,7 +48,7 @@ const invoiceFormSchema = z.object({
   status: z.enum(["draft", "sent", "paid", "overdue", "cancelled"]),
   currency: z.string(),
   taxRate: z.number().min(0).max(100),
-  discountType: z.enum(["percentage", "fixed", ""]).optional(),
+  discountType: z.enum(["percentage", "fixed", "none"]).optional(),
   discountValue: z.number().min(0),
   notes: z.string().optional(),
   terms: z.string().optional(),
@@ -98,7 +98,7 @@ export function InvoiceForm({ invoiceId, defaultValues }: InvoiceFormProps) {
       status: "draft",
       currency: "USD",
       taxRate: 0,
-      discountType: "",
+      discountType: "none",
       discountValue: 0,
       notes: "",
       terms: "",
@@ -157,7 +157,7 @@ export function InvoiceForm({ invoiceId, defaultValues }: InvoiceFormProps) {
       ...data,
       issueDate: new Date(data.issueDate),
       dueDate: new Date(data.dueDate),
-      discountType: data.discountType === "" ? undefined : data.discountType,
+      discountType: data.discountType === "none" ? undefined : data.discountType,
     };
 
     if (invoiceId) {
@@ -455,7 +455,7 @@ export function InvoiceForm({ invoiceId, defaultValues }: InvoiceFormProps) {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="">None</SelectItem>
+                        <SelectItem value="none">None</SelectItem>
                         <SelectItem value="percentage">Percentage</SelectItem>
                         <SelectItem value="fixed">Fixed Amount</SelectItem>
                       </SelectContent>
