@@ -29,22 +29,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { FileText, Plus, MoreHorizontal, Eye, Pencil, Trash } from "lucide-react";
-
-const statusColors = {
-  draft: "secondary",
-  sent: "default",
-  paid: "default",
-  overdue: "destructive",
-  cancelled: "secondary",
-} as const;
-
-const statusLabels = {
-  draft: "Draft",
-  sent: "Sent",
-  paid: "Paid",
-  overdue: "Overdue",
-  cancelled: "Cancelled",
-};
+import { STATUS_COLORS, STATUS_LABELS } from "@/lib/constants/status-colors";
 
 export default function InvoicesPage() {
   const { data: invoices, isLoading } = trpc.invoices.list.useQuery();
@@ -177,8 +162,14 @@ export default function InvoicesPage() {
                     })}
                   </TableCell>
                   <TableCell>
-                    <Badge variant={statusColors[invoice.status]}>
-                      {statusLabels[invoice.status]}
+                    <Badge
+                      style={{
+                        backgroundColor: STATUS_COLORS[invoice.status],
+                        color: "white",
+                        border: "none",
+                      }}
+                    >
+                      {STATUS_LABELS[invoice.status]}
                     </Badge>
                   </TableCell>
                   <TableCell>

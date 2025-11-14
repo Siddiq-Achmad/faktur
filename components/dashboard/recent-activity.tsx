@@ -6,25 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { formatDistanceToNow } from "date-fns";
 import Link from "next/link";
 import { FileText } from "lucide-react";
-
-const STATUS_VARIANTS: Record<
-  string,
-  "default" | "secondary" | "destructive" | "outline"
-> = {
-  draft: "secondary",
-  sent: "outline",
-  paid: "default",
-  overdue: "destructive",
-  cancelled: "secondary",
-};
-
-const STATUS_LABELS: Record<string, string> = {
-  draft: "Draft",
-  sent: "Sent",
-  paid: "Paid",
-  overdue: "Overdue",
-  cancelled: "Cancelled",
-};
+import { STATUS_COLORS, STATUS_LABELS } from "@/lib/constants/status-colors";
 
 export function RecentActivity() {
   const { data: activities, isLoading } =
@@ -93,7 +75,13 @@ export function RecentActivity() {
               <div className="flex-1 space-y-1">
                 <div className="flex items-center gap-2">
                   <p className="font-medium">{activity.invoiceNumber}</p>
-                  <Badge variant={STATUS_VARIANTS[activity.status]}>
+                  <Badge
+                    style={{
+                      backgroundColor: STATUS_COLORS[activity.status],
+                      color: "white",
+                      border: "none",
+                    }}
+                  >
                     {STATUS_LABELS[activity.status] || activity.status}
                   </Badge>
                 </div>
