@@ -9,6 +9,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { signIn, signUp } from "@/lib/auth/client";
 import { Button } from "@/components/ui/button";
+import { Github } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -100,25 +101,52 @@ export default function SignupPage() {
     }
   }
 
+  async function handleGithubSignUp() {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      await signUp.social({
+        provider: "github",
+        callbackURL: "/dashboard",
+      });
+    } catch (err) {
+      setError("Failed to sign up with GitHub");
+      console.error(err);
+      setIsLoading(false);
+    }
+  }
+
   return (
     <div className="flex min-h-screen items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold">Create Account</CardTitle>
           <CardDescription>
-            Sign up with your Google account to get started
+            Choose your preferred sign-up method
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Button
-            type="button"
-            className="w-full bg-secondary-foreground hover:bg-secondary-foreground/90"
-            onClick={handleGoogleSignUp}
-            disabled={isLoading}
-          >
-            <Image src="/g.webp" alt="Google" width={16} height={16} />
-            Sign up with Google
-          </Button>
+          <div className="grid grid-cols-2 gap-3">
+            <Button
+              type="button"
+              className="w-full bg-secondary-foreground hover:bg-secondary-foreground/90"
+              onClick={handleGoogleSignUp}
+              disabled={isLoading}
+            >
+              <Image src="/g.webp" alt="Google" width={16} height={16} />
+              Google
+            </Button>
+            <Button
+              type="button"
+              className="w-full bg-secondary-foreground hover:bg-secondary-foreground/90"
+              onClick={handleGithubSignUp}
+              disabled={isLoading}
+            >
+              <Github className="mr-2 h-4 w-4" />
+              GitHub
+            </Button>
+          </div>
 
           {!showEmailSignup ? (
             <div className="mt-4 text-center">
