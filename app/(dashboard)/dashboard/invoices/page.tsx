@@ -64,35 +64,45 @@ export default function InvoicesPage() {
 
   if (!invoices || invoices.length === 0) {
     return (
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">Invoices</h1>
-            <p className="text-muted-foreground">
-              Manage and track all your invoices
-            </p>
+      <div className="space-y-8">
+        {/* Header Section */}
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                <FileText className="h-5 w-5" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-semibold tracking-tight">Invoices</h1>
+                <p className="text-sm text-muted-foreground">
+                  Manage and track all your invoices
+                </p>
+              </div>
+            </div>
+            <Button asChild className="h-10">
+              <Link href="/dashboard/invoices/new">
+                <Plus className="mr-2 h-4 w-4" />
+                New Invoice
+              </Link>
+            </Button>
           </div>
-          <Button asChild>
-            <Link href="/dashboard/invoices/new">
-              <Plus className="mr-2 h-4 w-4" />
-              New Invoice
-            </Link>
-          </Button>
         </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>No invoices yet</CardTitle>
-            <CardDescription>
+        <Card className="border-border/50 shadow-sm">
+          <CardHeader className="space-y-1 pb-4">
+            <CardTitle className="text-base font-medium">No invoices yet</CardTitle>
+            <CardDescription className="text-xs">
               Get started by creating your first invoice
             </CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col items-center justify-center py-12">
-            <FileText className="h-16 w-16 text-muted-foreground/50 mb-4" />
-            <p className="text-sm text-muted-foreground mb-4">
+            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-muted/50">
+              <FileText className="h-10 w-10 text-muted-foreground/50" />
+            </div>
+            <p className="mt-4 text-sm text-muted-foreground mb-4">
               Invoices you create will appear here
             </p>
-            <Button asChild>
+            <Button asChild className="h-10">
               <Link href="/dashboard/invoices/new">
                 <Plus className="mr-2 h-4 w-4" />
                 Create Your First Invoice
@@ -105,26 +115,34 @@ export default function InvoicesPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Invoices</h1>
-          <p className="text-muted-foreground">
-            Manage and track all your invoices
-          </p>
+    <div className="space-y-8">
+      {/* Header Section */}
+      <div className="space-y-2">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+              <FileText className="h-5 w-5" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-semibold tracking-tight">Invoices</h1>
+              <p className="text-sm text-muted-foreground">
+                Manage and track all your invoices
+              </p>
+            </div>
+          </div>
+          <Button asChild className="h-10">
+            <Link href="/dashboard/invoices/new">
+              <Plus className="mr-2 h-4 w-4" />
+              New Invoice
+            </Link>
+          </Button>
         </div>
-        <Button asChild>
-          <Link href="/dashboard/invoices/new">
-            <Plus className="mr-2 h-4 w-4" />
-            New Invoice
-          </Link>
-        </Button>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>All Invoices</CardTitle>
-          <CardDescription>
+      <Card className="border-border/50 shadow-sm">
+        <CardHeader className="space-y-1 pb-4">
+          <CardTitle className="text-base font-medium">All Invoices</CardTitle>
+          <CardDescription className="text-xs">
             {invoices.length} invoice{invoices.length !== 1 ? "s" : ""} total
           </CardDescription>
         </CardHeader>
@@ -144,30 +162,30 @@ export default function InvoicesPage() {
             <TableBody>
               {invoices.map((invoice) => (
                 <TableRow key={invoice.id} className="group">
-                  <TableCell className="font-bold">
+                  <TableCell className="font-mono text-sm font-semibold">
                     <Link
                       href={`/dashboard/invoices/${invoice.id}`}
-                      className="cursor-pointer group-hover:underline underline-offset-4"
+                      className="cursor-pointer hover:text-primary transition-colors"
                     >
                       {invoice.invoiceNumber}
                     </Link>
                   </TableCell>
                   <TableCell>
                     <div>
-                      <p className="font-medium">{invoice.clientName}</p>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-sm font-medium">{invoice.clientName}</p>
+                      <p className="text-xs text-muted-foreground">
                         {invoice.clientEmail}
                       </p>
                     </div>
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="text-sm">
                     {format(new Date(invoice.issueDate), "MMM dd, yyyy")}
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="text-sm">
                     {format(new Date(invoice.dueDate), "MMM dd, yyyy")}
                   </TableCell>
-                  <TableCell>
-                    USD{" "}
+                  <TableCell className="font-mono text-sm font-medium">
+                    ${" "}
                     {invoice.total.toLocaleString("en-US", {
                       minimumFractionDigits: 2,
                       maximumFractionDigits: 2,
@@ -175,6 +193,7 @@ export default function InvoicesPage() {
                   </TableCell>
                   <TableCell>
                     <Badge
+                      className="text-xs font-medium"
                       style={{
                         backgroundColor: STATUS_COLORS[invoice.status],
                         color: "white",

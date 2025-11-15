@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -9,15 +9,20 @@ import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, Upload, X } from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Loader2, X, ImageIcon } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const businessProfileSchema = z.object({
@@ -45,6 +50,8 @@ export function BusinessProfileForm() {
   const { toast } = useToast();
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [uploadingLogo, setUploadingLogo] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { data: profile, isLoading } = trpc.businessProfile.get.useQuery();
   const upsertMutation = trpc.businessProfile.upsert.useMutation();
@@ -118,10 +125,7 @@ export function BusinessProfileForm() {
     }
   };
 
-  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
+  const processFile = async (file: File) => {
     // Validate file size (max 2MB)
     if (file.size > 2 * 1024 * 1024) {
       toast({
@@ -171,6 +175,40 @@ export function BusinessProfileForm() {
     reader.readAsDataURL(file);
   };
 
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    await processFile(file);
+  };
+
+  const handleDragEnter = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleDrop = async (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+
+    const file = e.dataTransfer.files?.[0];
+    if (file) {
+      await processFile(file);
+    }
+  };
+
   const handleDeleteLogo = async () => {
     try {
       await deleteLogoMutation.mutateAsync();
@@ -199,70 +237,137 @@ export function BusinessProfileForm() {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="mx-auto max-w-4xl space-y-8"
+      >
         {/* Logo Upload */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Company Logo</CardTitle>
-            <CardDescription>Upload your company logo (max 2MB)</CardDescription>
+        <Card className="border-border/50 shadow-sm">
+          <CardHeader className="space-y-1 pb-4">
+            <CardTitle className="text-base font-medium">
+              Company Logo
+            </CardTitle>
+            <CardDescription className="text-xs">
+              Upload your company logo (max 2MB)
+            </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="flex items-center gap-4">
-              {logoPreview ? (
-                <div className="relative">
+            {logoPreview ? (
+              <div className="relative inline-block">
+                <div className="group relative overflow-hidden rounded-lg border border-border/50 bg-muted/30 p-4">
                   <img
                     src={logoPreview}
                     alt="Company logo"
-                    className="h-24 w-24 rounded-lg border object-contain"
+                    className="h-32 w-32 object-contain"
                   />
-                  <Button
-                    type="button"
-                    variant="destructive"
-                    size="icon"
-                    className="absolute -right-2 -top-2 h-6 w-6 rounded-full"
-                    onClick={handleDeleteLogo}
-                    disabled={deleteLogoMutation.isPending}
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/60 opacity-0 transition-opacity group-hover:opacity-100">
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="sm"
+                      onClick={handleDeleteLogo}
+                      disabled={deleteLogoMutation.isPending}
+                    >
+                      {deleteLogoMutation.isPending ? (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      ) : (
+                        <X className="mr-2 h-4 w-4" />
+                      )}
+                      Remove
+                    </Button>
+                  </div>
                 </div>
-              ) : (
-                <div className="flex h-24 w-24 items-center justify-center rounded-lg border-2 border-dashed">
-                  <Upload className="h-8 w-8 text-muted-foreground" />
-                </div>
-              )}
-              <div>
-                <Input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleLogoUpload}
-                  disabled={uploadingLogo}
-                  className="max-w-xs"
-                />
-                <p className="mt-2 text-sm text-muted-foreground">
-                  Recommended: Square image, PNG or JPG
-                </p>
               </div>
-            </div>
+            ) : (
+              <div
+                onDragEnter={handleDragEnter}
+                onDragLeave={handleDragLeave}
+                onDragOver={handleDragOver}
+                onDrop={handleDrop}
+                onClick={() => fileInputRef.current?.click()}
+                className={`
+                  group relative cursor-pointer overflow-hidden rounded-lg border-2 border-dashed
+                  transition-all duration-200
+                  ${
+                    isDragging
+                      ? "border-primary bg-primary/5 scale-[1.02]"
+                      : "border-border/50 bg-muted/20 hover:border-primary/50 hover:bg-muted/40"
+                  }
+                  ${uploadingLogo ? "pointer-events-none opacity-60" : ""}
+                `}
+              >
+                <div className="flex flex-col items-center justify-center px-6 py-10">
+                  <div
+                    className={`
+                    mb-4 flex h-16 w-16 items-center justify-center rounded-full
+                    transition-all duration-200
+                    ${
+                      isDragging
+                        ? "bg-primary/20 text-primary scale-110"
+                        : "bg-muted text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary group-hover:animate-pulse"
+                    }
+                  `}
+                  >
+                    {uploadingLogo ? (
+                      <Loader2 className="h-8 w-8 animate-spin" />
+                    ) : (
+                      <ImageIcon className="h-8 w-8" />
+                    )}
+                  </div>
+
+                  <div className="text-center">
+                    <p className="mb-1 text-sm font-medium">
+                      {uploadingLogo
+                        ? "Uploading..."
+                        : isDragging
+                        ? "Drop your logo here"
+                        : "Click to upload or drag and drop"}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      Square ratio recommended. PNG, JPG or WEBP (max 2MB)
+                    </p>
+                  </div>
+
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleLogoUpload}
+                    disabled={uploadingLogo}
+                    className="hidden"
+                  />
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
 
         {/* Company Information */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Company Information</CardTitle>
-            <CardDescription>Basic information about your business</CardDescription>
+        <Card className="border-border/50 shadow-sm">
+          <CardHeader className="space-y-1 pb-4">
+            <CardTitle className="text-base font-medium">
+              Company Information
+            </CardTitle>
+            <CardDescription className="text-xs">
+              Basic information about your business
+            </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid gap-4 md:grid-cols-2">
+          <CardContent className="space-y-6">
+            <div className="grid gap-6 sm:grid-cols-2">
               <FormField
                 control={form.control}
                 name="companyName"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Company Name *</FormLabel>
+                  <FormItem className="space-y-2">
+                    <FormLabel className="text-sm font-medium">
+                      Company Name *
+                    </FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder="Acme Inc." />
+                      <Input
+                        {...field}
+                        placeholder="Acme Inc."
+                        className="h-10"
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -272,10 +377,17 @@ export function BusinessProfileForm() {
                 control={form.control}
                 name="email"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Email *</FormLabel>
+                  <FormItem className="space-y-2">
+                    <FormLabel className="text-sm font-medium">
+                      Email *
+                    </FormLabel>
                     <FormControl>
-                      <Input {...field} type="email" placeholder="info@company.com" />
+                      <Input
+                        {...field}
+                        type="email"
+                        placeholder="info@company.com"
+                        className="h-10"
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -283,15 +395,19 @@ export function BusinessProfileForm() {
               />
             </div>
 
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="grid gap-6 sm:grid-cols-2">
               <FormField
                 control={form.control}
                 name="phone"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Phone</FormLabel>
+                  <FormItem className="space-y-2">
+                    <FormLabel className="text-sm font-medium">Phone</FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder="+1 (555) 123-4567" />
+                      <Input
+                        {...field}
+                        placeholder="+1 (555) 123-4567"
+                        className="h-10"
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -301,10 +417,16 @@ export function BusinessProfileForm() {
                 control={form.control}
                 name="website"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Website</FormLabel>
+                  <FormItem className="space-y-2">
+                    <FormLabel className="text-sm font-medium">
+                      Website
+                    </FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder="https://company.com" />
+                      <Input
+                        {...field}
+                        placeholder="https://company.com"
+                        className="h-10"
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -315,12 +437,16 @@ export function BusinessProfileForm() {
         </Card>
 
         {/* Address */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Business Address</CardTitle>
-            <CardDescription>Your company's physical address</CardDescription>
+        <Card className="border-border/50 shadow-sm">
+          <CardHeader className="space-y-1 pb-4">
+            <CardTitle className="text-base font-medium">
+              Business Address
+            </CardTitle>
+            <CardDescription className="text-xs">
+              Your company's physical address
+            </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-6">
             <FormField
               control={form.control}
               name="address"
@@ -396,12 +522,16 @@ export function BusinessProfileForm() {
         </Card>
 
         {/* Tax Information */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Tax Information</CardTitle>
-            <CardDescription>Tax identification numbers</CardDescription>
+        <Card className="border-border/50 shadow-sm">
+          <CardHeader className="space-y-1 pb-4">
+            <CardTitle className="text-base font-medium">
+              Tax Information
+            </CardTitle>
+            <CardDescription className="text-xs">
+              Tax identification numbers
+            </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-6">
             <div className="grid gap-4 md:grid-cols-2">
               <FormField
                 control={form.control}
@@ -434,14 +564,16 @@ export function BusinessProfileForm() {
         </Card>
 
         {/* Bank Information */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Bank Information</CardTitle>
-            <CardDescription>
+        <Card className="border-border/50 shadow-sm">
+          <CardHeader className="space-y-1 pb-4">
+            <CardTitle className="text-base font-medium">
+              Bank Information
+            </CardTitle>
+            <CardDescription className="text-xs">
               Bank account details for payment instructions on invoices
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-6">
             <FormField
               control={form.control}
               name="bankName"
@@ -506,7 +638,10 @@ export function BusinessProfileForm() {
                   <FormItem>
                     <FormLabel>IBAN</FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder="GB29 NWBK 6016 1331 9268 19" />
+                      <Input
+                        {...field}
+                        placeholder="GB29 NWBK 6016 1331 9268 19"
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -517,7 +652,11 @@ export function BusinessProfileForm() {
         </Card>
 
         <div className="flex justify-end">
-          <Button type="submit" disabled={upsertMutation.isPending}>
+          <Button
+            type="submit"
+            className="h-10 font-medium"
+            disabled={upsertMutation.isPending}
+          >
             {upsertMutation.isPending && (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             )}
