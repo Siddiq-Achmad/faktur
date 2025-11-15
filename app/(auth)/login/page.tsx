@@ -3,12 +3,12 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { signIn } from "@/lib/auth/client";
 import { Button } from "@/components/ui/button";
-import { Chrome } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -29,7 +29,9 @@ import { Input } from "@/components/ui/input";
 
 const loginSchema = z.object({
   email: z.string().email({ message: "Invalid email address" }),
-  password: z.string().min(8, { message: "Password must be at least 8 characters" }),
+  password: z
+    .string()
+    .min(8, { message: "Password must be at least 8 characters" }),
 });
 
 type LoginFormValues = z.infer<typeof loginSchema>;
@@ -100,23 +102,24 @@ export default function LoginPage() {
         <CardContent>
           <Button
             type="button"
-            className="w-full"
+            className="w-full bg-secondary-foreground hover:bg-secondary-foreground/90"
             onClick={handleGoogleSignIn}
             disabled={isLoading}
           >
-            <Chrome className="mr-2 h-4 w-4" />
+            <Image src="/g.webp" alt="Google" width={16} height={16} />
             Sign in with Google
           </Button>
 
           {!showEmailLogin ? (
             <div className="mt-4 text-center">
-              <button
+              <Button
                 type="button"
+                className="w-full"
+                variant={"secondary"}
                 onClick={() => setShowEmailLogin(true)}
-                className="text-sm text-muted-foreground hover:text-primary"
               >
                 Or sign in with email
-              </button>
+              </Button>
             </div>
           ) : (
             <>
@@ -124,14 +127,17 @@ export default function LoginPage() {
                 <div className="absolute inset-0 flex items-center">
                   <span className="w-full border-t" />
                 </div>
-                <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-background px-2 text-muted-foreground">
+                <div className="relative flex justify-center text-xs">
+                  <span className="bg-card px-2 text-muted-foreground">
                     Or continue with email
                   </span>
                 </div>
               </div>
               <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                <form
+                  onSubmit={form.handleSubmit(onSubmit)}
+                  className="space-y-4"
+                >
                   <FormField
                     control={form.control}
                     name="email"
@@ -156,7 +162,11 @@ export default function LoginPage() {
                       <FormItem>
                         <FormLabel>Password</FormLabel>
                         <FormControl>
-                          <Input type="password" placeholder="••••••••" {...field} />
+                          <Input
+                            type="password"
+                            placeholder="••••••••"
+                            {...field}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>

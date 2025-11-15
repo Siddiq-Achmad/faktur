@@ -3,12 +3,12 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { signUp } from "@/lib/auth/client";
+import { signIn, signUp } from "@/lib/auth/client";
 import { Button } from "@/components/ui/button";
-import { Chrome } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -27,15 +27,19 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 
-const signupSchema = z.object({
-  name: z.string().min(2, { message: "Name must be at least 2 characters" }),
-  email: z.string().email({ message: "Invalid email address" }),
-  password: z.string().min(8, { message: "Password must be at least 8 characters" }),
-  confirmPassword: z.string(),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ["confirmPassword"],
-});
+const signupSchema = z
+  .object({
+    name: z.string().min(2, { message: "Name must be at least 2 characters" }),
+    email: z.string().email({ message: "Invalid email address" }),
+    password: z
+      .string()
+      .min(8, { message: "Password must be at least 8 characters" }),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ["confirmPassword"],
+  });
 
 type SignupFormValues = z.infer<typeof signupSchema>;
 
@@ -85,7 +89,7 @@ export default function SignupPage() {
     setError(null);
 
     try {
-      await signUp.social({
+      await signIn.social({
         provider: "google",
         callbackURL: "/dashboard",
       });
@@ -108,23 +112,24 @@ export default function SignupPage() {
         <CardContent>
           <Button
             type="button"
-            className="w-full"
+            className="w-full bg-secondary-foreground hover:bg-secondary-foreground/90"
             onClick={handleGoogleSignUp}
             disabled={isLoading}
           >
-            <Chrome className="mr-2 h-4 w-4" />
+            <Image src="/g.webp" alt="Google" width={16} height={16} />
             Sign up with Google
           </Button>
 
           {!showEmailSignup ? (
             <div className="mt-4 text-center">
-              <button
+              <Button
                 type="button"
+                className="w-full"
+                variant={"secondary"}
                 onClick={() => setShowEmailSignup(true)}
-                className="text-sm text-muted-foreground hover:text-primary"
               >
-                Or sign up with email
-              </button>
+                Or sign in with email
+              </Button>
             </div>
           ) : (
             <>
@@ -132,14 +137,17 @@ export default function SignupPage() {
                 <div className="absolute inset-0 flex items-center">
                   <span className="w-full border-t" />
                 </div>
-                <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-background px-2 text-muted-foreground">
+                <div className="relative flex justify-center text-xs">
+                  <span className="bg-card px-2 text-muted-foreground">
                     Or continue with email
                   </span>
                 </div>
               </div>
               <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                <form
+                  onSubmit={form.handleSubmit(onSubmit)}
+                  className="space-y-4"
+                >
                   <FormField
                     control={form.control}
                     name="name"
@@ -177,7 +185,11 @@ export default function SignupPage() {
                       <FormItem>
                         <FormLabel>Password</FormLabel>
                         <FormControl>
-                          <Input type="password" placeholder="••••••••" {...field} />
+                          <Input
+                            type="password"
+                            placeholder="••••••••"
+                            {...field}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -190,7 +202,11 @@ export default function SignupPage() {
                       <FormItem>
                         <FormLabel>Confirm Password</FormLabel>
                         <FormControl>
-                          <Input type="password" placeholder="••••••••" {...field} />
+                          <Input
+                            type="password"
+                            placeholder="••••••••"
+                            {...field}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
