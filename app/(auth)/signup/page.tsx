@@ -27,6 +27,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Separator } from "@radix-ui/react-separator";
 
 const signupSchema = z
   .object({
@@ -106,7 +107,7 @@ export default function SignupPage() {
     setError(null);
 
     try {
-      await signUp.social({
+      await signIn.social({
         provider: "github",
         callbackURL: "/dashboard",
       });
@@ -126,27 +127,30 @@ export default function SignupPage() {
             Choose your preferred sign-up method
           </CardDescription>
         </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 gap-3">
-            <Button
-              type="button"
-              className="w-full bg-secondary-foreground hover:bg-secondary-foreground/90"
-              onClick={handleGoogleSignUp}
-              disabled={isLoading}
-            >
-              <Image src="/g.webp" alt="Google" width={16} height={16} />
-              Google
-            </Button>
-            <Button
-              type="button"
-              className="w-full bg-secondary-foreground hover:bg-secondary-foreground/90"
-              onClick={handleGithubSignUp}
-              disabled={isLoading}
-            >
-              <Github className="mr-2 h-4 w-4" />
-              GitHub
-            </Button>
-          </div>
+        <CardContent className="space-y-3">
+          <Button
+            type="button"
+            className="w-full bg-secondary-foreground hover:bg-secondary-foreground/90"
+            onClick={handleGoogleSignUp}
+            disabled={isLoading}
+          >
+            <Image src="/g.webp" alt="Google" width={16} height={16} />
+            Signup with Google
+          </Button>
+          <Button
+            type="button"
+            className="w-full bg-secondary-foreground hover:bg-secondary-foreground/90"
+            onClick={handleGithubSignUp}
+            disabled={isLoading}
+          >
+            <Image
+              src="/github-mark-white.svg"
+              alt="Google"
+              width={16}
+              height={16}
+            />
+            Signup with GitHub
+          </Button>
 
           {!showEmailSignup ? (
             <div className="mt-4 text-center">
