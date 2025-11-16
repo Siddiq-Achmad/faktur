@@ -32,8 +32,7 @@ const createInvoiceSchema = z
   .object({
     clientId: z
       .string()
-      .min(1, "Please select a client for this invoice")
-      .uuid("Invalid client selection"),
+      .min(1, "Please select a client for this invoice"),
     issueDate: z.date(),
     dueDate: z.date(),
     status: z
@@ -46,7 +45,7 @@ const createInvoiceSchema = z
       .finite("Tax rate must be a valid finite number")
       .default(0),
     discountType: z
-      .enum(["percentage", "fixed"])
+      .enum(["percentage", "fixed", "none"])
       .optional(),
     discountValue: z
       .number()

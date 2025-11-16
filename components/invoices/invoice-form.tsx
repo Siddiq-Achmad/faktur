@@ -71,8 +71,7 @@ const invoiceFormSchema = z
   .object({
     clientId: z
       .string()
-      .min(1, "Please select a client for this invoice")
-      .uuid("Invalid client selection"),
+      .min(1, "Please select a client for this invoice"),
     issueDate: z
       .string()
       .min(1, "Issue date is required")
@@ -164,6 +163,7 @@ interface InvoiceFormProps {
 
 export function InvoiceForm({ invoiceId, defaultValues }: InvoiceFormProps) {
   const router = useRouter();
+  const utils = trpc.useUtils();
   const [subtotal, setSubtotal] = useState(0);
   const [discountAmount, setDiscountAmount] = useState(0);
   const [taxAmount, setTaxAmount] = useState(0);
@@ -177,12 +177,19 @@ export function InvoiceForm({ invoiceId, defaultValues }: InvoiceFormProps) {
 
   const createMutation = trpc.invoices.create.useMutation({
     onSuccess: () => {
+      // Invalidate invoices list to refresh the list view
+      utils.invoices.list.invalidate();
       router.push("/dashboard/invoices");
     },
   });
 
   const updateMutation = trpc.invoices.update.useMutation({
     onSuccess: () => {
+      // Invalidate both the specific invoice and the list to ensure fresh data
+      if (invoiceId) {
+        utils.invoices.getById.invalidate({ id: invoiceId });
+      }
+      utils.invoices.list.invalidate();
       router.push("/dashboard/invoices");
     },
   });
@@ -240,8 +247,30 @@ export function InvoiceForm({ invoiceId, defaultValues }: InvoiceFormProps) {
       const tot = afterDiscount + tax;
       setTotal(tot);
     });
+
+    // Calculate totals on mount with default values
+    const values = form.getValues();
+    const items = values.items || [];
+    const sub = items.reduce((sum, item) => sum + (item?.amount || 0), 0);
+    setSubtotal(sub);
+
+    let disc = 0;
+    if (values.discountType === "percentage") {
+      disc = (sub * (values.discountValue || 0)) / 100;
+    } else if (values.discountType === "fixed") {
+      disc = values.discountValue || 0;
+    }
+    setDiscountAmount(disc);
+
+    const afterDiscount = sub - disc;
+    const tax = (afterDiscount * (values.taxRate || 0)) / 100;
+    setTaxAmount(tax);
+
+    const tot = afterDiscount + tax;
+    setTotal(tot);
+
     return () => subscription.unsubscribe();
-  }, [form.watch]);
+  }, [form]);
 
   // Update item amount when quantity or rate changes
   const updateItemAmount = (index: number) => {
@@ -336,8 +365,13 @@ export function InvoiceForm({ invoiceId, defaultValues }: InvoiceFormProps) {
                           Client *
                         </FormLabel>
                         <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
+                          value={field.value || ""}
+                          onValueChange={(value) => {
+                            field.onChange(value);
+                          }}
+                          onOpenChange={(open) => {
+                            if (!open) field.onBlur();
+                          }}
                           disabled={!clients || clients.length === 0}
                         >
                           <FormControl>
@@ -647,10 +681,11 @@ export function InvoiceForm({ invoiceId, defaultValues }: InvoiceFormProps) {
                             min="0"
                             max="100"
                             className="h-10"
-                            {...field}
+                            value={field.value ?? 0}
                             onChange={(e) =>
                               field.onChange(parseFloat(e.target.value) || 0)
                             }
+                            onBlur={field.onBlur}
                           />
                         </FormControl>
                         <FormMessage />
@@ -702,11 +737,12 @@ export function InvoiceForm({ invoiceId, defaultValues }: InvoiceFormProps) {
                             step="0.01"
                             min="0"
                             className="h-10"
-                            {...field}
+                            value={field.value ?? 0}
                             onChange={(e) =>
                               field.onChange(parseFloat(e.target.value) || 0)
                             }
-                            disabled={!form.watch("discountType")}
+                            onBlur={field.onBlur}
+                            disabled={!form.watch("discountType") || form.watch("discountType") === "none"}
                           />
                         </FormControl>
                         <FormMessage />
@@ -741,7 +777,9 @@ export function InvoiceForm({ invoiceId, defaultValues }: InvoiceFormProps) {
                         <textarea
                           className="flex min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
                           placeholder="Additional notes for the client..."
-                          {...field}
+                          value={field.value ?? ""}
+                          onChange={field.onChange}
+                          onBlur={field.onBlur}
                         />
                       </FormControl>
                       <FormMessage />
@@ -761,7 +799,9 @@ export function InvoiceForm({ invoiceId, defaultValues }: InvoiceFormProps) {
                         <textarea
                           className="flex min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
                           placeholder="Payment terms and conditions..."
-                          {...field}
+                          value={field.value ?? ""}
+                          onChange={field.onChange}
+                          onBlur={field.onBlur}
                         />
                       </FormControl>
                       <FormMessage />

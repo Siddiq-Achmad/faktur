@@ -150,15 +150,23 @@ interface ClientFormProps {
 
 export function ClientForm({ clientId, defaultValues }: ClientFormProps) {
   const router = useRouter();
+  const utils = trpc.useUtils();
 
   const createMutation = trpc.clients.create.useMutation({
     onSuccess: () => {
+      // Invalidate clients list to refresh the list view
+      utils.clients.list.invalidate();
       router.push("/dashboard/clients");
     },
   });
 
   const updateMutation = trpc.clients.update.useMutation({
     onSuccess: () => {
+      // Invalidate both the specific client and the list to ensure fresh data
+      if (clientId) {
+        utils.clients.getById.invalidate({ id: clientId });
+      }
+      utils.clients.list.invalidate();
       router.push("/dashboard/clients");
     },
   });
@@ -421,7 +429,9 @@ export function ClientForm({ clientId, defaultValues }: ClientFormProps) {
                     <textarea
                       className="flex min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
                       placeholder="Additional notes about this client..."
-                      {...field}
+                      value={field.value ?? ""}
+                      onChange={field.onChange}
+                      onBlur={field.onBlur}
                     />
                   </FormControl>
                   <FormMessage />

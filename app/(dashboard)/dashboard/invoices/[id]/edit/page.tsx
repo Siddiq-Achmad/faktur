@@ -43,7 +43,7 @@ export default function EditInvoicePage({
     dueDate: new Date(invoice.dueDate).toISOString().split("T")[0],
     status: invoice.status,
     taxRate: invoice.taxRate,
-    discountType: invoice.discountType || ("" as any),
+    discountType: (invoice.discountType as "percentage" | "fixed" | "none" | undefined) || "none",
     discountValue: invoice.discountValue || 0,
     notes: invoice.notes || "",
     terms: invoice.terms || "",

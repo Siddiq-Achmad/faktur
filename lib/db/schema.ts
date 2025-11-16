@@ -168,7 +168,7 @@ export const invoices = sqliteTable("invoice", {
   subtotal: real("subtotal").notNull().default(0),
   taxRate: real("taxRate").notNull().default(0),
   taxAmount: real("taxAmount").notNull().default(0),
-  discountType: text("discountType", { enum: ["percentage", "fixed"] }),
+  discountType: text("discountType", { enum: ["percentage", "fixed", "none"] }),
   discountValue: real("discountValue").default(0),
   discountAmount: real("discountAmount").default(0),
   total: real("total").notNull().default(0),
