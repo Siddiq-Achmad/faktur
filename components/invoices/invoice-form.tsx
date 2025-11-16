@@ -34,25 +34,118 @@ import { Separator } from "@/components/ui/separator";
 import { Plus, Trash2, FileText, Calendar, DollarSign, Info } from "lucide-react";
 
 const invoiceItemSchema = z.object({
-  description: z.string().min(1, "Description is required"),
-  quantity: z.number().min(0.01, "Quantity must be positive"),
-  rate: z.number().min(0, "Rate must be positive"),
-  amount: z.number(),
-  order: z.number(),
+  description: z
+    .string()
+    .min(1, "Item description is required")
+    .min(3, "Description must be at least 3 characters long")
+    .max(500, "Description must not exceed 500 characters")
+    .transform((val) => val.trim()),
+  quantity: z
+    .number()
+    .min(0.01, "Quantity must be greater than 0")
+    .max(1000000, "Quantity must not exceed 1,000,000")
+    .finite("Quantity must be a valid finite number"),
+  rate: z
+    .number()
+    .min(0, "Rate cannot be negative")
+    .max(100000000, "Rate must not exceed 100,000,000")
+    .finite("Rate must be a valid finite number"),
+  amount: z
+    .number()
+    .min(0, "Amount cannot be negative")
+    .finite("Amount must be a valid finite number"),
+  order: z.number().int("Order must be a whole number").min(0),
 });
 
-const invoiceFormSchema = z.object({
-  clientId: z.string().min(1, "Client is required"),
-  issueDate: z.string(),
-  dueDate: z.string(),
-  status: z.enum(["draft", "sent", "paid", "overdue", "cancelled"]),
-  taxRate: z.number().min(0).max(100),
-  discountType: z.enum(["percentage", "fixed", "none"]).optional(),
-  discountValue: z.number().min(0),
-  notes: z.string().optional(),
-  terms: z.string().optional(),
-  items: z.array(invoiceItemSchema).min(1, "At least one item is required"),
-});
+const invoiceFormSchema = z
+  .object({
+    clientId: z
+      .string()
+      .min(1, "Please select a client for this invoice")
+      .uuid("Invalid client selection"),
+    issueDate: z
+      .string()
+      .min(1, "Issue date is required")
+      .regex(/^\d{4}-\d{2}-\d{2}$/, "Issue date must be in YYYY-MM-DD format")
+      .refine((date) => {
+        const d = new Date(date);
+        return !isNaN(d.getTime());
+      }, "Issue date must be a valid date")
+      .refine((date) => {
+        const d = new Date(date);
+        const minDate = new Date("2000-01-01");
+        const maxDate = new Date();
+        maxDate.setFullYear(maxDate.getFullYear() + 10);
+        return d >= minDate && d <= maxDate;
+      }, "Issue date must be between 2000 and 10 years from now"),
+    dueDate: z
+      .string()
+      .min(1, "Due date is required")
+      .regex(/^\d{4}-\d{2}-\d{2}$/, "Due date must be in YYYY-MM-DD format")
+      .refine((date) => {
+        const d = new Date(date);
+        return !isNaN(d.getTime());
+      }, "Due date must be a valid date"),
+    status: z.enum(["draft", "sent", "paid", "overdue", "cancelled"]),
+    taxRate: z
+      .number()
+      .min(0, "Tax rate cannot be negative")
+      .max(100, "Tax rate cannot exceed 100%")
+      .finite("Tax rate must be a valid finite number"),
+    discountType: z
+      .enum(["percentage", "fixed", "none"])
+      .optional(),
+    discountValue: z
+      .number()
+      .min(0, "Discount value cannot be negative")
+      .max(100000000, "Discount value must not exceed 100,000,000")
+      .finite("Discount value must be a valid finite number"),
+    notes: z
+      .string()
+      .refine(
+        (val) => !val || val.length <= 5000,
+        "Notes must not exceed 5000 characters"
+      )
+      .transform((val) => val.trim())
+      .optional()
+      .or(z.literal("")),
+    terms: z
+      .string()
+      .refine(
+        (val) => !val || val.length <= 5000,
+        "Terms must not exceed 5000 characters"
+      )
+      .transform((val) => val.trim())
+      .optional()
+      .or(z.literal("")),
+    items: z
+      .array(invoiceItemSchema)
+      .min(1, "Invoice must have at least one line item")
+      .max(100, "Invoice cannot have more than 100 line items"),
+  })
+  .refine(
+    (data) => {
+      const issue = new Date(data.issueDate);
+      const due = new Date(data.dueDate);
+      return due >= issue;
+    },
+    {
+      message: "Due date must be on or after the issue date",
+      path: ["dueDate"],
+    }
+  )
+  .refine(
+    (data) => {
+      if (data.discountType === "percentage" && data.discountValue > 0) {
+        return data.discountValue <= 100;
+      }
+      return true;
+    },
+    {
+      message: "Percentage discount cannot exceed 100%",
+      path: ["discountValue"],
+    }
+  );
 
 type InvoiceFormValues = z.infer<typeof invoiceFormSchema>;
 
