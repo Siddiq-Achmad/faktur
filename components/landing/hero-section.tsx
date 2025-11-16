@@ -157,13 +157,13 @@ export function HeroSection() {
                 <div className="space-y-1 text-xs text-muted-foreground">
                   <div className="flex justify-between">
                     <span>Invoice #INV-2847</span>
-                    <span className="font-semibold text-foreground">
+                    <span className="font-semibold text-emerald-600 dark:text-emerald-200">
                       $2,450
                     </span>
                   </div>
                   <div className="h-1 bg-primary/20 rounded-full overflow-hidden">
                     <motion.div
-                      className="h-full bg-primary"
+                      className="h-full bg-emerald-600 dark:bg-emerald-200"
                       initial={{ width: "0%" }}
                       animate={{ width: "100%" }}
                       transition={{ delay: 1.2, duration: 1.5 }}
@@ -202,7 +202,9 @@ export function HeroSection() {
                   <span className="text-sm font-medium">Revenue Growth</span>
                 </div>
                 <div className="flex items-baseline gap-2">
-                  <span className="text-3xl font-bold text-primary">+24%</span>
+                  <span className="text-3xl font-bold text-emerald-600 dark:text-emerald-200">
+                    +24%
+                  </span>
                   <span className="text-xs text-muted-foreground">
                     this month
                   </span>
