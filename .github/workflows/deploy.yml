@@ -34,8 +34,8 @@ jobs:
             # === Now run the deployment commands ===
             cd /var/www/faktur
             git pull
-            npm install
-            npm run build
+            pnpm install
+            pnpm run build
             sudo systemctl restart faktur
             echo "Faktur deployment successful!"
           EOF
