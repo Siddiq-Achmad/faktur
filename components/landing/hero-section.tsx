@@ -74,10 +74,12 @@ export function HeroSection() {
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5, delay: 0.1 }}
-            className="mb-8 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-2 text-sm"
+            className="mb-8 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-secondary-foreground/50 px-4 py-2 text-sm "
           >
-            <Sparkles className="h-4 w-4 text-primary" />
-            <span className="text-primary">Modern Invoice Management</span>
+            <Sparkles className="h-4 w-4 text-primary dark:text-primary-foreground" />
+            <span className="text-primary dark:text-primary-foreground">
+              Modern Invoice Management
+            </span>
           </motion.div>
 
           <motion.h1
@@ -111,13 +113,10 @@ export function HeroSection() {
             className="mt-10 flex items-center justify-center gap-4"
           >
             <Button asChild size="lg" className="group">
-              <Link href="/signup">
+              <Link href="/login">
                 Get Started Free
                 <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
               </Link>
-            </Button>
-            <Button asChild variant="outline" size="lg">
-              <Link href="/login">Sign In</Link>
             </Button>
           </motion.div>
         </motion.div>

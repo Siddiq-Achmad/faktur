@@ -137,16 +137,16 @@ export default function SignupPage() {
         <CardContent className="space-y-3">
           <Button
             type="button"
-            className="w-full bg-secondary-foreground hover:bg-secondary-foreground/90"
+            className="w-full bg-primary hover:bg-primary/90"
             onClick={handleGoogleSignUp}
             disabled={isLoading}
           >
             <Image src="/g.webp" alt="Google" width={16} height={16} />
-            Signup with Google
+            Sign up with Google
           </Button>
           <Button
             type="button"
-            className="w-full bg-secondary-foreground hover:bg-secondary-foreground/90"
+            className="w-full bg-primary hover:bg-primary/90"
             onClick={handleGithubSignUp}
             disabled={isLoading}
           >
@@ -156,7 +156,7 @@ export default function SignupPage() {
               width={16}
               height={16}
             />
-            Signup with GitHub
+            Sign up with GitHub
           </Button>
 
           {!showEmailSignup ? (
@@ -164,7 +164,7 @@ export default function SignupPage() {
               <Button
                 type="button"
                 className="w-full"
-                variant={"secondary"}
+                variant={"outline"}
                 onClick={() => setShowEmailSignup(true)}
               >
                 Or sign in with email

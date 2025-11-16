@@ -126,16 +126,16 @@ export default function LoginPage() {
         <CardContent className="space-y-3">
           <Button
             type="button"
-            className="w-full bg-secondary-foreground hover:bg-secondary-foreground/90"
+            className="w-full bg-primary hover:bg-primary/90"
             onClick={handleGoogleSignIn}
             disabled={isLoading}
           >
             <Image src="/g.webp" alt="Google" width={16} height={16} />
-            Sign in Google
+            Sign in with Google
           </Button>
           <Button
             type="button"
-            className="w-full bg-secondary-foreground hover:bg-secondary-foreground/90"
+            className="w-full bg-primary hover:bg-primary/90"
             onClick={handleGithubSignIn}
             disabled={isLoading}
           >
@@ -145,7 +145,7 @@ export default function LoginPage() {
               width={16}
               height={16}
             />
-            Sign in GitHub
+            Sign in with GitHub
           </Button>
 
           {!showEmailLogin ? (
@@ -153,7 +153,7 @@ export default function LoginPage() {
               <Button
                 type="button"
                 className="w-full"
-                variant={"secondary"}
+                variant={"outline"}
                 onClick={() => setShowEmailLogin(true)}
               >
                 Or sign in with email
