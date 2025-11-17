@@ -144,6 +144,7 @@ export default function LoginPage() {
               alt="Google"
               width={16}
               height={16}
+              className="dark:invert-100"
             />
             Sign in with GitHub
           </Button>

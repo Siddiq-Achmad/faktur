@@ -155,6 +155,7 @@ export default function SignupPage() {
               alt="Google"
               width={16}
               height={16}
+              className="dark:invert-100"
             />
             Sign up with GitHub
           </Button>
