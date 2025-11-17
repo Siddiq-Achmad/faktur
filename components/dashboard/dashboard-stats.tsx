@@ -17,10 +17,7 @@ export function DashboardStats() {
     return (
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {[...Array(4)].map((_, i) => (
-          <div
-            key={i}
-            className="h-32 animate-pulse rounded-lg bg-muted"
-          ></div>
+          <div key={i} className="h-32 animate-pulse rounded-lg bg-muted"></div>
         ))}
       </div>
     );
@@ -44,7 +41,9 @@ export function DashboardStats() {
       <StatCard
         title="Outstanding"
         value={formatCurrency(stats.outstandingAmount)}
-        description={`${stats.unpaidInvoicesCount} unpaid invoice${stats.unpaidInvoicesCount !== 1 ? "s" : ""}`}
+        description={`${stats.unpaidInvoicesCount} unpaid invoice${
+          stats.unpaidInvoicesCount !== 1 ? "s" : ""
+        }`}
         icon={Clock}
       />
       <StatCard

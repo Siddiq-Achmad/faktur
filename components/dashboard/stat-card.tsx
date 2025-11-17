@@ -21,13 +21,23 @@ export function StatCard({
   icon: Icon,
   trend,
 }: StatCardProps) {
+  // Calculate responsive font size based on value length
+  const valueStr = String(value);
+  const getValueFontSize = () => {
+    const length = valueStr.length;
+    if (length <= 5) return "text-4xl";
+    if (length <= 10) return "text-3xl";
+    if (length <= 15) return "text-2xl";
+    return "text-xl";
+  };
+
   return (
     <Card className="p-6">
       <div className="flex items-center justify-between">
         <div className="flex-1">
           <p className="text-sm font-medium text-muted-foreground">{title}</p>
           <div className="mt-2 flex items-baseline gap-2">
-            <h3 className="text-3xl font-bold">{value}</h3>
+            <h3 className={`${getValueFontSize()} font-bold`}>{value}</h3>
             {trend && (
               <span
                 className={`text-sm font-medium ${
