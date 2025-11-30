@@ -2,12 +2,12 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { useSession } from "@/lib/auth/client";
+import { useSessionSafe } from "@/lib/hooks/use-session-safe";
 import { AnimatedGrid } from "@/components/landing/animated-grid";
 import { HeroSection } from "@/components/landing/hero-section";
 
 export default function Home() {
-  const { data: session } = useSession();
+  const { data: session } = useSessionSafe();
   const router = useRouter();
 
   useEffect(() => {

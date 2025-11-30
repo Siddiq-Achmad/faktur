@@ -1,8 +1,9 @@
 "use client";
 
-import { useSession, signOut } from "@/lib/auth/client";
+import { signOut } from "@/lib/auth/client";
 import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
+import { useSessionSafe } from "@/lib/hooks/use-session-safe";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -22,7 +23,7 @@ import { LogOut, User, Settings, Moon, Sun, Monitor } from "lucide-react";
 import { trpc } from "@/lib/trpc/client";
 
 export function Header() {
-  const { data: session } = useSession();
+  const { data: session } = useSessionSafe();
   const router = useRouter();
   const { theme, setTheme } = useTheme();
   const { data: businessProfile } = trpc.businessProfile.get.useQuery();

@@ -1,8 +1,8 @@
 "use client";
 
-import { useSession } from "@/lib/auth/client";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { useSessionSafe } from "@/lib/hooks/use-session-safe";
 import { Sidebar } from "@/components/dashboard/sidebar";
 import { Header } from "@/components/dashboard/header";
 
@@ -11,7 +11,7 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { data: session, isPending } = useSession();
+  const { data: session, isPending } = useSessionSafe();
   const router = useRouter();
 
   useEffect(() => {
