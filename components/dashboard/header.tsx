@@ -1,8 +1,9 @@
 "use client";
 
-import { useSession, signOut } from "@/lib/auth/client";
+import { signOut } from "@/lib/auth/client";
 import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
+import { useSessionSafe } from "@/lib/hooks/use-session-safe";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,29 +19,29 @@ import {
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
 } from "@/components/ui/dropdown-menu";
-import { LogOut, User, Settings, Moon, Sun, Monitor } from "lucide-react";
+import { LogOut, User, Moon, Sun, Monitor } from "lucide-react";
 import { trpc } from "@/lib/trpc/client";
 
 export function Header() {
-  const { data: session } = useSession();
+  const { data: session } = useSessionSafe();
   const router = useRouter();
   const { theme, setTheme } = useTheme();
   const { data: businessProfile } = trpc.businessProfile.get.useQuery();
 
   async function handleSignOut() {
     await signOut();
-    router.push("/login");
+    router.push("/");
   }
 
   const initials =
     session?.user?.name
       ?.split(" ")
-      .map((n) => n[0])
+      .map((n: string) => n[0])
       .join("")
       .toUpperCase() || "U";
 
   return (
-    <header className="flex h-16 items-center justify-between border-b bg-background px-6">
+    <header className="flex h-16 items-center justify-between border-b bg-card px-6">
       <div className="flex-1">
         {/* Future: Add search bar or breadcrumbs here */}
       </div>

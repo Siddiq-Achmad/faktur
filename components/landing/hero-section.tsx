@@ -195,7 +195,7 @@ export function HeroSection() {
                     ease: "easeInOut",
                   },
                 }}
-                className="bg-card/90 backdrop-blur-sm border shadow-lg rounded-lg p-4 w-56"
+                className="bg-card/90 backdrop-blur-sm border shadow-lg rounded-lg p-4 w-56 border-primary/50"
               >
                 <div className="flex items-center gap-2 mb-3">
                   <TrendingUp className="h-5 w-5 text-primary" />
