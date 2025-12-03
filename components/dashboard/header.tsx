@@ -30,7 +30,7 @@ export function Header() {
 
   async function handleSignOut() {
     await signOut();
-    router.push("/login");
+    router.push("/");
   }
 
   const initials =
