@@ -421,10 +421,10 @@ export function BusinessProfileForm() {
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="mx-auto max-w-4xl space-y-8"
+        className="mx-auto space-y-8"
       >
         {/* Logo Upload */}
-        <Card className="border-border/50 shadow-sm">
+        <Card>
           <CardHeader className="space-y-1 pb-4">
             <CardTitle className="text-base font-medium">
               Company Logo
@@ -525,7 +525,7 @@ export function BusinessProfileForm() {
         </Card>
 
         {/* Company Information */}
-        <Card className="border-border/50 shadow-sm">
+        <Card>
           <CardHeader className="space-y-1 pb-4">
             <CardTitle className="text-base font-medium">
               Company Information
@@ -619,7 +619,7 @@ export function BusinessProfileForm() {
         </Card>
 
         {/* Address */}
-        <Card className="border-border/50 shadow-sm">
+        <Card>
           <CardHeader className="space-y-1 pb-4">
             <CardTitle className="text-base font-medium">
               Business Address
@@ -704,7 +704,7 @@ export function BusinessProfileForm() {
         </Card>
 
         {/* Tax Information */}
-        <Card className="border-border/50 shadow-sm">
+        <Card>
           <CardHeader className="space-y-1 pb-4">
             <CardTitle className="text-base font-medium">
               Tax Information
@@ -746,7 +746,7 @@ export function BusinessProfileForm() {
         </Card>
 
         {/* Bank Information */}
-        <Card className="border-border/50 shadow-sm">
+        <Card>
           <CardHeader className="space-y-1 pb-4">
             <CardTitle className="text-base font-medium">
               Bank Information
@@ -833,7 +833,7 @@ export function BusinessProfileForm() {
           </CardContent>
         </Card>
 
-        <div className="flex justify-end">
+        <div className="flex justify-end mb-12">
           <Button
             type="submit"
             className="h-10 font-medium"

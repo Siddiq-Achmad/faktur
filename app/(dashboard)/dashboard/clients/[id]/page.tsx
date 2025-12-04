@@ -146,7 +146,7 @@ export default function ClientDetailPage({
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
-        <Card className="border-border/50 shadow-sm">
+        <Card>
           <CardHeader className="space-y-1 pb-3">
             <CardTitle className="text-sm font-semibold">
               Contact Information
@@ -197,7 +197,7 @@ export default function ClientDetailPage({
           </CardContent>
         </Card>
 
-        <Card className="border-border/50 shadow-sm">
+        <Card>
           <CardHeader className="space-y-1 pb-3">
             <CardTitle className="text-sm font-semibold">Address</CardTitle>
           </CardHeader>
@@ -249,7 +249,7 @@ export default function ClientDetailPage({
       </div>
 
       {client.notes && (
-        <Card className="border-border/50 shadow-sm gap-0">
+        <Card className="gap-0">
           <CardHeader className="space-y-1">
             <CardTitle className="text-sm font-semibold">Notes</CardTitle>
           </CardHeader>
@@ -261,7 +261,7 @@ export default function ClientDetailPage({
         </Card>
       )}
 
-      <Card className="border-border/50 shadow-sm">
+      <Card>
         <CardHeader className="space-y-1 pb-3">
           <CardTitle className="text-sm font-semibold">
             Invoice History

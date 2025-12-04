@@ -22,11 +22,10 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Users, Plus, MoreHorizontal, Eye, Pencil, Trash } from "lucide-react";
+import { Users, MoreHorizontal, Eye, Pencil, Trash } from "lucide-react";
 
 export default function ClientsPage() {
   const { data: clients, isLoading } = trpc.clients.list.useQuery();
@@ -41,6 +40,12 @@ export default function ClientsPage() {
   const handleDelete = async (id: string) => {
     if (confirm("Are you sure you want to delete this client?")) {
       await deleteMutation.mutateAsync({ id });
+
+      // Clean up localStorage if the deleted client was the recent one
+      const recentClientId = localStorage.getItem("recentClientId");
+      if (recentClientId === id) {
+        localStorage.removeItem("recentClientId");
+      }
     }
   };
 
@@ -58,29 +63,25 @@ export default function ClientsPage() {
         {/* Header Section */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                <Users className="h-5 w-5" />
-              </div>
+            <div className="space-y-2">
               <div>
-                <h1 className="text-2xl font-semibold tracking-tight">Clients</h1>
+                <h1 className="text-lg font-bold tracking-tight">Clients</h1>
                 <p className="text-sm text-muted-foreground">
                   Manage your client relationships
                 </p>
               </div>
             </div>
             <Button asChild className="h-10">
-              <Link href="/dashboard/clients/new">
-                <Plus className="mr-2 h-4 w-4" />
-                Add Client
-              </Link>
+              <Link href="/dashboard/clients/new">Add Client</Link>
             </Button>
           </div>
         </div>
 
-        <Card className="border-border/50 shadow-sm">
+        <Card>
           <CardHeader className="space-y-1 pb-4">
-            <CardTitle className="text-base font-medium">No clients yet</CardTitle>
+            <CardTitle className="text-base font-medium">
+              No clients yet
+            </CardTitle>
             <CardDescription className="text-xs">
               Add your first client to get started
             </CardDescription>
@@ -93,10 +94,7 @@ export default function ClientsPage() {
               Clients you add will appear here
             </p>
             <Button asChild className="h-10">
-              <Link href="/dashboard/clients/new">
-                <Plus className="mr-2 h-4 w-4" />
-                Add Your First Client
-              </Link>
+              <Link href="/dashboard/clients/new">Add Your First Client</Link>
             </Button>
           </CardContent>
         </Card>
@@ -121,15 +119,12 @@ export default function ClientsPage() {
             </div>
           </div>
           <Button asChild className="h-10">
-            <Link href="/dashboard/clients/new">
-              <Plus className="mr-2 h-4 w-4" />
-              Add Client
-            </Link>
+            <Link href="/dashboard/clients/new">Add Client</Link>
           </Button>
         </div>
       </div>
 
-      <Card className="border-border/50 shadow-sm">
+      <Card>
         <CardHeader className="space-y-1 pb-4">
           <CardTitle className="text-base font-medium">All Clients</CardTitle>
           <CardDescription className="text-xs">
@@ -151,12 +146,21 @@ export default function ClientsPage() {
             <TableBody>
               {clients.map((client) => (
                 <TableRow key={client.id}>
-                  <TableCell className="text-sm font-medium">{client.name}</TableCell>
-                  <TableCell className="text-sm text-muted-foreground">{client.email}</TableCell>
-                  <TableCell className="text-sm">{client.company || "-"}</TableCell>
-                  <TableCell className="text-sm text-muted-foreground">{client.phone || "-"}</TableCell>
+                  <TableCell className="text-sm font-medium">
+                    {client.name}
+                  </TableCell>
+                  <TableCell className="text-sm text-muted-foreground">
+                    {client.email}
+                  </TableCell>
                   <TableCell className="text-sm">
-                    {[client.city, client.country].filter(Boolean).join(", ") || "-"}
+                    {client.company || "-"}
+                  </TableCell>
+                  <TableCell className="text-sm text-muted-foreground">
+                    {client.phone || "-"}
+                  </TableCell>
+                  <TableCell className="text-sm">
+                    {[client.city, client.country].filter(Boolean).join(", ") ||
+                      "-"}
                   </TableCell>
                   <TableCell>
                     <DropdownMenu>
@@ -167,7 +171,6 @@ export default function ClientsPage() {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
                         <DropdownMenuItem asChild>
                           <Link href={`/dashboard/clients/${client.id}`}>
                             <Eye className="mr-2 h-4 w-4" />

@@ -2,13 +2,6 @@
 
 import { trpc } from "@/lib/trpc/client";
 import { StatCard } from "./stat-card";
-import {
-  DollarSign,
-  FileText,
-  CheckCircle,
-  AlertCircle,
-  Clock,
-} from "lucide-react";
 
 export function DashboardStats() {
   const { data: stats, isLoading } = trpc.dashboard.getStats.useQuery();
@@ -17,7 +10,10 @@ export function DashboardStats() {
     return (
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {[...Array(4)].map((_, i) => (
-          <div key={i} className="h-32 animate-pulse rounded-lg bg-muted"></div>
+          <div
+            key={i}
+            className="h-24 animate-pulse rounded-lg bg-muted/50"
+          />
         ))}
       </div>
     );
@@ -27,36 +23,44 @@ export function DashboardStats() {
     return new Intl.NumberFormat("en-US", {
       style: "currency",
       currency: "USD",
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
     }).format(amount);
+  };
+
+  const formatCompactCurrency = (amount: number) => {
+    if (amount >= 1000000) {
+      return `$${(amount / 1000000).toFixed(1)}M`;
+    }
+    if (amount >= 1000) {
+      return `$${(amount / 1000).toFixed(1)}K`;
+    }
+    return formatCurrency(amount);
   };
 
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
       <StatCard
         title="Total Revenue"
-        value={formatCurrency(stats.totalRevenue)}
-        description="From paid invoices"
-        icon={DollarSign}
+        value={formatCompactCurrency(stats.totalRevenue)}
+        description={`${formatCurrency(stats.totalRevenue)} from paid invoices`}
       />
       <StatCard
         title="Outstanding"
-        value={formatCurrency(stats.outstandingAmount)}
+        value={formatCompactCurrency(stats.outstandingAmount)}
         description={`${stats.unpaidInvoicesCount} unpaid invoice${
           stats.unpaidInvoicesCount !== 1 ? "s" : ""
         }`}
-        icon={Clock}
       />
       <StatCard
         title="Paid Invoices"
         value={stats.paidInvoicesCount}
-        description={`Out of ${stats.totalInvoices} total`}
-        icon={CheckCircle}
+        description={`${Math.round((stats.paidInvoicesCount / stats.totalInvoices) * 100)}% of ${stats.totalInvoices} total`}
       />
       <StatCard
         title="Overdue"
         value={stats.overdueInvoicesCount}
-        description="Requires attention"
-        icon={AlertCircle}
+        description={stats.overdueInvoicesCount > 0 ? "Requires immediate attention" : "All caught up!"}
       />
     </div>
   );

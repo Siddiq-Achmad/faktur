@@ -69,9 +69,7 @@ const invoiceItemSchema = z.object({
 
 const invoiceFormSchema = z
   .object({
-    clientId: z
-      .string()
-      .min(1, "Please select a client for this invoice"),
+    clientId: z.string().min(1, "Please select a client for this invoice"),
     issueDate: z
       .string()
       .min(1, "Issue date is required")
@@ -225,6 +223,36 @@ export function InvoiceForm({ invoiceId, defaultValues }: InvoiceFormProps) {
     name: "items",
   });
 
+  // Watch clientId to disable fields when empty
+  const clientId = form.watch("clientId");
+  const isClientSelected = clientId && clientId.trim() !== "";
+
+  // Load recent client from localStorage on mount (only for new invoices)
+  useEffect(() => {
+    if (!invoiceId && clients && clients.length > 0) {
+      const recentClientId = localStorage.getItem("recentClientId");
+      if (recentClientId) {
+        // Check if the client still exists in the list
+        const clientExists = clients.some(
+          (client) => client.id === recentClientId
+        );
+        if (clientExists && !defaultValues?.clientId) {
+          form.setValue("clientId", recentClientId);
+        } else if (!clientExists) {
+          // Clean up if client no longer exists
+          localStorage.removeItem("recentClientId");
+        }
+      }
+    }
+  }, [invoiceId, clients, form, defaultValues]);
+
+  // Save selected client to localStorage whenever it changes
+  useEffect(() => {
+    if (clientId && clientId.trim() !== "") {
+      localStorage.setItem("recentClientId", clientId);
+    }
+  }, [clientId]);
+
   // Calculate totals whenever form values change
   useEffect(() => {
     const subscription = form.watch((value) => {
@@ -329,7 +357,7 @@ export function InvoiceForm({ invoiceId, defaultValues }: InvoiceFormProps) {
           {/* Left Column - Main Form */}
           <div className="space-y-8 lg:col-span-2">
             {/* Basic Details */}
-            <Card className="border-border/50 shadow-sm">
+            <Card>
               <CardHeader className="space-y-1 pb-4">
                 <CardTitle className="text-base font-medium">
                   Basic Details
@@ -341,13 +369,13 @@ export function InvoiceForm({ invoiceId, defaultValues }: InvoiceFormProps) {
               <CardContent className="space-y-2">
                 {/* Empty clients alert */}
                 {clients && clients.length === 0 && (
-                  <div className="flex items-center gap-2 rounded-md border border-border bg-card/50 px-3 py-2 -mt-4">
-                    <AlertCircle className="h-4 w-4 shrink-0 text-primary" />
+                  <div className="flex items-center gap-2 rounded-md border px-3 py-2 -mt-4 border-amber-400">
+                    <AlertCircle className="h-4 w-4 shrink-0 text-amber-400" />
                     <p className="text-sm text-muted-foreground">
-                      Add a client first to create an invoice{" "}
+                      Add a client first to create an invoice,&nbsp;
                       <Link
                         href="/dashboard/clients/new"
-                        className="font-medium text-primary hover:text-primary/80 transition-colors hover:underline"
+                        className="font-medium text-primary hover:text-primary/80 transition-colors underline underline-offset-2 hover:underline-offset-4"
                       >
                         Add client
                       </Link>
@@ -425,6 +453,7 @@ export function InvoiceForm({ invoiceId, defaultValues }: InvoiceFormProps) {
                         <Select
                           onValueChange={field.onChange}
                           defaultValue={field.value}
+                          disabled={!isClientSelected}
                         >
                           <FormControl>
                             <SelectTrigger className="h-10">
@@ -458,7 +487,12 @@ export function InvoiceForm({ invoiceId, defaultValues }: InvoiceFormProps) {
                           Issue Date
                         </FormLabel>
                         <FormControl>
-                          <Input type="date" className="h-10" {...field} />
+                          <Input
+                            type="date"
+                            className="h-10"
+                            disabled={!isClientSelected}
+                            {...field}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -475,7 +509,12 @@ export function InvoiceForm({ invoiceId, defaultValues }: InvoiceFormProps) {
                           Due Date
                         </FormLabel>
                         <FormControl>
-                          <Input type="date" className="h-10" {...field} />
+                          <Input
+                            type="date"
+                            className="h-10"
+                            disabled={!isClientSelected}
+                            {...field}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -486,7 +525,7 @@ export function InvoiceForm({ invoiceId, defaultValues }: InvoiceFormProps) {
             </Card>
 
             {/* Line Items */}
-            <Card className="border-border/50 shadow-sm">
+            <Card>
               <CardHeader className="space-y-1 pb-4">
                 <div className="flex items-center justify-between">
                   <div>
@@ -502,6 +541,7 @@ export function InvoiceForm({ invoiceId, defaultValues }: InvoiceFormProps) {
                     variant="outline"
                     size="sm"
                     className="h-9"
+                    disabled={!isClientSelected}
                     onClick={() =>
                       append({
                         description: "",
@@ -512,7 +552,6 @@ export function InvoiceForm({ invoiceId, defaultValues }: InvoiceFormProps) {
                       })
                     }
                   >
-                    <Plus className="mr-2 h-3.5 w-3.5" />
                     Add Item
                   </Button>
                 </div>
@@ -537,6 +576,7 @@ export function InvoiceForm({ invoiceId, defaultValues }: InvoiceFormProps) {
                                 <Input
                                   placeholder="Item description"
                                   className="h-9 bg-background"
+                                  disabled={!isClientSelected}
                                   {...field}
                                 />
                               </FormControl>
@@ -560,6 +600,7 @@ export function InvoiceForm({ invoiceId, defaultValues }: InvoiceFormProps) {
                                   type="number"
                                   step="0.01"
                                   className="h-9 bg-background"
+                                  disabled={!isClientSelected}
                                   {...field}
                                   onChange={(e) => {
                                     field.onChange(
@@ -592,6 +633,7 @@ export function InvoiceForm({ invoiceId, defaultValues }: InvoiceFormProps) {
                                   type="number"
                                   step="0.01"
                                   className="h-9 bg-background"
+                                  disabled={!isClientSelected}
                                   {...field}
                                   onChange={(e) => {
                                     field.onChange(
@@ -642,6 +684,7 @@ export function InvoiceForm({ invoiceId, defaultValues }: InvoiceFormProps) {
                             variant="ghost"
                             size="icon"
                             className="h-9 w-9 opacity-50 transition-opacity hover:opacity-100"
+                            disabled={!isClientSelected}
                             onClick={() => remove(index)}
                           >
                             <Trash2 className="h-4 w-4 text-destructive" />
@@ -655,7 +698,7 @@ export function InvoiceForm({ invoiceId, defaultValues }: InvoiceFormProps) {
             </Card>
 
             {/* Tax & Discounts */}
-            <Card className="border-border/50 shadow-sm">
+            <Card>
               <CardHeader className="space-y-1 pb-4">
                 <CardTitle className="text-base font-medium">
                   Tax & Discounts
@@ -681,6 +724,7 @@ export function InvoiceForm({ invoiceId, defaultValues }: InvoiceFormProps) {
                             min="0"
                             max="100"
                             className="h-10"
+                            disabled={!isClientSelected}
                             value={field.value ?? 0}
                             onChange={(e) =>
                               field.onChange(parseFloat(e.target.value) || 0)
@@ -704,6 +748,7 @@ export function InvoiceForm({ invoiceId, defaultValues }: InvoiceFormProps) {
                         <Select
                           onValueChange={field.onChange}
                           defaultValue={field.value}
+                          disabled={!isClientSelected}
                         >
                           <FormControl>
                             <SelectTrigger className="h-10">
@@ -742,7 +787,11 @@ export function InvoiceForm({ invoiceId, defaultValues }: InvoiceFormProps) {
                               field.onChange(parseFloat(e.target.value) || 0)
                             }
                             onBlur={field.onBlur}
-                            disabled={!form.watch("discountType") || form.watch("discountType") === "none"}
+                            disabled={
+                              !isClientSelected ||
+                              !form.watch("discountType") ||
+                              form.watch("discountType") === "none"
+                            }
                           />
                         </FormControl>
                         <FormMessage />
@@ -754,7 +803,7 @@ export function InvoiceForm({ invoiceId, defaultValues }: InvoiceFormProps) {
             </Card>
 
             {/* Additional Information */}
-            <Card className="border-border/50 shadow-sm">
+            <Card>
               <CardHeader className="space-y-1 pb-4">
                 <CardTitle className="flex items-center gap-2 text-base font-medium">
                   <Info className="h-4 w-4 text-muted-foreground" />
@@ -777,6 +826,7 @@ export function InvoiceForm({ invoiceId, defaultValues }: InvoiceFormProps) {
                         <textarea
                           className="flex min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
                           placeholder="Additional notes for the client..."
+                          disabled={!isClientSelected}
                           value={field.value ?? ""}
                           onChange={field.onChange}
                           onBlur={field.onBlur}
@@ -799,6 +849,7 @@ export function InvoiceForm({ invoiceId, defaultValues }: InvoiceFormProps) {
                         <textarea
                           className="flex min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
                           placeholder="Payment terms and conditions..."
+                          disabled={!isClientSelected}
                           value={field.value ?? ""}
                           onChange={field.onChange}
                           onBlur={field.onBlur}
@@ -816,7 +867,7 @@ export function InvoiceForm({ invoiceId, defaultValues }: InvoiceFormProps) {
           <div className="space-y-8 lg:col-span-1">
             {/* Invoice Summary */}
             <div className="sticky top-8 space-y-6">
-              <Card className="border-border/50 shadow-sm">
+              <Card>
                 <CardHeader className="space-y-1 pb-4">
                   <CardTitle className="flex items-center gap-2 text-base font-medium">
                     <DollarSign className="h-4 w-4 text-muted-foreground" />

@@ -164,10 +164,7 @@ export function RecordPaymentDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button>
-          <DollarSign />
-          Record Payment
-        </Button>
+        <Button>Record Payment</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
