@@ -74,7 +74,7 @@ export default function InvoicesPage() {
           </div>
         </div>
 
-        <Card className="border-border/50 shadow-sm">
+        <Card>
           <CardHeader className="space-y-1 pb-4">
             <CardTitle className="text-base font-medium">
               No invoices yet
@@ -125,7 +125,7 @@ export default function InvoicesPage() {
         </div>
       </div>
 
-      <Card className="border-border/50 shadow-sm">
+      <Card>
         <CardHeader className="space-y-1 pb-4">
           <CardTitle className="text-base font-medium">All Invoices</CardTitle>
           <CardDescription className="text-xs">

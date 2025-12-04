@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { formatDistanceToNow } from "date-fns";
 import Link from "next/link";
-import { FileText } from "lucide-react";
+import { FileText, ChevronRight, Clock } from "lucide-react";
 import { STATUS_COLORS, STATUS_LABELS } from "@/lib/constants/status-colors";
 
 export function RecentActivity() {
@@ -16,16 +16,23 @@ export function RecentActivity() {
 
   if (isLoading || !activities) {
     return (
-      <Card className="p-6">
-        <div className="mb-4">
-          <h3 className="text-lg font-semibold">Recent Activity</h3>
-          <p className="text-sm text-muted-foreground">
+      <Card className="overflow-hidden border-muted/40 backdrop-blur-sm">
+        <div className="border-b border-border/40 bg-gradient-to-br from-muted/30 to-muted/10 px-5 py-4">
+          <h3 className="font-semibold tracking-tight">Recent Activity</h3>
+          <p className="text-xs text-muted-foreground/80">
             Latest invoice updates
           </p>
         </div>
-        <div className="space-y-4">
+        <div className="divide-y divide-border/40 p-3">
           {[...Array(5)].map((_, i) => (
-            <div key={i} className="h-16 animate-pulse rounded bg-muted"></div>
+            <div key={i} className="flex items-center gap-3 py-3 px-2">
+              <div className="h-10 w-10 animate-pulse rounded-lg bg-muted/50"></div>
+              <div className="flex-1 space-y-2">
+                <div className="h-3.5 w-24 animate-pulse rounded bg-muted/50"></div>
+                <div className="h-3 w-32 animate-pulse rounded bg-muted/30"></div>
+              </div>
+              <div className="h-4 w-16 animate-pulse rounded bg-muted/50"></div>
+            </div>
           ))}
         </div>
       </Card>
@@ -41,17 +48,22 @@ export function RecentActivity() {
 
   if (activities.length === 0) {
     return (
-      <Card className="p-6">
-        <div className="mb-4">
-          <h3 className="text-lg font-semibold">Recent Activity</h3>
-          <p className="text-sm text-muted-foreground">
+      <Card className="overflow-hidden border-muted/40 backdrop-blur-sm">
+        <div className="bg-gradient-to-br from-muted/30 to-muted/10 px-5 py-4">
+          <h3 className="font-semibold tracking-tight">Recent Activity</h3>
+          <p className="text-xs text-muted-foreground/80">
             Latest invoice updates
           </p>
         </div>
-        <div className="flex flex-col items-center justify-center py-12 text-center">
-          <FileText className="mb-4 h-12 w-12 text-muted-foreground/50" />
-          <p className="text-sm text-muted-foreground">
-            No recent activity to display
+        <div className="flex flex-col items-center justify-center py-16 text-center px-4">
+          <div className="rounded-2xl bg-muted/30 p-4 mb-4">
+            <FileText className="h-8 w-8 text-muted-foreground/40" />
+          </div>
+          <p className="text-sm font-medium text-muted-foreground/60">
+            No recent activity
+          </p>
+          <p className="text-xs text-muted-foreground/40 mt-1">
+            Invoice updates will appear here
           </p>
         </div>
       </Card>
@@ -59,37 +71,41 @@ export function RecentActivity() {
   }
 
   return (
-    <Card className="p-6">
-      <div className="mb-4">
-        <h3 className="text-lg font-semibold">Recent Activity</h3>
-        <p className="text-sm text-muted-foreground">Latest invoice updates</p>
+    <Card className="overflow-hidden border-muted/40 backdrop-blur-sm px-4">
+      <div className="px-4 pt-3">
+        <h3 className="font-semibold tracking-tight">Recent Activity</h3>
+        <p className="text-xs text-muted-foreground/80">
+          Latest invoice updates
+        </p>
       </div>
-      <div className="space-y-3">
+      <div className="divide-y divide-border/40">
         {activities.map((activity) => (
           <Link
             key={activity.id}
             href={`/dashboard/invoices/${activity.id}`}
-            className="block rounded-lg border p-4 transition-colors hover:bg-accent"
+            className="group flex items-center gap-3 px-4 py-3 transition-all duration-200 hover:bg-accent/50 active:bg-accent"
           >
-            <div className="flex items-start justify-between gap-4">
-              <div className="flex-1 space-y-1">
-                <div className="flex items-center gap-2">
-                  <p className="font-medium">{activity.invoiceNumber}</p>
-                  <Badge
-                    style={{
-                      backgroundColor: STATUS_COLORS[activity.status],
-                      color: "white",
-                      border: "none",
-                    }}
-                  >
-                    {STATUS_LABELS[activity.status] || activity.status}
-                  </Badge>
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  {activity.clientName || "No client"}
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-2 mb-0.5">
+                <p className="text-sm font-medium truncate">
+                  {activity.invoiceNumber}
                 </p>
-                <p className="text-xs text-muted-foreground">
-                  Updated{" "}
+                <Badge
+                  className="shrink-0 px-2 py-0 text-[10px] font-medium"
+                  style={{
+                    backgroundColor: STATUS_COLORS[activity.status],
+                    color: "white",
+                    border: "none",
+                  }}
+                >
+                  {STATUS_LABELS[activity.status] || activity.status}
+                </Badge>
+              </div>
+              <p className="text-xs text-muted-foreground/80 truncate">
+                {activity.clientName || "No client"}
+              </p>
+              <div className="flex items-center gap-1 mt-1">
+                <p className="text-[10px] text-muted-foreground/60">
                   {activity.updatedAt
                     ? formatDistanceToNow(new Date(activity.updatedAt), {
                         addSuffix: true,
@@ -97,11 +113,12 @@ export function RecentActivity() {
                     : "recently"}
                 </p>
               </div>
-              <div className="text-right">
-                <p className="font-semibold">
-                  {formatCurrency(activity.total || 0)}
-                </p>
-              </div>
+            </div>
+            <div className="flex shrink-0 items-center gap-2">
+              <p className="text-sm font-semibold tabular-nums">
+                {formatCurrency(activity.total || 0)}
+              </p>
+              <ChevronRight className="h-4 w-4 text-muted-foreground/40 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:text-muted-foreground/60" />
             </div>
           </Link>
         ))}

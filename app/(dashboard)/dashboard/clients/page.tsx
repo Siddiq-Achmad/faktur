@@ -71,7 +71,7 @@ export default function ClientsPage() {
           </div>
         </div>
 
-        <Card className="border-border/50 shadow-sm">
+        <Card>
           <CardHeader className="space-y-1 pb-4">
             <CardTitle className="text-base font-medium">
               No clients yet
@@ -118,7 +118,7 @@ export default function ClientsPage() {
         </div>
       </div>
 
-      <Card className="border-border/50 shadow-sm">
+      <Card>
         <CardHeader className="space-y-1 pb-4">
           <CardTitle className="text-base font-medium">All Clients</CardTitle>
           <CardDescription className="text-xs">

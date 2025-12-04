@@ -331,7 +331,7 @@ export function InvoiceForm({ invoiceId, defaultValues }: InvoiceFormProps) {
           {/* Left Column - Main Form */}
           <div className="space-y-8 lg:col-span-2">
             {/* Basic Details */}
-            <Card className="border-border/50 shadow-sm">
+            <Card>
               <CardHeader className="space-y-1 pb-4">
                 <CardTitle className="text-base font-medium">
                   Basic Details
@@ -499,7 +499,7 @@ export function InvoiceForm({ invoiceId, defaultValues }: InvoiceFormProps) {
             </Card>
 
             {/* Line Items */}
-            <Card className="border-border/50 shadow-sm">
+            <Card>
               <CardHeader className="space-y-1 pb-4">
                 <div className="flex items-center justify-between">
                   <div>
@@ -672,7 +672,7 @@ export function InvoiceForm({ invoiceId, defaultValues }: InvoiceFormProps) {
             </Card>
 
             {/* Tax & Discounts */}
-            <Card className="border-border/50 shadow-sm">
+            <Card>
               <CardHeader className="space-y-1 pb-4">
                 <CardTitle className="text-base font-medium">
                   Tax & Discounts
@@ -777,7 +777,7 @@ export function InvoiceForm({ invoiceId, defaultValues }: InvoiceFormProps) {
             </Card>
 
             {/* Additional Information */}
-            <Card className="border-border/50 shadow-sm">
+            <Card>
               <CardHeader className="space-y-1 pb-4">
                 <CardTitle className="flex items-center gap-2 text-base font-medium">
                   <Info className="h-4 w-4 text-muted-foreground" />
@@ -841,7 +841,7 @@ export function InvoiceForm({ invoiceId, defaultValues }: InvoiceFormProps) {
           <div className="space-y-8 lg:col-span-1">
             {/* Invoice Summary */}
             <div className="sticky top-8 space-y-6">
-              <Card className="border-border/50 shadow-sm">
+              <Card>
                 <CardHeader className="space-y-1 pb-4">
                   <CardTitle className="flex items-center gap-2 text-base font-medium">
                     <DollarSign className="h-4 w-4 text-muted-foreground" />

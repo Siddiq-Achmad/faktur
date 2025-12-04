@@ -232,7 +232,7 @@ export default function InvoiceDetailPage({
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
-        <Card className="border-border/50 shadow-sm">
+        <Card>
           <CardHeader className="space-y-1 pb-3">
             <CardTitle className="text-sm font-semibold">
               Client Information
@@ -283,7 +283,7 @@ export default function InvoiceDetailPage({
           </CardContent>
         </Card>
 
-        <Card className="border-border/50 shadow-sm">
+        <Card>
           <CardHeader className="space-y-1 pb-3">
             <CardTitle className="text-sm font-semibold">
               Payment Summary
@@ -322,7 +322,7 @@ export default function InvoiceDetailPage({
         </Card>
       </div>
 
-      <Card className="border-border/50 shadow-sm">
+      <Card>
         <CardHeader className="space-y-1 pb-3">
           <CardTitle className="text-sm font-semibold">Line Items</CardTitle>
         </CardHeader>
@@ -408,7 +408,7 @@ export default function InvoiceDetailPage({
       {(invoice.notes || invoice.terms) && (
         <div className="grid gap-6">
           {invoice.notes && (
-            <Card className="border-border/50 shadow-sm gap-0">
+            <Card className="gap-0">
               <CardHeader className="space-y-1">
                 <CardTitle className="text-sm font-semibold">Notes</CardTitle>
               </CardHeader>
@@ -421,7 +421,7 @@ export default function InvoiceDetailPage({
           )}
 
           {invoice.terms && (
-            <Card className="border-border/50 shadow-sm gap-0">
+            <Card className="gap-0">
               <CardHeader className="space-y-1">
                 <CardTitle className="text-sm font-semibold">
                   Terms & Conditions

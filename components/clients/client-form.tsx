@@ -205,7 +205,7 @@ export function ClientForm({ clientId, defaultValues }: ClientFormProps) {
         onSubmit={form.handleSubmit(onSubmit)}
         className="mx-auto space-y-8"
       >
-        <Card className="border-border/50 shadow-sm">
+        <Card>
           <CardHeader className="space-y-1 pb-4">
             <CardTitle className="flex items-center gap-2 text-base font-medium">
               <User className="h-4 w-4 text-muted-foreground" />
@@ -301,7 +301,7 @@ export function ClientForm({ clientId, defaultValues }: ClientFormProps) {
           </CardContent>
         </Card>
 
-        <Card className="border-border/50 shadow-sm">
+        <Card>
           <CardHeader className="space-y-1 pb-4">
             <CardTitle className="flex items-center gap-2 text-base font-medium">
               <MapPin className="h-4 w-4 text-muted-foreground" />
@@ -388,7 +388,7 @@ export function ClientForm({ clientId, defaultValues }: ClientFormProps) {
           </CardContent>
         </Card>
 
-        <Card className="border-border/50 shadow-sm">
+        <Card>
           <CardHeader className="space-y-1 pb-4">
             <CardTitle className="flex items-center gap-2 text-base font-medium">
               <FileText className="h-4 w-4 text-muted-foreground" />
