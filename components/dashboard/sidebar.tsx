@@ -15,6 +15,8 @@ import {
 import { cn } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
 import Image from "next/image";
+import { motion } from "framer-motion";
+import { useState } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -55,6 +57,7 @@ const navigation = [
 
 export function Sidebar() {
   const pathname = usePathname();
+  const [hoveredItem, setHoveredItem] = useState<string | null>(null);
 
   const { data: session } = useSessionSafe();
   const router = useRouter();
@@ -99,25 +102,49 @@ export function Sidebar() {
         </Link>
       </div>
       <Separator />
-      <nav className="flex-1 px-3 py-4">
+      <nav className="flex-1 px-3 py-4 relative">
         {navigation.map((item) => {
           const isActive =
             pathname === item.href ||
             (item.href !== "/dashboard" &&
               pathname?.startsWith(item.href + "/"));
+          const isHovered = hoveredItem === item.name;
+          const shouldShowHighlight = isHovered || (!hoveredItem && isActive);
+
           return (
             <Link
               key={item.name}
               href={item.href}
-              className={cn(
-                "flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition-colors",
-                isActive
-                  ? "bg-accent text-accent-foreground"
-                  : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
-              )}
+              onMouseEnter={() => setHoveredItem(item.name)}
+              onMouseLeave={() => setHoveredItem(null)}
+              className="relative flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition-colors"
             >
-              <item.icon className="h-5 w-5" />
-              {item.name}
+              {shouldShowHighlight && (
+                <motion.div
+                  layoutId="nav-highlight"
+                  className="absolute inset-0 bg-accent rounded-md"
+                  initial={false}
+                  transition={{
+                    type: "spring",
+                    stiffness: 350,
+                    damping: 30,
+                  }}
+                />
+              )}
+              <item.icon
+                className={cn(
+                  "h-5 w-5 relative z-10 transition-colors",
+                  isActive ? "text-accent-foreground" : "text-muted-foreground"
+                )}
+              />
+              <span
+                className={cn(
+                  "relative z-10 transition-colors",
+                  isActive ? "text-accent-foreground" : "text-muted-foreground"
+                )}
+              >
+                {item.name}
+              </span>
             </Link>
           );
         })}

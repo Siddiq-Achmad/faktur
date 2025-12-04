@@ -22,11 +22,10 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Users, Plus, MoreHorizontal, Eye, Pencil, Trash } from "lucide-react";
+import { Users, MoreHorizontal, Eye, Pencil, Trash } from "lucide-react";
 
 export default function ClientsPage() {
   const { data: clients, isLoading } = trpc.clients.list.useQuery();
@@ -58,14 +57,9 @@ export default function ClientsPage() {
         {/* Header Section */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                <Users className="h-5 w-5" />
-              </div>
+            <div className="space-y-2">
               <div>
-                <h1 className="text-2xl font-semibold tracking-tight">
-                  Clients
-                </h1>
+                <h1 className="text-lg font-bold tracking-tight">Clients</h1>
                 <p className="text-sm text-muted-foreground">
                   Manage your client relationships
                 </p>

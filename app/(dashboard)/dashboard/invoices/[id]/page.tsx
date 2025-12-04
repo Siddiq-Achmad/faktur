@@ -160,12 +160,12 @@ export default function InvoiceDetailPage({
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" disabled={isDownloading}>
                   {isDownloading ? (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    <Loader2 className="h-4 w-4 animate-spin" />
                   ) : (
-                    <Download className="mr-2 h-4 w-4" />
+                    <Download className="h-4 w-4" />
                   )}
                   {isDownloading ? "Generating..." : "Download PDF"}
-                  {!isDownloading && <ChevronDown className="ml-2 h-4 w-4" />}
+                  {!isDownloading && <ChevronDown className="h-4 w-4" />}
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
@@ -186,10 +186,7 @@ export default function InvoiceDetailPage({
               </DropdownMenuContent>
             </DropdownMenu>
             <Button asChild>
-              <Link href={`/dashboard/invoices/${id}/edit`}>
-                <Pencil className="mr-2 h-4 w-4" />
-                Edit
-              </Link>
+              <Link href={`/dashboard/invoices/${id}/edit`}>Edit</Link>
             </Button>
           </div>
         </div>

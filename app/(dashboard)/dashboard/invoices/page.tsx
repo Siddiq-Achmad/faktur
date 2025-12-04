@@ -24,18 +24,10 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  FileText,
-  Plus,
-  MoreHorizontal,
-  Eye,
-  Pencil,
-  Trash,
-} from "lucide-react";
+import { FileText, MoreHorizontal, Eye, Pencil, Trash } from "lucide-react";
 import { STATUS_COLORS, STATUS_LABELS } from "@/lib/constants/status-colors";
 
 export default function InvoicesPage() {
@@ -68,14 +60,9 @@ export default function InvoicesPage() {
         {/* Header Section */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                <FileText className="h-5 w-5" />
-              </div>
+            <div className="space-y-2">
               <div>
-                <h1 className="text-2xl font-semibold tracking-tight">
-                  Invoices
-                </h1>
+                <h1 className="text-lg font-bold tracking-tight">Invoices</h1>
                 <p className="text-sm text-muted-foreground">
                   Manage and track all your invoices
                 </p>
