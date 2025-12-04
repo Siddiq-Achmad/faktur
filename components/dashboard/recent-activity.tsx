@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { formatDistanceToNow } from "date-fns";
 import Link from "next/link";
-import { FileText, ChevronRight, Clock } from "lucide-react";
+import { FileText, ChevronRight } from "lucide-react";
 import { STATUS_COLORS, STATUS_LABELS } from "@/lib/constants/status-colors";
 
 export function RecentActivity() {

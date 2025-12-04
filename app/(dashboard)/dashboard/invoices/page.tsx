@@ -60,13 +60,11 @@ export default function InvoicesPage() {
         {/* Header Section */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <div className="space-y-2">
-              <div>
-                <h1 className="text-lg font-bold tracking-tight">Invoices</h1>
-                <p className="text-sm text-muted-foreground">
-                  Manage and track all your invoices
-                </p>
-              </div>
+            <div>
+              <h1 className="text-lg font-bold tracking-tight">Invoices</h1>
+              <p className="text-sm text-muted-foreground">
+                Manage and track all your invoices
+              </p>
             </div>
             <Button asChild className="h-10">
               <Link href="/dashboard/invoices/new">New Invoice</Link>
@@ -106,18 +104,11 @@ export default function InvoicesPage() {
       {/* Header Section */}
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
-              <FileText className="h-5 w-5" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-semibold tracking-tight">
-                Invoices
-              </h1>
-              <p className="text-sm text-muted-foreground">
-                Manage and track all your invoices
-              </p>
-            </div>
+          <div>
+            <h1 className="text-lg font-bold tracking-tight">Invoices</h1>
+            <p className="text-sm text-muted-foreground">
+              Manage and track all your invoices
+            </p>
           </div>
           <Button asChild className="h-10">
             <Link href="/dashboard/invoices/new">New Invoice</Link>

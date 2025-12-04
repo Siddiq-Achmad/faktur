@@ -63,13 +63,11 @@ export default function ClientsPage() {
         {/* Header Section */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <div className="space-y-2">
-              <div>
-                <h1 className="text-lg font-bold tracking-tight">Clients</h1>
-                <p className="text-sm text-muted-foreground">
-                  Manage your client relationships
-                </p>
-              </div>
+            <div>
+              <h1 className="text-lg font-bold tracking-tight">Clients</h1>
+              <p className="text-sm text-muted-foreground">
+                Manage your client relationships
+              </p>
             </div>
             <Button asChild className="h-10">
               <Link href="/dashboard/clients/new">Add Client</Link>
@@ -107,16 +105,11 @@ export default function ClientsPage() {
       {/* Header Section */}
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
-              <Users className="h-5 w-5" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-semibold tracking-tight">Clients</h1>
-              <p className="text-sm text-muted-foreground">
-                Manage your client relationships
-              </p>
-            </div>
+          <div>
+            <h1 className="text-lg font-bold tracking-tight">Clients</h1>
+            <p className="text-sm text-muted-foreground">
+              Manage your client relationships
+            </p>
           </div>
           <Button asChild className="h-10">
             <Link href="/dashboard/clients/new">Add Client</Link>
