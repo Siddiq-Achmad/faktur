@@ -10,7 +10,7 @@ export default function DashboardPage() {
   const { data: session } = useSession();
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-4 md:space-y-8">
       {/* Header Section */}
       <div className="space-y-2">
         <div>
@@ -25,7 +25,7 @@ export default function DashboardPage() {
       <DashboardStats />
 
       {/* Charts Row */}
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-4 md:gap-6 lg:grid-cols-2">
         <RevenueChart />
         <InvoiceStatusChart />
       </div>

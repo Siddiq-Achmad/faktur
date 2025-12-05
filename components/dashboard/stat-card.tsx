@@ -16,16 +16,16 @@ export function StatCard({ title, value, description, trend }: StatCardProps) {
   const valueStr = String(value);
   const getValueFontSize = () => {
     const length = valueStr.length;
-    if (length <= 5) return "text-2xl";
-    if (length <= 10) return "text-xl";
-    if (length <= 15) return "text-lg";
-    return "text-base";
+    if (length <= 5) return "text-xl lg:text-2xl";
+    if (length <= 10) return "text-lg lg:text-xl";
+    if (length <= 15) return "text-base lg:text-lg";
+    return "text-sm lg:text-base";
   };
 
   return (
-    <Card className="p-4 transition-all duration-200 hover:bg-accent/50 px-6">
-      <div className="space-y-1.5">
-        <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+    <Card className="p-4 lg:px-6 transition-all duration-200 hover:bg-accent/50">
+      <div className="space-y-1 lg:space-y-1.5">
+        <p className="text-[9px] lg:text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
           {title}
         </p>
 
@@ -46,7 +46,9 @@ export function StatCard({ title, value, description, trend }: StatCardProps) {
         </div>
 
         {description && (
-          <p className="text-[10px] text-muted-foreground/80">{description}</p>
+          <p className="text-[9px] lg:text-[10px] text-muted-foreground/80 line-clamp-1 lg:line-clamp-none">
+            {description}
+          </p>
         )}
       </div>
     </Card>

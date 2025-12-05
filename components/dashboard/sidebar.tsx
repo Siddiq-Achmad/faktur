@@ -2,16 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import {
-  LayoutDashboard,
-  FileText,
-  Users,
-  Building2,
-  LogOut,
-  Moon,
-  Sun,
-  User,
-} from "lucide-react";
+import { LogOut, Moon, Sun, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
 import Image from "next/image";
@@ -28,32 +19,10 @@ import {
 import { Button } from "../ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { useSessionSafe } from "@/lib/hooks/use-session-safe";
-import { useTheme } from "next-themes";
+import { useThemeToggle } from "@/lib/hooks/use-theme-toggle";
 import { trpc } from "@/lib/trpc/client";
 import { signOut } from "@/lib/auth/client";
-
-const navigation = [
-  {
-    name: "Dashboard",
-    href: "/dashboard",
-    icon: LayoutDashboard,
-  },
-  {
-    name: "Invoices",
-    href: "/dashboard/invoices",
-    icon: FileText,
-  },
-  {
-    name: "Clients",
-    href: "/dashboard/clients",
-    icon: Users,
-  },
-  {
-    name: "Business Profile",
-    href: "/dashboard/profile",
-    icon: Building2,
-  },
-];
+import { navigationPages } from "@/lib/constants/navigation-pages";
 
 export function Sidebar() {
   const pathname = usePathname();
@@ -61,19 +30,13 @@ export function Sidebar() {
 
   const { data: session } = useSessionSafe();
   const router = useRouter();
-  const { theme, setTheme } = useTheme();
+  const { isDark, toggleTheme } = useThemeToggle();
   const { data: businessProfile } = trpc.businessProfile.get.useQuery();
 
   async function handleSignOut() {
     await signOut();
     router.push("/");
   }
-
-  const toggleTheme = () => {
-    setTheme(theme === "dark" ? "light" : "dark");
-  };
-
-  const isDark = theme === "dark";
 
   const initials =
     session?.user?.name
@@ -103,7 +66,7 @@ export function Sidebar() {
       </div>
       <Separator />
       <nav className="flex-1 px-3 py-4 relative">
-        {navigation.map((item) => {
+        {navigationPages.map((item) => {
           const isActive =
             pathname === item.href ||
             (item.href !== "/dashboard" &&
