@@ -1,5 +1,5 @@
 import Link from "next/link";
-import Image from "next/image";
+import { FakturLogo } from "@/components/ui/faktur-logo";
 import { Button } from "@/components/ui/button";
 
 export default function Home() {
@@ -9,12 +9,10 @@ export default function Home() {
         <nav className="flex items-center justify-between gap-4">
           <div className="flex h-16 items-center">
             <Link href="/" className="flex items-center gap-2 font-semibold">
-              <Image
-                src={"/faktur-logo.svg"}
-                alt="Faktur logo"
+              <FakturLogo
                 width={34}
                 height={34}
-                className="dark:grayscale-100 dark:invert-100 transition-all duration-500 ease-in-out"
+                className="transition-all duration-500 ease-in-out"
               />
             </Link>
           </div>

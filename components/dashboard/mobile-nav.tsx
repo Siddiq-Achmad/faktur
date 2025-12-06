@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Button } from "../ui/button";
 import Link from "next/link";
-import Image from "next/image";
+import { FakturLogo } from "@/components/ui/faktur-logo";
 import { navigationPages } from "@/lib/constants/navigation-pages";
 import { cn } from "@/lib/utils";
 import { Moon, Sun } from "lucide-react";
@@ -45,14 +45,12 @@ const MobileNav = () => {
             href="/dashboard"
             className="flex items-center gap-2 font-semibold"
           >
-            <Image
-              src={"/faktur-logo.svg"}
-              alt="Faktur logo"
+            <FakturLogo
               width={24}
               height={24}
-              className="dark:grayscale-100 dark:invert-100 transition-all duration-500 ease-in-out"
+              className="transition-all duration-500 ease-in-out"
             />
-            <span className="text-xl font-bold transition-colors duration-300">
+            <span className="text-xl font-bold transition-colors duration-300 text-primary">
               Faktur
             </span>
           </Link>

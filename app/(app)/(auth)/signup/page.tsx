@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
+import { FakturLogo } from "@/components/ui/faktur-logo";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -125,13 +126,7 @@ export default function SignupPage() {
             href={"/"}
             className="flex w-fit p-4 pl-0 mb-4 items-center justify-center"
           >
-            <Image
-              src={"/faktur-logo.svg"}
-              alt="Faktur logo"
-              width={24}
-              height={24}
-              className="dark:grayscale-100 dark:invert-100"
-            />
+            <FakturLogo width={24} height={24} />
           </Link>
           <CardTitle className="text-2xl font-bold">
             Create an account
