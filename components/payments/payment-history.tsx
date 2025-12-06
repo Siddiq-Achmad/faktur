@@ -100,7 +100,7 @@ export function PaymentHistory({
   return (
     <Card>
       <CardHeader>
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
           <CardTitle>Payment History</CardTitle>
           <div className="text-sm">
             <span className="text-muted-foreground">Total Paid: </span>
@@ -111,56 +111,120 @@ export function PaymentHistory({
         </div>
       </CardHeader>
       <CardContent>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Date</TableHead>
-              <TableHead>Amount</TableHead>
-              <TableHead>Method</TableHead>
-              <TableHead>Reference</TableHead>
-              <TableHead>Notes</TableHead>
-              <TableHead className="w-[50px]"></TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {payments.map((payment) => (
-              <TableRow key={payment.id}>
-                <TableCell>
-                  {format(new Date(payment.paymentDate), "MMM dd, yyyy")}
-                </TableCell>
-                <TableCell className="font-medium">
-                  {currency} {payment.amount.toFixed(2)}
-                </TableCell>
-                <TableCell>
-                  <Badge variant="outline">
+        {/* Mobile View - Cards */}
+        <div className="lg:hidden space-y-4">
+          {payments.map((payment) => (
+            <div
+              key={payment.id}
+              className="relative rounded-xl border border-border bg-card p-4 shadow-sm hover:shadow-md transition-shadow"
+            >
+              <div className="absolute top-4 right-4">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 hover:bg-destructive/10"
+                  onClick={() => handleDelete(payment.id)}
+                  disabled={deletingId === payment.id}
+                >
+                  {deletingId === payment.id ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Trash2 className="h-4 w-4 text-destructive" />
+                  )}
+                </Button>
+              </div>
+
+              <div className="pr-8 space-y-3">
+                <div>
+                  <div className="text-lg font-bold font-mono text-primary">
+                    {currency} {payment.amount.toFixed(2)}
+                  </div>
+                  <div className="text-xs text-muted-foreground mt-0.5">
+                    {format(new Date(payment.paymentDate), "MMMM dd, yyyy")}
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <Badge variant="secondary" className="text-xs font-medium">
                     {PAYMENT_METHOD_LABELS[payment.paymentMethod] ||
                       payment.paymentMethod}
                   </Badge>
-                </TableCell>
-                <TableCell className="text-sm text-muted-foreground">
-                  {payment.reference || "-"}
-                </TableCell>
-                <TableCell className="text-sm text-muted-foreground">
-                  {payment.notes || "-"}
-                </TableCell>
-                <TableCell>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => handleDelete(payment.id)}
-                    disabled={deletingId === payment.id}
-                  >
-                    {deletingId === payment.id ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <Trash2 className="h-4 w-4 text-destructive" />
+                </div>
+
+                {(payment.reference || payment.notes) && (
+                  <div className="space-y-1.5 pt-2 border-t border-border/50">
+                    {payment.reference && (
+                      <div className="text-xs">
+                        <span className="text-muted-foreground font-medium">Reference:</span>
+                        <span className="ml-1.5 text-foreground">{payment.reference}</span>
+                      </div>
                     )}
-                  </Button>
-                </TableCell>
+                    {payment.notes && (
+                      <div className="text-xs">
+                        <span className="text-muted-foreground font-medium">Note:</span>
+                        <span className="ml-1.5 text-foreground/80">{payment.notes}</span>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Desktop View - Table */}
+        <div className="hidden lg:block">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Date</TableHead>
+                <TableHead>Amount</TableHead>
+                <TableHead>Method</TableHead>
+                <TableHead>Reference</TableHead>
+                <TableHead>Notes</TableHead>
+                <TableHead className="w-[50px]"></TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {payments.map((payment) => (
+                <TableRow key={payment.id}>
+                  <TableCell>
+                    {format(new Date(payment.paymentDate), "MMM dd, yyyy")}
+                  </TableCell>
+                  <TableCell className="font-medium">
+                    {currency} {payment.amount.toFixed(2)}
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant="outline">
+                      {PAYMENT_METHOD_LABELS[payment.paymentMethod] ||
+                        payment.paymentMethod}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="text-sm text-muted-foreground">
+                    {payment.reference || "-"}
+                  </TableCell>
+                  <TableCell className="text-sm text-muted-foreground">
+                    {payment.notes || "-"}
+                  </TableCell>
+                  <TableCell>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleDelete(payment.id)}
+                      disabled={deletingId === payment.id}
+                    >
+                      {deletingId === payment.id ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Trash2 className="h-4 w-4 text-destructive" />
+                      )}
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
       </CardContent>
     </Card>
   );
