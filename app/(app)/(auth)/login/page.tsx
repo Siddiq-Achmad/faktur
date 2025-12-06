@@ -119,7 +119,6 @@ export default function LoginPage() {
               alt="Faktur logo"
               width={24}
               height={24}
-              className="dark:grayscale-100 dark:invert-100"
             />
           </Link>
           <CardTitle className="text-2xl font-bold">Welcome back!</CardTitle>
