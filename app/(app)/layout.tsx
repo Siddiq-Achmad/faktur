@@ -1,13 +1,11 @@
 import type { Metadata } from "next";
-import "./globals.css";
+import "../globals.css";
 import { TRPCProvider } from "@/lib/trpc/provider";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Geist } from "next/font/google";
+import { sharedMetadata } from "@/lib/metadata";
 
-export const metadata: Metadata = {
-  title: "Faktur - Invoice Management",
-  description: "Modern invoice management system built with Next.js",
-};
+export const metadata: Metadata = sharedMetadata;
 
 const fontFamily = Geist({
   variable: "--font-geist-sans",
@@ -24,12 +22,7 @@ export default function RootLayout({
       <body
         className={`font-sans antialiased ${fontFamily.className} ${fontFamily.style}`}
       >
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="dark"
-          enableSystem
-          disableTransitionOnChange
-        >
+        <ThemeProvider attribute="class" defaultTheme="dark">
           <TRPCProvider>{children}</TRPCProvider>
         </ThemeProvider>
       </body>

@@ -4,11 +4,13 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
+import { FakturLogo } from "@/components/ui/faktur-logo";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { signIn } from "@/lib/auth/client";
+import { signIn, signUp } from "@/lib/auth/client";
 import { Button } from "@/components/ui/button";
+import { ArrowLeft } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -26,42 +28,52 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Separator } from "@/components/ui/separator";
+import { Separator } from "@radix-ui/react-separator";
 
-const loginSchema = z.object({
-  email: z.string().email({ message: "Invalid email address" }),
-  password: z
-    .string()
-    .min(8, { message: "Password must be at least 8 characters" }),
-});
+const signupSchema = z
+  .object({
+    name: z.string().min(2, { message: "Name must be at least 2 characters" }),
+    email: z.string().email({ message: "Invalid email address" }),
+    password: z
+      .string()
+      .min(8, { message: "Password must be at least 8 characters" }),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ["confirmPassword"],
+  });
 
-type LoginFormValues = z.infer<typeof loginSchema>;
+type SignupFormValues = z.infer<typeof signupSchema>;
 
-export default function LoginPage() {
+export default function SignupPage() {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const form = useForm<LoginFormValues>({
-    resolver: zodResolver(loginSchema),
+  const form = useForm<SignupFormValues>({
+    resolver: zodResolver(signupSchema),
     defaultValues: {
+      name: "",
       email: "",
       password: "",
+      confirmPassword: "",
     },
   });
 
-  async function onSubmit(values: LoginFormValues) {
+  async function onSubmit(values: SignupFormValues) {
     setIsLoading(true);
     setError(null);
 
     try {
-      const result = await signIn.email({
+      const result = await signUp.email({
+        name: values.name,
         email: values.email,
         password: values.password,
       });
 
       if (result.error) {
-        setError(result.error.message || "Failed to sign in");
+        setError(result.error.message || "Failed to create account");
         return;
       }
 
@@ -74,7 +86,7 @@ export default function LoginPage() {
     }
   }
 
-  async function handleGoogleSignIn() {
+  async function handleGoogleSignUp() {
     setIsLoading(true);
     setError(null);
 
@@ -84,13 +96,13 @@ export default function LoginPage() {
         callbackURL: "/dashboard",
       });
     } catch (err) {
-      setError("Failed to sign in with Google");
+      setError("Failed to sign up with Google");
       console.error(err);
       setIsLoading(false);
     }
   }
 
-  async function handleGithubSignIn() {
+  async function handleGithubSignUp() {
     setIsLoading(true);
     setError(null);
 
@@ -100,7 +112,7 @@ export default function LoginPage() {
         callbackURL: "/dashboard",
       });
     } catch (err) {
-      setError("Failed to sign in with GitHub");
+      setError("Failed to sign up with GitHub");
       console.error(err);
       setIsLoading(false);
     }
@@ -114,33 +126,29 @@ export default function LoginPage() {
             href={"/"}
             className="flex w-fit p-4 pl-0 mb-4 items-center justify-center"
           >
-            <Image
-              src={"/faktur-logo.svg"}
-              alt="Faktur logo"
-              width={24}
-              height={24}
-              className="dark:grayscale-100 dark:invert-100"
-            />
+            <FakturLogo width={24} height={24} />
           </Link>
-          <CardTitle className="text-2xl font-bold">Welcome back!</CardTitle>
+          <CardTitle className="text-2xl font-bold">
+            Create an account
+          </CardTitle>
           <CardDescription>
-            Choose your preferred sign-in method
+            Choose your preferred sign-up method
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4 pt-4">
           <Button
             type="button"
             className="w-full bg-primary hover:bg-primary/90"
-            onClick={handleGoogleSignIn}
+            onClick={handleGoogleSignUp}
             disabled={isLoading}
           >
             <Image src="/g.webp" alt="Google" width={16} height={16} />
-            Sign in with Google
+            Sign up with Google
           </Button>
           <Button
             type="button"
             className="w-full bg-primary hover:bg-primary/90"
-            onClick={handleGithubSignIn}
+            onClick={handleGithubSignUp}
             disabled={isLoading}
           >
             <Image
@@ -150,8 +158,9 @@ export default function LoginPage() {
               height={16}
               className="dark:invert-100"
             />
-            Sign in with GitHub
+            Sign up with GitHub
           </Button>
+
           <div className="relative my-6">
             <div className="absolute inset-0 flex items-center">
               <span className="w-full border-t" />
@@ -161,12 +170,25 @@ export default function LoginPage() {
                 Or continue with email
               </span>
             </div>
-          </div>{" "}
+          </div>
           <Form {...form}>
             <form
               onSubmit={form.handleSubmit(onSubmit)}
               className="space-y-0.5"
             >
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem className="space-y-1">
+                    <FormLabel>Name</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Enter your name" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               <FormField
                 control={form.control}
                 name="email"
@@ -201,25 +223,42 @@ export default function LoginPage() {
                   </FormItem>
                 )}
               />
+              <FormField
+                control={form.control}
+                name="confirmPassword"
+                render={({ field }) => (
+                  <FormItem className="space-y-1">
+                    <FormLabel>Confirm Password</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="password"
+                        placeholder="Enter your password again"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               {error && (
-                <div className="rounded-md bg-destructive/15 p-3 text-sm text-destructive -mt-5 mb-2 animate-in fade-in">
+                <div className="rounded-md bg-destructive/15 p-3 text-sm text-destructive">
                   {error}
                 </div>
               )}
               <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? "Signing in..." : "Sign In"}
+                {isLoading ? "Creating account..." : "Create Account"}
               </Button>
             </form>
           </Form>
         </CardContent>
         <CardFooter className="flex flex-col space-y-2">
           <div className="text-sm text-muted-foreground">
-            Don&apos;t have an account?&nbsp;
+            Already have an account?&nbsp;
             <Link
-              href="/signup"
+              href="/login"
               className="text-primary underline hover:underline-offset-2 font-semibold transition-all"
             >
-              Sign up
+              Sign in
             </Link>
           </div>
         </CardFooter>
