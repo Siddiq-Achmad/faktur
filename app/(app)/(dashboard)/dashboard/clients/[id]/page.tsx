@@ -2,6 +2,7 @@
 
 import { use } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { format } from "date-fns";
 import { trpc } from "@/lib/trpc/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -39,6 +40,7 @@ export default function ClientDetailPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  const router = useRouter();
   const { id } = use(params);
   const { data: client, isLoading: clientLoading } =
     trpc.clients.getById.useQuery({ id });
@@ -420,7 +422,7 @@ export default function ClientDetailPage({
                         key={invoice.id}
                         className="border-b border-border/20 hover:bg-muted/50 cursor-pointer"
                         onClick={() =>
-                          (window.location.href = `/dashboard/invoices/${invoice.id}`)
+                          router.push(`/dashboard/invoices/${invoice.id}`)
                         }
                       >
                         <TableCell className="px-6 py-3 font-mono text-sm text-primary">

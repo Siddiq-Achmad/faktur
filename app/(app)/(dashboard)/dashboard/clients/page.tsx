@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { trpc } from "@/lib/trpc/client";
 import {
   Card,
@@ -25,11 +26,17 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Users, MoreHorizontal, Eye, Pencil, Trash } from "lucide-react";
+import { Users, MoreHorizontal } from "lucide-react";
+import {
+  DeleteConfirmationDialog,
+  useDeleteConfirmation,
+} from "@/components/ui/delete-confirmation-dialog";
 
 export default function ClientsPage() {
+  const router = useRouter();
   const { data: clients, isLoading } = trpc.clients.list.useQuery();
   const utils = trpc.useUtils();
+  const deleteConfirmation = useDeleteConfirmation();
 
   const deleteMutation = trpc.clients.delete.useMutation({
     onSuccess: () => {
@@ -38,7 +45,7 @@ export default function ClientsPage() {
   });
 
   const handleDelete = async (id: string) => {
-    if (confirm("Are you sure you want to delete this client?")) {
+    deleteConfirmation.confirm(async () => {
       await deleteMutation.mutateAsync({ id });
 
       // Clean up localStorage if the deleted client was the recent one
@@ -46,7 +53,7 @@ export default function ClientsPage() {
       if (recentClientId === id) {
         localStorage.removeItem("recentClientId");
       }
-    }
+    });
   };
 
   if (isLoading) {
@@ -141,7 +148,11 @@ export default function ClientsPage() {
             </TableHeader>
             <TableBody>
               {clients.map((client) => (
-                <TableRow key={client.id}>
+                <TableRow
+                  key={client.id}
+                  className="cursor-pointer"
+                  onClick={() => router.push(`/dashboard/clients/${client.id}`)}
+                >
                   <TableCell className="text-sm font-medium">
                     {client.name}
                   </TableCell>
@@ -158,7 +169,7 @@ export default function ClientsPage() {
                     {[client.city, client.country].filter(Boolean).join(", ") ||
                       "-"}
                   </TableCell>
-                  <TableCell>
+                  <TableCell onClick={(e) => e.stopPropagation()}>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" className="h-8 w-8 p-0">
@@ -168,14 +179,7 @@ export default function ClientsPage() {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem asChild>
-                          <Link href={`/dashboard/clients/${client.id}`}>
-                            <Eye className="mr-2 h-4 w-4" />
-                            View
-                          </Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem asChild>
                           <Link href={`/dashboard/clients/${client.id}/edit`}>
-                            <Pencil className="mr-2 h-4 w-4" />
                             Edit
                           </Link>
                         </DropdownMenuItem>
@@ -184,7 +188,6 @@ export default function ClientsPage() {
                           onClick={() => handleDelete(client.id)}
                           className="text-destructive"
                         >
-                          <Trash className="mr-2 h-4 w-4" />
                           Delete
                         </DropdownMenuItem>
                       </DropdownMenuContent>
@@ -212,7 +215,7 @@ export default function ClientsPage() {
             <CardContent className="p-0">
               <Link
                 href={`/dashboard/clients/${client.id}`}
-                className="block px-4 pb-3 pt-0"
+                className="block px-4 pb-3 pt-0 hover:bg-background/70"
               >
                 <div className="mb-4 pt-3.5">
                   <h3 className="text-base font-semibold text-primary">
@@ -266,19 +269,7 @@ export default function ClientsPage() {
                   className="h-8 text-xs"
                   asChild
                 >
-                  <Link href={`/dashboard/clients/${client.id}`}>
-                    <Eye className="mr-1.5 h-3.5 w-3.5" />
-                    View
-                  </Link>
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-8 text-xs"
-                  asChild
-                >
                   <Link href={`/dashboard/clients/${client.id}/edit`}>
-                    <Pencil className="mr-1.5 h-3.5 w-3.5" />
                     Edit
                   </Link>
                 </Button>
@@ -288,7 +279,6 @@ export default function ClientsPage() {
                   className="h-8 text-xs text-destructive hover:text-destructive"
                   onClick={() => handleDelete(client.id)}
                 >
-                  <Trash className="mr-1.5 h-3.5 w-3.5" />
                   Delete
                 </Button>
               </div>
@@ -296,6 +286,14 @@ export default function ClientsPage() {
           </Card>
         ))}
       </div>
+
+      <DeleteConfirmationDialog
+        open={deleteConfirmation.isOpen}
+        onOpenChange={deleteConfirmation.handleCancel}
+        onConfirm={deleteConfirmation.handleConfirm}
+        title="Delete Client"
+        description="Are you sure you want to delete this client? This action cannot be undone."
+      />
     </div>
   );
 }

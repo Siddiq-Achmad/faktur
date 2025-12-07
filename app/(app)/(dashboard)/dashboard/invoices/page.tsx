@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { format } from "date-fns";
 import { trpc } from "@/lib/trpc/client";
 import {
@@ -27,12 +28,18 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { FileText, MoreHorizontal, Eye, Pencil, Trash } from "lucide-react";
+import { FileText, MoreHorizontal } from "lucide-react";
 import { STATUS_COLORS, STATUS_LABELS } from "@/lib/constants/status-colors";
+import {
+  DeleteConfirmationDialog,
+  useDeleteConfirmation,
+} from "@/components/ui/delete-confirmation-dialog";
 
 export default function InvoicesPage() {
+  const router = useRouter();
   const { data: invoices, isLoading } = trpc.invoices.list.useQuery();
   const utils = trpc.useUtils();
+  const deleteConfirmation = useDeleteConfirmation();
 
   const deleteMutation = trpc.invoices.delete.useMutation({
     onSuccess: () => {
@@ -41,9 +48,9 @@ export default function InvoicesPage() {
   });
 
   const handleDelete = async (id: string) => {
-    if (confirm("Are you sure you want to delete this invoice?")) {
+    deleteConfirmation.confirm(async () => {
       await deleteMutation.mutateAsync({ id });
-    }
+    });
   };
 
   if (isLoading) {
@@ -143,14 +150,15 @@ export default function InvoicesPage() {
             </TableHeader>
             <TableBody>
               {invoices.map((invoice) => (
-                <TableRow key={invoice.id} className="group">
-                  <TableCell className="font-mono text-sm font-semibold">
-                    <Link
-                      href={`/dashboard/invoices/${invoice.id}`}
-                      className="cursor-pointer hover:text-primary transition-colors"
-                    >
-                      {invoice.invoiceNumber}
-                    </Link>
+                <TableRow
+                  key={invoice.id}
+                  className="cursor-pointer"
+                  onClick={() =>
+                    router.push(`/dashboard/invoices/${invoice.id}`)
+                  }
+                >
+                  <TableCell className="font-mono text-sm font-semibold text-primary">
+                    {invoice.invoiceNumber}
                   </TableCell>
                   <TableCell>
                     <div>
@@ -187,7 +195,7 @@ export default function InvoicesPage() {
                       {STATUS_LABELS[invoice.status]}
                     </Badge>
                   </TableCell>
-                  <TableCell>
+                  <TableCell onClick={(e) => e.stopPropagation()}>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" className="h-8 w-8 p-0">
@@ -197,14 +205,7 @@ export default function InvoicesPage() {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem asChild>
-                          <Link href={`/dashboard/invoices/${invoice.id}`}>
-                            <Eye className="mr-2 h-4 w-4" />
-                            View
-                          </Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem asChild>
                           <Link href={`/dashboard/invoices/${invoice.id}/edit`}>
-                            <Pencil className="mr-2 h-4 w-4" />
                             Edit
                           </Link>
                         </DropdownMenuItem>
@@ -213,7 +214,6 @@ export default function InvoicesPage() {
                           onClick={() => handleDelete(invoice.id)}
                           className="text-destructive"
                         >
-                          <Trash className="mr-2 h-4 w-4" />
                           Delete
                         </DropdownMenuItem>
                       </DropdownMenuContent>
@@ -305,19 +305,7 @@ export default function InvoicesPage() {
                   className="h-8 text-xs"
                   asChild
                 >
-                  <Link href={`/dashboard/invoices/${invoice.id}`}>
-                    <Eye className="mr-1.5 h-3.5 w-3.5" />
-                    View
-                  </Link>
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-8 text-xs"
-                  asChild
-                >
                   <Link href={`/dashboard/invoices/${invoice.id}/edit`}>
-                    <Pencil className="mr-1.5 h-3.5 w-3.5" />
                     Edit
                   </Link>
                 </Button>
@@ -327,7 +315,6 @@ export default function InvoicesPage() {
                   className="h-8 text-xs text-destructive hover:text-destructive"
                   onClick={() => handleDelete(invoice.id)}
                 >
-                  <Trash className="mr-1.5 h-3.5 w-3.5" />
                   Delete
                 </Button>
               </div>
@@ -335,6 +322,14 @@ export default function InvoicesPage() {
           </Card>
         ))}
       </div>
+
+      <DeleteConfirmationDialog
+        open={deleteConfirmation.isOpen}
+        onOpenChange={deleteConfirmation.handleCancel}
+        onConfirm={deleteConfirmation.handleConfirm}
+        title="Delete Invoice"
+        description="Are you sure you want to delete this invoice? This action cannot be undone."
+      />
     </div>
   );
 }
