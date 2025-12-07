@@ -46,7 +46,7 @@ export function Sidebar() {
       .toUpperCase() || "U";
 
   return (
-    <div className="flex h-full flex-col border-r bg-card">
+    <div className="flex h-full flex-col border-r">
       <div className="flex h-16 items-center px-6">
         <Link
           href="/dashboard"
@@ -114,7 +114,7 @@ export function Sidebar() {
       <div className="px-2.5 py-4">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="text-left pl-2 w-full">
+            <Button variant="ghost" className="text-left pl-2 w-full h-12">
               <Avatar>
                 <AvatarImage
                   src={
