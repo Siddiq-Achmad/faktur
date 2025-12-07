@@ -31,6 +31,7 @@ import {
   DeleteConfirmationDialog,
   useDeleteConfirmation,
 } from "@/components/ui/delete-confirmation-dialog";
+import { toast } from "sonner";
 
 export default function ClientsPage() {
   const router = useRouter();
@@ -46,12 +47,18 @@ export default function ClientsPage() {
 
   const handleDelete = async (id: string) => {
     deleteConfirmation.confirm(async () => {
-      await deleteMutation.mutateAsync({ id });
+      try {
+        await deleteMutation.mutateAsync({ id });
 
-      // Clean up localStorage if the deleted client was the recent one
-      const recentClientId = localStorage.getItem("recentClientId");
-      if (recentClientId === id) {
-        localStorage.removeItem("recentClientId");
+        // Clean up localStorage if the deleted client was the recent one
+        const recentClientId = localStorage.getItem("recentClientId");
+        if (recentClientId === id) {
+          localStorage.removeItem("recentClientId");
+        }
+
+        toast.success("Client deleted successfully");
+      } catch (err: any) {
+        toast.error(err.message || "Failed to delete client");
       }
     });
   };

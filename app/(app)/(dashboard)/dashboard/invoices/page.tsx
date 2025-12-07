@@ -34,6 +34,7 @@ import {
   DeleteConfirmationDialog,
   useDeleteConfirmation,
 } from "@/components/ui/delete-confirmation-dialog";
+import { toast } from "sonner";
 
 export default function InvoicesPage() {
   const router = useRouter();
@@ -49,7 +50,12 @@ export default function InvoicesPage() {
 
   const handleDelete = async (id: string) => {
     deleteConfirmation.confirm(async () => {
-      await deleteMutation.mutateAsync({ id });
+      try {
+        await deleteMutation.mutateAsync({ id });
+        toast.success("Invoice deleted successfully");
+      } catch (err: any) {
+        toast.error(err.message || "Failed to delete invoice");
+      }
     });
   };
 

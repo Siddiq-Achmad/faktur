@@ -50,19 +50,19 @@ export function DeleteConfirmationDialog({
 
 export function useDeleteConfirmation() {
   const [isOpen, setIsOpen] = useState(false);
-  const [pendingAction, setPendingAction] = useState<(() => void) | null>(null);
+  const [pendingAction, setPendingAction] = useState<(() => void | Promise<void>) | null>(null);
 
-  const confirm = (action: () => void) => {
+  const confirm = (action: () => void | Promise<void>) => {
     setPendingAction(() => action);
     setIsOpen(true);
   };
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     if (pendingAction) {
-      pendingAction();
+      await Promise.resolve(pendingAction());
+      setIsOpen(false);
+      setPendingAction(null);
     }
-    setIsOpen(false);
-    setPendingAction(null);
   };
 
   const handleCancel = () => {
