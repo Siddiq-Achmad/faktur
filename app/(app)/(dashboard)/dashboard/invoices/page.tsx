@@ -304,7 +304,7 @@ export default function InvoicesPage() {
                 </div>
               </Link>
 
-              <div className="bg-muted/50 px-4 py-2 flex items-center justify-end gap-2">
+              <div className="bg-muted/50 px-4 py-2 flex items-center justify-end">
                 <Button
                   variant="ghost"
                   size="sm"
