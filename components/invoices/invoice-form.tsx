@@ -176,6 +176,13 @@ export function InvoiceForm({
   const [taxAmount, setTaxAmount] = useState(0);
   const [total, setTotal] = useState(0);
 
+  // Open collapsibles by default if editing and has data
+  const hasTaxOrDiscount = Boolean(
+    defaultValues?.taxRate ||
+    (defaultValues?.discountType && defaultValues?.discountType !== "none")
+  );
+  const hasAdditionalInfo = Boolean(defaultValues?.notes || defaultValues?.terms);
+
   const { data: clients } = trpc.clients.list.useQuery();
   const { data: nextInvoiceNumber } =
     trpc.invoices.getNextInvoiceNumber.useQuery(undefined, {
@@ -697,7 +704,7 @@ export function InvoiceForm({
 
             {/* Tax & Discounts */}
             <Card className="pb-2">
-              <Collapsible>
+              <Collapsible defaultOpen={hasTaxOrDiscount}>
                 <CardHeader className="gap-0.5 pb-4">
                   <CollapsibleTrigger className="flex items-center justify-between w-full group">
                     <div className="text-left">
@@ -823,7 +830,7 @@ export function InvoiceForm({
 
             {/* Additional Information */}
             <Card className="pb-2">
-              <Collapsible>
+              <Collapsible defaultOpen={hasAdditionalInfo}>
                 <CardHeader className="gap-0.5 pb-4">
                   <CollapsibleTrigger className="flex items-center justify-between w-full group">
                     <div className="text-left">
