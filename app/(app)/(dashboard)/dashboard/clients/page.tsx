@@ -68,10 +68,10 @@ export default function ClientsPage() {
                 Clients
               </h1>
               <p className="text-sm text-muted-foreground">
-                Manage your client relationships
+                Manage your client
               </p>
             </div>
-            <Button asChild className="h-10" variant={"outline"} size={"sm"}>
+            <Button asChild>
               <Link href="/dashboard/clients/new">Add Client</Link>
             </Button>
           </div>
@@ -111,11 +111,9 @@ export default function ClientsPage() {
             <h1 className="text-lg font-bold tracking-tight text-primary">
               Clients
             </h1>
-            <p className="text-sm text-muted-foreground">
-              Manage your client relationships
-            </p>
+            <p className="text-sm text-muted-foreground">Manage your client</p>
           </div>
-          <Button asChild className="h-10" variant={"outline"} size={"sm"}>
+          <Button asChild>
             <Link href="/dashboard/clients/new">Add Client</Link>
           </Button>
         </div>
@@ -209,15 +207,15 @@ export default function ClientsPage() {
         {clients.map((client) => (
           <Card
             key={client.id}
-            className="overflow-hidden hover:shadow-md transition-shadow"
+            className="overflow-hidden hover:shadow-md transition-shadow py-0"
           >
             <CardContent className="p-0">
               <Link
                 href={`/dashboard/clients/${client.id}`}
                 className="block px-4 pb-3 pt-0"
               >
-                <div className="mb-3">
-                  <h3 className="text-base font-semibold text-foreground mb-1">
+                <div className="mb-4 pt-3.5">
+                  <h3 className="text-base font-semibold text-primary">
                     {client.name}
                   </h3>
                   <p className="text-sm text-muted-foreground">

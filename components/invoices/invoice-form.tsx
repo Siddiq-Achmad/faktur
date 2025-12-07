@@ -31,8 +31,20 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Trash2, Calendar, DollarSign, Info, AlertCircle } from "lucide-react";
+import {
+  Trash2,
+  Calendar,
+  DollarSign,
+  Info,
+  AlertCircle,
+  ChevronDown,
+} from "lucide-react";
 import Link from "next/link";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 
 const invoiceItemSchema = z.object({
   description: z
@@ -350,8 +362,8 @@ export function InvoiceForm({
           {/* Left Column - Main Form */}
           <div className="space-y-8 lg:col-span-2">
             {/* Basic Details */}
-            <Card>
-              <CardHeader className="space-y-1 pb-4">
+            <Card className="gap-2">
+              <CardHeader className="gap-0">
                 <CardTitle className="text-base font-medium">
                   Basic Details
                 </CardTitle>
@@ -519,7 +531,7 @@ export function InvoiceForm({
 
             {/* Line Items */}
             <Card>
-              <CardHeader className="space-y-1 pb-4">
+              <CardHeader>
                 <div className="flex items-center justify-between">
                   <div>
                     <CardTitle className="text-base font-medium">
@@ -553,7 +565,7 @@ export function InvoiceForm({
                 {fields.map((field, index) => (
                   <div
                     key={field.id}
-                    className="group relative space-y-4 rounded-lg border border-border/50 bg-muted/20 p-4 transition-all hover:border-border hover:bg-muted/30"
+                    className="group relative space-y-4 transition-all hover:bg-muted/30"
                   >
                     <div className="grid gap-4 md:grid-cols-12">
                       <div className="md:col-span-5">
@@ -691,168 +703,221 @@ export function InvoiceForm({
             </Card>
 
             {/* Tax & Discounts */}
-            <Card>
-              <CardHeader className="space-y-1 pb-4">
-                <CardTitle className="text-base font-medium">
-                  Tax & Discounts
-                </CardTitle>
-                <CardDescription className="text-xs">
-                  Configure tax rates and discounts
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="grid gap-6 sm:grid-cols-3">
-                  <FormField
-                    control={form.control}
-                    name="taxRate"
-                    render={({ field }) => (
-                      <FormItem className="space-y-1">
-                        <FormLabel className="text-sm font-medium">
-                          Tax Rate (%)
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            step="0.01"
-                            min="0"
-                            max="100"
-                            className="h-10"
-                            disabled={!isClientSelected}
-                            value={field.value ?? 0}
-                            onChange={(e) =>
-                              field.onChange(parseFloat(e.target.value) || 0)
-                            }
-                            onBlur={field.onBlur}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+            <Card className="pb-2">
+              <Collapsible>
+                <CardHeader className="gap-0.5 pb-4">
+                  <CollapsibleTrigger className="flex items-center justify-between w-full group">
+                    <div className="text-left">
+                      <CardTitle className="text-base font-medium">
+                        Tax & Discounts
+                      </CardTitle>
+                      <CardDescription className="text-xs">
+                        Configure tax rates and discounts (optional)
+                      </CardDescription>
+                    </div>
+                    <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform duration-200 group-data-[state=open]:rotate-180" />
+                  </CollapsibleTrigger>
+                </CardHeader>
+                <CollapsibleContent>
+                  <CardContent className="space-y-2 pt-0">
+                    {/* Tax Rate */}
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-medium">Tax Rate</p>
+                          <p className="text-xs text-muted-foreground">
+                            Add tax percentage to invoice
+                          </p>
+                        </div>
+                      </div>
+                      <FormField
+                        control={form.control}
+                        name="taxRate"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormControl>
+                              <div className="relative">
+                                <Input
+                                  type="number"
+                                  step="0.01"
+                                  min="0"
+                                  max="100"
+                                  className="h-11 pr-8"
+                                  placeholder="0.00"
+                                  disabled={!isClientSelected}
+                                  value={field.value ?? 0}
+                                  onChange={(e) =>
+                                    field.onChange(
+                                      parseFloat(e.target.value) || 0
+                                    )
+                                  }
+                                  onBlur={field.onBlur}
+                                />
+                                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
+                                  %
+                                </span>
+                              </div>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
 
-                  <FormField
-                    control={form.control}
-                    name="discountType"
-                    render={({ field }) => (
-                      <FormItem className="space-y-1">
-                        <FormLabel className="text-sm font-medium">
-                          Discount Type
-                        </FormLabel>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                          disabled={!isClientSelected}
-                        >
-                          <FormControl>
-                            <SelectTrigger className="h-10">
-                              <SelectValue placeholder="None" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="none">None</SelectItem>
-                            <SelectItem value="percentage">
-                              Percentage
-                            </SelectItem>
-                            <SelectItem value="fixed">Fixed Amount</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                    {/* Discount */}
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-medium">Discount</p>
+                          <p className="text-xs text-muted-foreground">
+                            Apply a discount to the invoice
+                          </p>
+                        </div>
+                      </div>
 
-                  <FormField
-                    control={form.control}
-                    name="discountValue"
-                    render={({ field }) => (
-                      <FormItem className="space-y-1">
-                        <FormLabel className="text-sm font-medium">
-                          Discount Value
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            step="0.01"
-                            min="0"
-                            className="h-10"
-                            value={field.value ?? 0}
-                            onChange={(e) =>
-                              field.onChange(parseFloat(e.target.value) || 0)
-                            }
-                            onBlur={field.onBlur}
-                            disabled={
-                              !isClientSelected ||
-                              !form.watch("discountType") ||
-                              form.watch("discountType") === "none"
-                            }
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              </CardContent>
+                      <div className="grid gap-3 sm:grid-cols-2">
+                        <FormField
+                          control={form.control}
+                          name="discountType"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormControl>
+                                <Select
+                                  onValueChange={field.onChange}
+                                  defaultValue={field.value}
+                                  disabled={!isClientSelected}
+                                >
+                                  <SelectTrigger className="h-11">
+                                    <SelectValue placeholder="Select type" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="none">
+                                      No Discount
+                                    </SelectItem>
+                                    <SelectItem value="percentage">
+                                      Percentage (%)
+                                    </SelectItem>
+                                    <SelectItem value="fixed">
+                                      Fixed Amount ($)
+                                    </SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={form.control}
+                          name="discountValue"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormControl>
+                                <div className="relative">
+                                  <Input
+                                    type="number"
+                                    step="0.01"
+                                    min="0"
+                                    className="h-11 pr-8"
+                                    placeholder="0.00"
+                                    value={field.value ?? 0}
+                                    onChange={(e) =>
+                                      field.onChange(
+                                        parseFloat(e.target.value) || 0
+                                      )
+                                    }
+                                    onBlur={field.onBlur}
+                                    disabled={
+                                      !isClientSelected ||
+                                      !form.watch("discountType") ||
+                                      form.watch("discountType") === "none"
+                                    }
+                                  />
+                                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
+                                    {form.watch("discountType") === "percentage"
+                                      ? "%"
+                                      : "$"}
+                                  </span>
+                                </div>
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    </div>
+                  </CardContent>
+                </CollapsibleContent>
+              </Collapsible>
             </Card>
 
             {/* Additional Information */}
-            <Card>
-              <CardHeader className="space-y-1 pb-4">
-                <CardTitle className="flex items-center gap-2 text-base font-medium">
-                  <Info className="h-4 w-4 text-muted-foreground" />
-                  Additional Information
-                </CardTitle>
-                <CardDescription className="text-xs">
-                  Optional notes and terms
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <FormField
-                  control={form.control}
-                  name="notes"
-                  render={({ field }) => (
-                    <FormItem className="space-y-1">
-                      <FormLabel className="text-sm font-medium">
-                        Notes
-                      </FormLabel>
-                      <FormControl>
-                        <textarea
-                          className="flex min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-                          placeholder="Additional notes for the client..."
-                          disabled={!isClientSelected}
-                          value={field.value ?? ""}
-                          onChange={field.onChange}
-                          onBlur={field.onBlur}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+            <Card className="pb-2">
+              <Collapsible>
+                <CardHeader className="gap-0.5 pb-4">
+                  <CollapsibleTrigger className="flex items-center justify-between w-full group">
+                    <div className="text-left">
+                      <CardTitle className="text-base font-medium">
+                        Additional Information
+                      </CardTitle>
+                      <CardDescription className="text-xs">
+                        Optional notes and terms
+                      </CardDescription>
+                    </div>
+                    <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform duration-200 group-data-[state=open]:rotate-180" />
+                  </CollapsibleTrigger>
+                </CardHeader>
+                <CollapsibleContent>
+                  <CardContent className="space-y-2 pt-0">
+                    <FormField
+                      control={form.control}
+                      name="notes"
+                      render={({ field }) => (
+                        <FormItem className="space-y-1">
+                          <FormLabel className="text-sm font-medium">
+                            Notes
+                          </FormLabel>
+                          <FormControl>
+                            <textarea
+                              className="flex min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                              placeholder="Additional notes for the client..."
+                              disabled={!isClientSelected}
+                              value={field.value ?? ""}
+                              onChange={field.onChange}
+                              onBlur={field.onBlur}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
-                <FormField
-                  control={form.control}
-                  name="terms"
-                  render={({ field }) => (
-                    <FormItem className="space-y-1">
-                      <FormLabel className="text-sm font-medium">
-                        Terms & Conditions
-                      </FormLabel>
-                      <FormControl>
-                        <textarea
-                          className="flex min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-                          placeholder="Payment terms and conditions..."
-                          disabled={!isClientSelected}
-                          value={field.value ?? ""}
-                          onChange={field.onChange}
-                          onBlur={field.onBlur}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </CardContent>
+                    <FormField
+                      control={form.control}
+                      name="terms"
+                      render={({ field }) => (
+                        <FormItem className="space-y-1">
+                          <FormLabel className="text-sm font-medium">
+                            Terms & Conditions
+                          </FormLabel>
+                          <FormControl>
+                            <textarea
+                              className="flex min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                              placeholder="Payment terms and conditions..."
+                              disabled={!isClientSelected}
+                              value={field.value ?? ""}
+                              onChange={field.onChange}
+                              onBlur={field.onBlur}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </CardContent>
+                </CollapsibleContent>
+              </Collapsible>
             </Card>
           </div>
 
@@ -861,9 +926,8 @@ export function InvoiceForm({
             {/* Invoice Summary */}
             <div className="sticky top-8 space-y-6">
               <Card>
-                <CardHeader className="space-y-1 pb-4">
+                <CardHeader className="gap-0.5 pb-2">
                   <CardTitle className="flex items-center gap-2 text-base font-medium">
-                    <DollarSign className="h-4 w-4 text-muted-foreground" />
                     Summary
                   </CardTitle>
                   <CardDescription className="text-xs">

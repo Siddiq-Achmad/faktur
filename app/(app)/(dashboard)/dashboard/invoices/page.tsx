@@ -68,7 +68,7 @@ export default function InvoicesPage() {
                 Manage and track all your invoices
               </p>
             </div>
-            <Button asChild className="h-10" variant={"outline"} size={"sm"}>
+            <Button asChild>
               <Link href="/dashboard/invoices/new">New Invoice</Link>
             </Button>
           </div>
@@ -114,7 +114,7 @@ export default function InvoicesPage() {
               Manage and track all your invoices
             </p>
           </div>
-          <Button asChild className="h-10" variant={"outline"} size={"sm"}>
+          <Button asChild>
             <Link href="/dashboard/invoices/new">New Invoice</Link>
           </Button>
         </div>
@@ -236,16 +236,16 @@ export default function InvoicesPage() {
         {invoices.map((invoice) => (
           <Card
             key={invoice.id}
-            className="overflow-hidden hover:shadow-md transition-shadow"
+            className="overflow-hidden hover:shadow-md transition-shadow py-0"
           >
-            <CardContent className="p-0">
+            <CardContent className="p-0 pt-4">
               <Link
                 href={`/dashboard/invoices/${invoice.id}`}
                 className="block px-4 pb-3 pt-0"
               >
                 <div className="flex items-start justify-between gap-4 mb-3">
                   <div className="flex-1 min-w-0">
-                    <p className="font-mono text-sm font-semibold text-foreground mb-1">
+                    <p className="font-mono text-sm font-semibold text-primary mb-1">
                       {invoice.invoiceNumber}
                     </p>
                     <p className="text-sm font-medium text-foreground truncate">
