@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useState } from "react";
+import { use } from "react";
 import Link from "next/link";
 import { format } from "date-fns";
 import { trpc } from "@/lib/trpc/client";
@@ -15,18 +15,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ArrowLeft, Download, Loader2, ChevronDown } from "lucide-react";
-import { generateInvoicePDF } from "@/lib/pdf/generate-invoice-pdf";
 import { RecordPaymentDialog } from "@/components/payments/record-payment-dialog";
 import { PaymentHistory } from "@/components/payments/payment-history";
 import { STATUS_COLORS, STATUS_LABELS } from "@/lib/constants/status-colors";
-import { TEMPLATE_OPTIONS, TemplateType } from "@/components/invoices/types";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { NotFound } from "@/components/ui/not-found";
+import LoadingLogo from "@/components/loading-logo";
 
 export default function InvoiceDetailPage({
   params,
@@ -35,85 +28,22 @@ export default function InvoiceDetailPage({
 }) {
   const { id } = use(params);
   const { data: invoice, isLoading } = trpc.invoices.getById.useQuery({ id });
-  const { data: businessProfile } = trpc.businessProfile.get.useQuery();
-  const [isDownloading, setIsDownloading] = useState(false);
-
-  const handleDownloadPDF = async (template: TemplateType) => {
-    if (!invoice) return;
-
-    setIsDownloading(true);
-    try {
-      await generateInvoicePDF(
-        {
-          invoiceNumber: invoice.invoiceNumber,
-          status: invoice.status,
-          issueDate: invoice.issueDate,
-          dueDate: invoice.dueDate,
-          subtotal: invoice.subtotal,
-          taxRate: invoice.taxRate,
-          taxAmount: invoice.taxAmount,
-          discountAmount: invoice.discountAmount || 0,
-          total: invoice.total,
-          notes: invoice.notes,
-          terms: invoice.terms,
-          client: invoice.client
-            ? {
-                name: invoice.client.name,
-                email: invoice.client.email,
-                phone: invoice.client.phone,
-                company: invoice.client.company,
-              }
-            : null,
-          items:
-            invoice.items?.map((item) => ({
-              description: item.description,
-              quantity: item.quantity,
-              rate: item.rate,
-              amount: item.amount,
-            })) || [],
-          businessProfile: businessProfile
-            ? {
-                companyName: businessProfile.companyName,
-                email: businessProfile.email,
-                phone: businessProfile.phone,
-                address: businessProfile.address,
-                city: businessProfile.city,
-                state: businessProfile.state,
-                country: businessProfile.country,
-                postalCode: businessProfile.postalCode,
-                taxId: businessProfile.taxId,
-                logo: businessProfile.logo,
-              }
-            : null,
-        },
-        template
-      );
-    } catch (error) {
-      console.error("Failed to generate PDF:", error);
-    } finally {
-      setIsDownloading(false);
-    }
-  };
 
   if (isLoading) {
     return (
-      <div className="flex min-h-[400px] items-center justify-center">
-        <p className="text-muted-foreground">Loading invoice...</p>
+      <div className="flex min-h-dvh items-center justify-center">
+        <LoadingLogo />
       </div>
     );
   }
 
   if (!invoice) {
     return (
-      <div className="flex min-h-[400px] flex-col items-center justify-center">
-        <p className="text-lg font-medium">Invoice not found</p>
-        <Button asChild className="mt-4">
-          <Link href="/dashboard/invoices">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Invoices
-          </Link>
-        </Button>
-      </div>
+      <NotFound
+        prefix="Invoice"
+        backHref="/dashboard/invoices"
+        backLabel="Back to Invoices"
+      />
     );
   }
 
@@ -138,40 +68,12 @@ export default function InvoiceDetailPage({
               buttonLabel="Payment"
             />
           ) : null}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" disabled={isDownloading}>
-                {isDownloading ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <Download className="h-4 w-4" />
-                )}
-                <span className="hidden sm:inline">
-                  {isDownloading ? "Generating..." : "Download PDF"}
-                </span>
-                <span className="sm:hidden">
-                  {isDownloading ? "Generating..." : "PDF"}
-                </span>
-                {!isDownloading && <ChevronDown className="h-4 w-4" />}
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56">
-              {TEMPLATE_OPTIONS.map((template) => (
-                <DropdownMenuItem
-                  key={template.value}
-                  onClick={() => handleDownloadPDF(template.value)}
-                  className="cursor-pointer"
-                >
-                  <div className="flex flex-col">
-                    <span className="font-medium">{template.label}</span>
-                    <span className="text-xs text-muted-foreground">
-                      {template.description}
-                    </span>
-                  </div>
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <Button variant="outline" asChild>
+            <Link href={`/dashboard/invoices/${id}/preview`}>
+              <span className="hidden sm:inline">Preview & Download</span>
+              <span className="sm:hidden">Download</span>
+            </Link>
+          </Button>
           <Button asChild variant={"outline"}>
             <Link href={`/dashboard/invoices/${id}/edit`}>Edit</Link>
           </Button>

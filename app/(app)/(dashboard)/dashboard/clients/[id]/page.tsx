@@ -16,8 +16,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ArrowLeft } from "lucide-react";
 import { STATUS_COLORS } from "@/lib/constants/status-colors";
+import { NotFound } from "@/components/ui/not-found";
+import LoadingLogo from "@/components/loading-logo";
 
 const statusColors = {
   draft: "secondary",
@@ -52,23 +53,19 @@ export default function ClientDetailPage({
 
   if (clientLoading) {
     return (
-      <div className="flex min-h-[400px] items-center justify-center">
-        <p className="text-muted-foreground">Loading client...</p>
+      <div className="flex min-h-dvh items-center justify-center">
+        <LoadingLogo />
       </div>
     );
   }
 
   if (!client) {
     return (
-      <div className="flex min-h-[400px] flex-col items-center justify-center">
-        <p className="text-lg font-medium">Client not found</p>
-        <Button asChild className="mt-4">
-          <Link href="/dashboard/clients">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Clients
-          </Link>
-        </Button>
-      </div>
+      <NotFound
+        prefix="Client"
+        backHref="/dashboard/clients"
+        backLabel="Back to Clients"
+      />
     );
   }
 
