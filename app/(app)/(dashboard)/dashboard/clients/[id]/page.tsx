@@ -87,9 +87,21 @@ export default function ClientDetailPage({
             <p className="text-muted-foreground text-sm">Client Details</p>
           </div>
         </div>
-        <Button size="sm" variant={"outline"} asChild>
-          <Link href={`/dashboard/clients/${id}/edit`}>Edit</Link>
-        </Button>
+        <div className="space-x-2">
+          <Button size="sm" variant={"outline"} asChild>
+            <Link href={`/dashboard/clients/${id}/edit`}>Edit</Link>
+          </Button>
+
+          <Button
+            size="sm"
+            asChild
+            onClick={() => {
+              localStorage.setItem("recentClientId", id);
+            }}
+          >
+            <Link href="/dashboard/invoices/new">Add Invoice</Link>
+          </Button>
+        </div>
       </div>
 
       {/* Mobile View - Cards */}
@@ -407,7 +419,9 @@ export default function ClientDetailPage({
                       <TableRow
                         key={invoice.id}
                         className="border-b border-border/20 hover:bg-muted/50 cursor-pointer"
-                        onClick={() => window.location.href = `/dashboard/invoices/${invoice.id}`}
+                        onClick={() =>
+                          (window.location.href = `/dashboard/invoices/${invoice.id}`)
+                        }
                       >
                         <TableCell className="px-6 py-3 font-mono text-sm text-primary">
                           {invoice.invoiceNumber}

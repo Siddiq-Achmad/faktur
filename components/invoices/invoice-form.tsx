@@ -179,9 +179,11 @@ export function InvoiceForm({
   // Open collapsibles by default if editing and has data
   const hasTaxOrDiscount = Boolean(
     defaultValues?.taxRate ||
-    (defaultValues?.discountType && defaultValues?.discountType !== "none")
+      (defaultValues?.discountType && defaultValues?.discountType !== "none")
   );
-  const hasAdditionalInfo = Boolean(defaultValues?.notes || defaultValues?.terms);
+  const hasAdditionalInfo = Boolean(
+    defaultValues?.notes || defaultValues?.terms
+  );
 
   const { data: clients } = trpc.clients.list.useQuery();
   const { data: nextInvoiceNumber } =
@@ -379,10 +381,10 @@ export function InvoiceForm({
                   Invoice information and client details
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-2">
+              <CardContent className="pt-2">
                 {/* Empty clients alert */}
                 {clients && clients.length === 0 && (
-                  <div className="flex items-center gap-2 rounded-md border px-3 py-2 -mt-4 border-amber-400">
+                  <div className="flex items-center gap-2 rounded-md border px-3 py-2 border-amber-400">
                     <AlertCircle className="h-4 w-4 shrink-0 text-amber-400" />
                     <p className="text-sm text-muted-foreground">
                       Add a client first to create an invoice,&nbsp;
@@ -403,7 +405,7 @@ export function InvoiceForm({
                     render={({ field }) => (
                       <FormItem className="space-y-1">
                         <FormLabel className="text-sm font-medium">
-                          Client *
+                          Client
                         </FormLabel>
                         <Select
                           value={field.value || ""}
@@ -431,8 +433,8 @@ export function InvoiceForm({
                               <SelectItem key={client.id} value={client.id}>
                                 {client.name}
                                 {client.company && (
-                                  <span className="text-xs text-muted-foreground ml-2">
-                                    ({client.company})
+                                  <span className="text-xs text-muted-foreground block max-w-20 text-ellipsis overflow-hidden">
+                                    {client.company}
                                   </span>
                                 )}
                               </SelectItem>
@@ -616,7 +618,10 @@ export function InvoiceForm({
                                   value={field.value}
                                   onChange={(value) => {
                                     field.onChange(value);
-                                    setTimeout(() => updateItemAmount(index), 0);
+                                    setTimeout(
+                                      () => updateItemAmount(index),
+                                      0
+                                    );
                                   }}
                                   onBlur={field.onBlur}
                                   name={field.name}
@@ -645,7 +650,10 @@ export function InvoiceForm({
                                   value={field.value}
                                   onChange={(value) => {
                                     field.onChange(value);
-                                    setTimeout(() => updateItemAmount(index), 0);
+                                    setTimeout(
+                                      () => updateItemAmount(index),
+                                      0
+                                    );
                                   }}
                                   onBlur={field.onBlur}
                                   name={field.name}
@@ -814,7 +822,11 @@ export function InvoiceForm({
                                     !form.watch("discountType") ||
                                     form.watch("discountType") === "none"
                                   }
-                                  suffix={form.watch("discountType") === "percentage" ? "%" : "$"}
+                                  suffix={
+                                    form.watch("discountType") === "percentage"
+                                      ? "%"
+                                      : "$"
+                                  }
                                 />
                               </FormControl>
                               <FormMessage />
