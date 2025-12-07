@@ -89,6 +89,7 @@ interface RecordPaymentDialogProps {
   invoiceId: string;
   remainingBalance: number;
   onSuccess?: () => void;
+  buttonLabel?: string;
 }
 
 const PAYMENT_METHOD_LABELS: Record<string, string> = {
@@ -105,6 +106,7 @@ export function RecordPaymentDialog({
   invoiceId,
   remainingBalance,
   onSuccess,
+  buttonLabel,
 }: RecordPaymentDialogProps) {
   const [open, setOpen] = useState(false);
   const utils = trpc.useUtils();
@@ -166,7 +168,7 @@ export function RecordPaymentDialog({
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <Button>Record Payment</Button>
+        <Button variant={"outline"}>{buttonLabel || "Record Payment"}</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
         <DialogHeader className="gap-0">

@@ -70,7 +70,9 @@ export function PaymentHistory({
     return (
       <Card className="gap-0">
         <CardHeader className="space-y-1 pb-3">
-          <CardTitle className="text-sm font-semibold">Payment History</CardTitle>
+          <CardTitle className="text-sm font-semibold">
+            Payment History
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-center py-8">
@@ -85,16 +87,13 @@ export function PaymentHistory({
     return (
       <Card className="gap-0">
         <CardHeader className="space-y-1 pb-3">
-          <CardTitle className="text-sm font-semibold">Payment History</CardTitle>
+          <CardTitle className="text-sm font-semibold">
+            Payment History
+          </CardTitle>
           <p className="text-xs text-muted-foreground">
             No payments recorded yet
           </p>
         </CardHeader>
-        <CardContent>
-          <p className="text-center text-sm text-muted-foreground py-8">
-            Payments will appear here once recorded
-          </p>
-        </CardContent>
       </Card>
     );
   }
@@ -105,7 +104,9 @@ export function PaymentHistory({
     <Card className="gap-0">
       <CardHeader className="space-y-1 pb-3">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-          <CardTitle className="text-sm font-semibold">Payment History</CardTitle>
+          <CardTitle className="text-sm font-semibold">
+            Payment History
+          </CardTitle>
           <div className="text-xs">
             <span className="text-muted-foreground">Total Paid: </span>
             <span className="font-mono font-semibold text-primary">
@@ -145,13 +146,17 @@ export function PaymentHistory({
                     {payment.reference && (
                       <div className="text-xs">
                         <span className="text-muted-foreground">Ref:</span>
-                        <span className="ml-1.5 text-foreground">{payment.reference}</span>
+                        <span className="ml-1.5 text-foreground">
+                          {payment.reference}
+                        </span>
                       </div>
                     )}
                     {payment.notes && (
                       <div className="text-xs">
                         <span className="text-muted-foreground">Note:</span>
-                        <span className="ml-1.5 text-foreground/80">{payment.notes}</span>
+                        <span className="ml-1.5 text-foreground/80">
+                          {payment.notes}
+                        </span>
                       </div>
                     )}
                   </div>

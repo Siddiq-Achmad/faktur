@@ -128,13 +128,14 @@ export default function InvoiceDetailPage({
           <p className="text-sm text-muted-foreground">Invoice Details</p>
         </div>
 
-        <div className="grid grid-cols-1 gap-2 sm:flex sm:flex-wrap">
+        <div className="gap-2 flex flex-wrap">
           {invoice &&
           invoice.status !== "paid" &&
           invoice.status !== "cancelled" ? (
             <RecordPaymentDialog
               invoiceId={id}
               remainingBalance={invoice.total - invoice.amountPaid}
+              buttonLabel="Payment"
             />
           ) : null}
           <DropdownMenu>
@@ -171,7 +172,7 @@ export default function InvoiceDetailPage({
               ))}
             </DropdownMenuContent>
           </DropdownMenu>
-          <Button asChild>
+          <Button asChild variant={"outline"}>
             <Link href={`/dashboard/invoices/${id}/edit`}>Edit</Link>
           </Button>
         </div>
