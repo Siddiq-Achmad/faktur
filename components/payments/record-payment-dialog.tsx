@@ -31,25 +31,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Loader2, DollarSign } from "lucide-react";
+import { Loader2 } from "lucide-react";
+import { NumberInput } from "@/components/ui/number-input";
 
 const paymentSchema = z.object({
   amount: z
-    .string()
-    .min(1, "Payment amount is required")
-    .refine((val) => !isNaN(parseFloat(val)), "Amount must be a valid number")
-    .refine(
-      (val) => parseFloat(val) > 0,
-      "Payment amount must be greater than 0"
-    )
-    .refine(
-      (val) => parseFloat(val) <= 100000000,
-      "Payment amount must not exceed 100,000,000"
-    )
-    .refine(
-      (val) => /^\d+(\.\d{1,2})?$/.test(val),
-      "Amount can have at most 2 decimal places"
-    ),
+    .number()
+    .min(0.01, "Payment amount must be greater than 0")
+    .max(100000000, "Payment amount must not exceed 100,000,000"),
   paymentDate: z
     .string()
     .min(1, "Payment date is required")
@@ -124,7 +113,7 @@ export function RecordPaymentDialog({
   const form = useForm<PaymentFormData>({
     resolver: zodResolver(paymentSchema),
     defaultValues: {
-      amount: remainingBalance.toFixed(2),
+      amount: Math.round(remainingBalance * 100) / 100,
       paymentDate: new Date().toISOString().split("T")[0],
       paymentMethod: "bank_transfer",
       reference: "",
@@ -136,7 +125,7 @@ export function RecordPaymentDialog({
     try {
       await createPaymentMutation.mutateAsync({
         invoiceId,
-        amount: parseFloat(data.amount),
+        amount: data.amount,
         paymentDate: new Date(data.paymentDate),
         paymentMethod: data.paymentMethod,
         reference: data.reference || undefined,
@@ -184,17 +173,16 @@ export function RecordPaymentDialog({
                   <FormLabel>Amount *</FormLabel>
                   <FormControl>
                     <div className="relative">
-                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
-                        USD
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground z-10">
+                        $
                       </span>
-                      <Input
-                        {...field}
-                        type="number"
-                        step="0.01"
-                        min="0.01"
+                      <NumberInput
+                        value={field.value}
+                        onChange={field.onChange}
+                        onBlur={field.onBlur}
                         max={remainingBalance}
                         placeholder="0.00"
-                        className="pl-12"
+                        className="pl-8"
                       />
                     </div>
                   </FormControl>

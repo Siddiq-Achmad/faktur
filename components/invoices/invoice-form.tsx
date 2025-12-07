@@ -45,6 +45,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import { NumberInput } from "@/components/ui/number-input";
 
 const invoiceItemSchema = z.object({
   description: z
@@ -362,7 +363,7 @@ export function InvoiceForm({
           {/* Left Column - Main Form */}
           <div className="space-y-8 lg:col-span-2">
             {/* Basic Details */}
-            <Card className="gap-2">
+            <Card className="gap-2 pb-2">
               <CardHeader className="gap-0">
                 <CardTitle className="text-base font-medium">
                   Basic Details
@@ -530,7 +531,7 @@ export function InvoiceForm({
             </Card>
 
             {/* Line Items */}
-            <Card>
+            <Card className="pb-3">
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div>
@@ -601,21 +602,17 @@ export function InvoiceForm({
                                 Quantity
                               </FormLabel>
                               <FormControl>
-                                <Input
-                                  type="number"
-                                  step="0.01"
+                                <NumberInput
                                   className="h-9 bg-background"
+                                  placeholder="0"
                                   disabled={!isClientSelected}
-                                  {...field}
-                                  onChange={(e) => {
-                                    field.onChange(
-                                      parseFloat(e.target.value) || 0
-                                    );
-                                    setTimeout(
-                                      () => updateItemAmount(index),
-                                      0
-                                    );
+                                  value={field.value}
+                                  onChange={(value) => {
+                                    field.onChange(value);
+                                    setTimeout(() => updateItemAmount(index), 0);
                                   }}
+                                  onBlur={field.onBlur}
+                                  name={field.name}
                                 />
                               </FormControl>
                               <FormMessage />
@@ -634,21 +631,17 @@ export function InvoiceForm({
                                 Rate
                               </FormLabel>
                               <FormControl>
-                                <Input
-                                  type="number"
-                                  step="0.01"
+                                <NumberInput
                                   className="h-9 bg-background"
+                                  placeholder="0.00"
                                   disabled={!isClientSelected}
-                                  {...field}
-                                  onChange={(e) => {
-                                    field.onChange(
-                                      parseFloat(e.target.value) || 0
-                                    );
-                                    setTimeout(
-                                      () => updateItemAmount(index),
-                                      0
-                                    );
+                                  value={field.value}
+                                  onChange={(value) => {
+                                    field.onChange(value);
+                                    setTimeout(() => updateItemAmount(index), 0);
                                   }}
+                                  onBlur={field.onBlur}
+                                  name={field.name}
                                 />
                               </FormControl>
                               <FormMessage />
@@ -736,27 +729,16 @@ export function InvoiceForm({
                         render={({ field }) => (
                           <FormItem>
                             <FormControl>
-                              <div className="relative">
-                                <Input
-                                  type="number"
-                                  step="0.01"
-                                  min="0"
-                                  max="100"
-                                  className="h-11 pr-8"
-                                  placeholder="0.00"
-                                  disabled={!isClientSelected}
-                                  value={field.value ?? 0}
-                                  onChange={(e) =>
-                                    field.onChange(
-                                      parseFloat(e.target.value) || 0
-                                    )
-                                  }
-                                  onBlur={field.onBlur}
-                                />
-                                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
-                                  %
-                                </span>
-                              </div>
+                              <NumberInput
+                                className="h-11"
+                                placeholder="0.00"
+                                max={100}
+                                disabled={!isClientSelected}
+                                value={field.value}
+                                onChange={field.onChange}
+                                onBlur={field.onBlur}
+                                suffix="%"
+                              />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -814,32 +796,19 @@ export function InvoiceForm({
                           render={({ field }) => (
                             <FormItem>
                               <FormControl>
-                                <div className="relative">
-                                  <Input
-                                    type="number"
-                                    step="0.01"
-                                    min="0"
-                                    className="h-11 pr-8"
-                                    placeholder="0.00"
-                                    value={field.value ?? 0}
-                                    onChange={(e) =>
-                                      field.onChange(
-                                        parseFloat(e.target.value) || 0
-                                      )
-                                    }
-                                    onBlur={field.onBlur}
-                                    disabled={
-                                      !isClientSelected ||
-                                      !form.watch("discountType") ||
-                                      form.watch("discountType") === "none"
-                                    }
-                                  />
-                                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
-                                    {form.watch("discountType") === "percentage"
-                                      ? "%"
-                                      : "$"}
-                                  </span>
-                                </div>
+                                <NumberInput
+                                  className="h-11"
+                                  placeholder="0.00"
+                                  value={field.value}
+                                  onChange={field.onChange}
+                                  onBlur={field.onBlur}
+                                  disabled={
+                                    !isClientSelected ||
+                                    !form.watch("discountType") ||
+                                    form.watch("discountType") === "none"
+                                  }
+                                  suffix={form.watch("discountType") === "percentage" ? "%" : "$"}
+                                />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
