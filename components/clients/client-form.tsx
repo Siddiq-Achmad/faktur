@@ -22,6 +22,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import { ChevronDown } from "lucide-react";
 
 const clientFormSchema = z.object({
   name: z
@@ -151,6 +157,9 @@ export function ClientForm({ clientId, defaultValues }: ClientFormProps) {
   const router = useRouter();
   const utils = trpc.useUtils();
 
+  // Open collapsible by default if editing and has tax ID or notes
+  const hasAdditionalInfo = Boolean(defaultValues?.taxId || defaultValues?.notes);
+
   const createMutation = trpc.clients.create.useMutation({
     onSuccess: () => {
       // Invalidate clients list to refresh the list view
@@ -204,16 +213,16 @@ export function ClientForm({ clientId, defaultValues }: ClientFormProps) {
         onSubmit={form.handleSubmit(onSubmit)}
         className="mx-auto space-y-8"
       >
-        <Card>
+        <Card className="gap-2 pb-2">
           <CardHeader className="gap-0">
-            <CardTitle className="flex items-center gap-2 text-base font-medium">
+            <CardTitle className="text-base font-medium">
               Basic Information
             </CardTitle>
             <CardDescription className="text-xs">
               Enter the client's contact information
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-6">
+          <CardContent className="space-y-2">
             <div className="grid gap-6 sm:grid-cols-2">
               <FormField
                 control={form.control}
@@ -299,22 +308,22 @@ export function ClientForm({ clientId, defaultValues }: ClientFormProps) {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="gap-2 pb-2">
           <CardHeader className="gap-0">
-            <CardTitle className="flex items-center gap-2 text-base font-medium">
-              Address
-            </CardTitle>
+            <CardTitle className="text-base font-medium">Address</CardTitle>
             <CardDescription className="text-xs">
               Enter the client's billing address
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-6">
+          <CardContent className="space-y-2">
             <FormField
               control={form.control}
               name="address"
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Street Address</FormLabel>
+                <FormItem className="space-y-1">
+                  <FormLabel className="text-sm font-medium">
+                    Street Address
+                  </FormLabel>
                   <FormControl>
                     <Input placeholder="123 Main St" {...field} />
                   </FormControl>
@@ -323,12 +332,12 @@ export function ClientForm({ clientId, defaultValues }: ClientFormProps) {
               )}
             />
 
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="grid gap-6 md:grid-cols-2">
               <FormField
                 control={form.control}
                 name="city"
                 render={({ field }) => (
-                  <FormItem className="space-y-1">
+                  <FormItem className="space-y-0.5">
                     <FormLabel>City</FormLabel>
                     <FormControl>
                       <Input placeholder="New York" {...field} />
@@ -342,7 +351,7 @@ export function ClientForm({ clientId, defaultValues }: ClientFormProps) {
                 control={form.control}
                 name="state"
                 render={({ field }) => (
-                  <FormItem className="space-y-1">
+                  <FormItem className="space-y-0.5">
                     <FormLabel>State/Province</FormLabel>
                     <FormControl>
                       <Input placeholder="NY" {...field} />
@@ -353,12 +362,12 @@ export function ClientForm({ clientId, defaultValues }: ClientFormProps) {
               />
             </div>
 
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="grid gap-6 md:grid-cols-2">
               <FormField
                 control={form.control}
                 name="country"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="space-y-0.5">
                     <FormLabel>Country</FormLabel>
                     <FormControl>
                       <Input placeholder="United States" {...field} />
@@ -372,7 +381,7 @@ export function ClientForm({ clientId, defaultValues }: ClientFormProps) {
                 control={form.control}
                 name="postalCode"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="space-y-0.5">
                     <FormLabel>Postal Code</FormLabel>
                     <FormControl>
                       <Input placeholder="10001" {...field} />
@@ -385,56 +394,65 @@ export function ClientForm({ clientId, defaultValues }: ClientFormProps) {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="gap-0">
-            <CardTitle className="flex items-center gap-2 text-base font-medium">
-              Additional Information
-            </CardTitle>
-            <CardDescription className="text-xs">
-              Tax ID and additional notes
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <FormField
-              control={form.control}
-              name="taxId"
-              render={({ field }) => (
-                <FormItem className="space-y-1">
-                  <FormLabel className="text-sm font-medium">
-                    Tax ID / VAT Number
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="Tax identification number"
-                      className="h-10"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+        <Card className="pb-2">
+          <Collapsible defaultOpen={hasAdditionalInfo}>
+            <CardHeader className="gap-0.5 pb-4">
+              <CollapsibleTrigger className="flex items-center justify-between w-full group">
+                <div className="text-left">
+                  <CardTitle className="text-base font-medium">
+                    Additional Information
+                  </CardTitle>
+                  <CardDescription className="text-xs">
+                    Tax ID and additional notes (optional)
+                  </CardDescription>
+                </div>
+                <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform duration-200 group-data-[state=open]:rotate-180" />
+              </CollapsibleTrigger>
+            </CardHeader>
+            <CollapsibleContent>
+              <CardContent className="space-y-2 pt-0">
+                <FormField
+                  control={form.control}
+                  name="taxId"
+                  render={({ field }) => (
+                    <FormItem className="space-y-0.5">
+                      <FormLabel className="font-medium">
+                        Tax ID / VAT Number
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="Tax identification number"
+                          className="h-10"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-            <FormField
-              control={form.control}
-              name="notes"
-              render={({ field }) => (
-                <FormItem className="space-y-1">
-                  <FormLabel className="text-sm font-medium">Notes</FormLabel>
-                  <FormControl>
-                    <textarea
-                      className="flex min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-                      placeholder="Additional notes about this client..."
-                      value={field.value ?? ""}
-                      onChange={field.onChange}
-                      onBlur={field.onBlur}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </CardContent>
+                <FormField
+                  control={form.control}
+                  name="notes"
+                  render={({ field }) => (
+                    <FormItem className="space-y-0.5">
+                      <FormLabel className="font-medium">Notes</FormLabel>
+                      <FormControl>
+                        <textarea
+                          className="flex min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                          placeholder="Additional notes about this client..."
+                          value={field.value ?? ""}
+                          onChange={field.onChange}
+                          onBlur={field.onBlur}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </CardContent>
+            </CollapsibleContent>
+          </Collapsible>
         </Card>
 
         <div className="flex justify-end gap-3">
@@ -448,7 +466,7 @@ export function ClientForm({ clientId, defaultValues }: ClientFormProps) {
           </Button>
           <Button
             type="submit"
-            className="h-10 font-medium"
+            className="h-10"
             disabled={createMutation.isPending || updateMutation.isPending}
           >
             {createMutation.isPending || updateMutation.isPending

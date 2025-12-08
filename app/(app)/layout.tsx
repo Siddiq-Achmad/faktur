@@ -4,6 +4,7 @@ import { TRPCProvider } from "@/lib/trpc/provider";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Geist } from "next/font/google";
 import { sharedMetadata } from "@/lib/metadata";
+import { ToasterWrapper } from "@/components/toaster-wrapper";
 
 export const metadata: Metadata = sharedMetadata;
 
@@ -25,6 +26,7 @@ export default function RootLayout({
         <ThemeProvider attribute="class" defaultTheme="dark">
           <TRPCProvider>{children}</TRPCProvider>
         </ThemeProvider>
+        <ToasterWrapper />
       </body>
     </html>
   );

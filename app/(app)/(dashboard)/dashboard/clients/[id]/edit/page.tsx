@@ -1,11 +1,10 @@
 "use client";
 
 import { use } from "react";
-import Link from "next/link";
 import { trpc } from "@/lib/trpc/client";
 import { ClientForm } from "@/components/clients/client-form";
-import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { NotFound } from "@/components/ui/not-found";
+import LoadingLogo from "@/components/loading-logo";
 
 export default function EditClientPage({
   params,
@@ -17,23 +16,19 @@ export default function EditClientPage({
 
   if (isLoading) {
     return (
-      <div className="flex min-h-[400px] items-center justify-center">
-        <p className="text-muted-foreground">Loading client...</p>
+      <div className="flex min-h-dvh items-center justify-center">
+        <LoadingLogo />
       </div>
     );
   }
 
   if (!client) {
     return (
-      <div className="flex min-h-[400px] flex-col items-center justify-center">
-        <p className="text-lg font-medium">Client not found</p>
-        <Button asChild className="mt-4">
-          <Link href="/dashboard/clients">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Clients
-          </Link>
-        </Button>
-      </div>
+      <NotFound
+        prefix="Client"
+        backHref="/dashboard/clients"
+        backLabel="Back to Clients"
+      />
     );
   }
 
@@ -52,9 +47,11 @@ export default function EditClientPage({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-3xl mx-auto">
       <div>
-        <h1 className="text-lg font-bold tracking-tight">Edit Client</h1>
+        <h1 className="text-lg font-bold tracking-tight text-primary">
+          Edit Client
+        </h1>
         <p className="text-muted-foreground text-sm">
           Update information for {client.name}
         </p>

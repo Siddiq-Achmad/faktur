@@ -1,8 +1,9 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { db } from "@/lib/db";
-import { clients } from "@/lib/db/schema";
+import { clients, invoices } from "@/lib/db/schema";
 import { eq, and, desc } from "drizzle-orm";
+import { TRPCError } from "@trpc/server";
 
 const createClientSchema = z.object({
   name: z
@@ -10,7 +11,10 @@ const createClientSchema = z.object({
     .min(1, "Client name is required")
     .min(2, "Name must be at least 2 characters long")
     .max(100, "Name must not exceed 100 characters")
-    .regex(/^[a-zA-Z\s'-]+$/, "Name can only contain letters, spaces, hyphens, and apostrophes")
+    .regex(
+      /^[a-zA-Z\s'-]+$/,
+      "Name can only contain letters, spaces, hyphens, and apostrophes"
+    )
     .transform((val) => val.trim()),
   email: z
     .string()
@@ -180,6 +184,22 @@ export const clientsRouter = createTRPCRouter({
   delete: protectedProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ ctx, input }) => {
+      // Check if client has any related invoices
+      const relatedInvoices = await db
+        .select()
+        .from(invoices)
+        .where(
+          and(eq(invoices.clientId, input.id), eq(invoices.userId, ctx.userId))
+        )
+        .limit(1);
+
+      if (relatedInvoices.length > 0) {
+        throw new TRPCError({
+          code: "PRECONDITION_FAILED",
+          message: "Cannot delete client with existing invoices.",
+        });
+      }
+
       await db
         .delete(clients)
         .where(and(eq(clients.id, input.id), eq(clients.userId, ctx.userId)));

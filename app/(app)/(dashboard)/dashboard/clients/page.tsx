@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { trpc } from "@/lib/trpc/client";
 import {
   Card,
@@ -25,11 +26,18 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Users, MoreHorizontal, Eye, Pencil, Trash } from "lucide-react";
+import { Users, MoreHorizontal } from "lucide-react";
+import {
+  DeleteConfirmationDialog,
+  useDeleteConfirmation,
+} from "@/components/ui/delete-confirmation-dialog";
+import { toast } from "sonner";
 
 export default function ClientsPage() {
+  const router = useRouter();
   const { data: clients, isLoading } = trpc.clients.list.useQuery();
   const utils = trpc.useUtils();
+  const deleteConfirmation = useDeleteConfirmation();
 
   const deleteMutation = trpc.clients.delete.useMutation({
     onSuccess: () => {
@@ -38,15 +46,21 @@ export default function ClientsPage() {
   });
 
   const handleDelete = async (id: string) => {
-    if (confirm("Are you sure you want to delete this client?")) {
-      await deleteMutation.mutateAsync({ id });
+    deleteConfirmation.confirm(async () => {
+      try {
+        await deleteMutation.mutateAsync({ id });
 
-      // Clean up localStorage if the deleted client was the recent one
-      const recentClientId = localStorage.getItem("recentClientId");
-      if (recentClientId === id) {
-        localStorage.removeItem("recentClientId");
+        // Clean up localStorage if the deleted client was the recent one
+        const recentClientId = localStorage.getItem("recentClientId");
+        if (recentClientId === id) {
+          localStorage.removeItem("recentClientId");
+        }
+
+        toast.success("Client deleted successfully");
+      } catch (err: any) {
+        toast.error(err.message || "Failed to delete client");
       }
-    }
+    });
   };
 
   if (isLoading) {
@@ -64,12 +78,14 @@ export default function ClientsPage() {
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-lg font-bold tracking-tight">Clients</h1>
+              <h1 className="text-lg font-bold tracking-tight text-primary">
+                Clients
+              </h1>
               <p className="text-sm text-muted-foreground">
-                Manage your client relationships
+                Manage your client
               </p>
             </div>
-            <Button asChild className="h-10">
+            <Button asChild>
               <Link href="/dashboard/clients/new">Add Client</Link>
             </Button>
           </div>
@@ -106,12 +122,12 @@ export default function ClientsPage() {
       <div className="space-y-2">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-lg font-bold tracking-tight">Clients</h1>
-            <p className="text-sm text-muted-foreground">
-              Manage your client relationships
-            </p>
+            <h1 className="text-lg font-bold tracking-tight text-primary">
+              Clients
+            </h1>
+            <p className="text-sm text-muted-foreground">Manage your client</p>
           </div>
-          <Button asChild className="h-10">
+          <Button asChild>
             <Link href="/dashboard/clients/new">Add Client</Link>
           </Button>
         </div>
@@ -139,7 +155,11 @@ export default function ClientsPage() {
             </TableHeader>
             <TableBody>
               {clients.map((client) => (
-                <TableRow key={client.id}>
+                <TableRow
+                  key={client.id}
+                  className="cursor-pointer"
+                  onClick={() => router.push(`/dashboard/clients/${client.id}`)}
+                >
                   <TableCell className="text-sm font-medium">
                     {client.name}
                   </TableCell>
@@ -156,7 +176,7 @@ export default function ClientsPage() {
                     {[client.city, client.country].filter(Boolean).join(", ") ||
                       "-"}
                   </TableCell>
-                  <TableCell>
+                  <TableCell onClick={(e) => e.stopPropagation()}>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" className="h-8 w-8 p-0">
@@ -166,14 +186,7 @@ export default function ClientsPage() {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem asChild>
-                          <Link href={`/dashboard/clients/${client.id}`}>
-                            <Eye className="mr-2 h-4 w-4" />
-                            View
-                          </Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem asChild>
                           <Link href={`/dashboard/clients/${client.id}/edit`}>
-                            <Pencil className="mr-2 h-4 w-4" />
                             Edit
                           </Link>
                         </DropdownMenuItem>
@@ -182,7 +195,6 @@ export default function ClientsPage() {
                           onClick={() => handleDelete(client.id)}
                           className="text-destructive"
                         >
-                          <Trash className="mr-2 h-4 w-4" />
                           Delete
                         </DropdownMenuItem>
                       </DropdownMenuContent>
@@ -205,15 +217,15 @@ export default function ClientsPage() {
         {clients.map((client) => (
           <Card
             key={client.id}
-            className="overflow-hidden hover:shadow-md transition-shadow"
+            className="overflow-hidden hover:shadow-md transition-shadow py-0"
           >
             <CardContent className="p-0">
               <Link
                 href={`/dashboard/clients/${client.id}`}
-                className="block px-4 pb-3 pt-0"
+                className="block px-4 pb-3 pt-0 hover:bg-background/70"
               >
-                <div className="mb-3">
-                  <h3 className="text-base font-semibold text-foreground mb-1">
+                <div className="mb-4 pt-3.5">
+                  <h3 className="text-base font-semibold text-primary">
                     {client.name}
                   </h3>
                   <p className="text-sm text-muted-foreground">
@@ -257,18 +269,7 @@ export default function ClientsPage() {
                 </div>
               </Link>
 
-              <div className="bg-muted/50 px-4 py-2 flex items-center justify-end gap-2">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-8 text-xs"
-                  asChild
-                >
-                  <Link href={`/dashboard/clients/${client.id}`}>
-                    <Eye className="mr-1.5 h-3.5 w-3.5" />
-                    View
-                  </Link>
-                </Button>
+              <div className="bg-muted/50 px-4 py-2 flex items-center justify-end">
                 <Button
                   variant="ghost"
                   size="sm"
@@ -276,7 +277,6 @@ export default function ClientsPage() {
                   asChild
                 >
                   <Link href={`/dashboard/clients/${client.id}/edit`}>
-                    <Pencil className="mr-1.5 h-3.5 w-3.5" />
                     Edit
                   </Link>
                 </Button>
@@ -286,7 +286,6 @@ export default function ClientsPage() {
                   className="h-8 text-xs text-destructive hover:text-destructive"
                   onClick={() => handleDelete(client.id)}
                 >
-                  <Trash className="mr-1.5 h-3.5 w-3.5" />
                   Delete
                 </Button>
               </div>
@@ -294,6 +293,14 @@ export default function ClientsPage() {
           </Card>
         ))}
       </div>
+
+      <DeleteConfirmationDialog
+        open={deleteConfirmation.isOpen}
+        onOpenChange={deleteConfirmation.handleCancel}
+        onConfirm={deleteConfirmation.handleConfirm}
+        title="Delete Client"
+        description="Are you sure you want to delete this client? This action cannot be undone."
+      />
     </div>
   );
 }

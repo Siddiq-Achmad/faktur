@@ -32,16 +32,20 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import {
-  Plus,
   Trash2,
-  FileText,
   Calendar,
   DollarSign,
   Info,
-  UserPlus,
   AlertCircle,
+  ChevronDown,
 } from "lucide-react";
 import Link from "next/link";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import { NumberInput } from "@/components/ui/number-input";
 
 const invoiceItemSchema = z.object({
   description: z
@@ -156,16 +160,30 @@ type InvoiceFormValues = z.infer<typeof invoiceFormSchema>;
 
 interface InvoiceFormProps {
   invoiceId?: string;
+  invoiceNumber?: string;
   defaultValues?: Partial<InvoiceFormValues>;
 }
 
-export function InvoiceForm({ invoiceId, defaultValues }: InvoiceFormProps) {
+export function InvoiceForm({
+  invoiceId,
+  invoiceNumber,
+  defaultValues,
+}: InvoiceFormProps) {
   const router = useRouter();
   const utils = trpc.useUtils();
   const [subtotal, setSubtotal] = useState(0);
   const [discountAmount, setDiscountAmount] = useState(0);
   const [taxAmount, setTaxAmount] = useState(0);
   const [total, setTotal] = useState(0);
+
+  // Open collapsibles by default if editing and has data
+  const hasTaxOrDiscount = Boolean(
+    defaultValues?.taxRate ||
+      (defaultValues?.discountType && defaultValues?.discountType !== "none")
+  );
+  const hasAdditionalInfo = Boolean(
+    defaultValues?.notes || defaultValues?.terms
+  );
 
   const { data: clients } = trpc.clients.list.useQuery();
   const { data: nextInvoiceNumber } =
@@ -331,23 +349,20 @@ export function InvoiceForm({ invoiceId, defaultValues }: InvoiceFormProps) {
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="mx-auto max-w-5xl space-y-8"
+        className="mx-auto max-w-5xl space-y-6"
       >
         {/* Header Section */}
         <div className="space-y-1">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
-              <FileText className="h-5 w-5" />
-            </div>
             <div>
-              <h1 className="text-2xl font-semibold tracking-tight">
+              <h1 className="text-2xl font-semibold tracking-tight text-primary">
                 {invoiceId ? "Edit Invoice" : "Create Invoice"}
               </h1>
-              {nextInvoiceNumber && !invoiceId && (
-                <p className="text-sm text-muted-foreground">
-                  Invoice #{nextInvoiceNumber}
-                </p>
-              )}
+              <p className="text-sm text-muted-foreground">
+                {nextInvoiceNumber && !invoiceId
+                  ? `Invoice #${nextInvoiceNumber}`
+                  : invoiceNumber && `Invoice #${invoiceNumber}`}
+              </p>
             </div>
           </div>
         </div>
@@ -357,8 +372,8 @@ export function InvoiceForm({ invoiceId, defaultValues }: InvoiceFormProps) {
           {/* Left Column - Main Form */}
           <div className="space-y-8 lg:col-span-2">
             {/* Basic Details */}
-            <Card>
-              <CardHeader className="space-y-1 pb-4">
+            <Card className="gap-2 pb-2">
+              <CardHeader className="gap-0">
                 <CardTitle className="text-base font-medium">
                   Basic Details
                 </CardTitle>
@@ -366,10 +381,10 @@ export function InvoiceForm({ invoiceId, defaultValues }: InvoiceFormProps) {
                   Invoice information and client details
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-2">
+              <CardContent className="pt-2">
                 {/* Empty clients alert */}
                 {clients && clients.length === 0 && (
-                  <div className="flex items-center gap-2 rounded-md border px-3 py-2 -mt-4 border-amber-400">
+                  <div className="flex items-center gap-2 rounded-md border px-3 py-2 border-amber-400">
                     <AlertCircle className="h-4 w-4 shrink-0 text-amber-400" />
                     <p className="text-sm text-muted-foreground">
                       Add a client first to create an invoice,&nbsp;
@@ -390,7 +405,7 @@ export function InvoiceForm({ invoiceId, defaultValues }: InvoiceFormProps) {
                     render={({ field }) => (
                       <FormItem className="space-y-1">
                         <FormLabel className="text-sm font-medium">
-                          Client *
+                          Client
                         </FormLabel>
                         <Select
                           value={field.value || ""}
@@ -418,8 +433,8 @@ export function InvoiceForm({ invoiceId, defaultValues }: InvoiceFormProps) {
                               <SelectItem key={client.id} value={client.id}>
                                 {client.name}
                                 {client.company && (
-                                  <span className="text-xs text-muted-foreground ml-2">
-                                    ({client.company})
+                                  <span className="text-xs text-muted-foreground block max-w-20 text-ellipsis overflow-hidden">
+                                    {client.company}
                                   </span>
                                 )}
                               </SelectItem>
@@ -525,8 +540,8 @@ export function InvoiceForm({ invoiceId, defaultValues }: InvoiceFormProps) {
             </Card>
 
             {/* Line Items */}
-            <Card>
-              <CardHeader className="space-y-1 pb-4">
+            <Card className="pb-3">
+              <CardHeader>
                 <div className="flex items-center justify-between">
                   <div>
                     <CardTitle className="text-base font-medium">
@@ -560,7 +575,7 @@ export function InvoiceForm({ invoiceId, defaultValues }: InvoiceFormProps) {
                 {fields.map((field, index) => (
                   <div
                     key={field.id}
-                    className="group relative space-y-4 rounded-lg border border-border/50 bg-muted/20 p-4 transition-all hover:border-border hover:bg-muted/30"
+                    className="group relative space-y-4 transition-all hover:bg-muted/30"
                   >
                     <div className="grid gap-4 md:grid-cols-12">
                       <div className="md:col-span-5">
@@ -596,21 +611,20 @@ export function InvoiceForm({ invoiceId, defaultValues }: InvoiceFormProps) {
                                 Quantity
                               </FormLabel>
                               <FormControl>
-                                <Input
-                                  type="number"
-                                  step="0.01"
+                                <NumberInput
                                   className="h-9 bg-background"
+                                  placeholder="0"
                                   disabled={!isClientSelected}
-                                  {...field}
-                                  onChange={(e) => {
-                                    field.onChange(
-                                      parseFloat(e.target.value) || 0
-                                    );
+                                  value={field.value}
+                                  onChange={(value) => {
+                                    field.onChange(value);
                                     setTimeout(
                                       () => updateItemAmount(index),
                                       0
                                     );
                                   }}
+                                  onBlur={field.onBlur}
+                                  name={field.name}
                                 />
                               </FormControl>
                               <FormMessage />
@@ -629,21 +643,20 @@ export function InvoiceForm({ invoiceId, defaultValues }: InvoiceFormProps) {
                                 Rate
                               </FormLabel>
                               <FormControl>
-                                <Input
-                                  type="number"
-                                  step="0.01"
+                                <NumberInput
                                   className="h-9 bg-background"
+                                  placeholder="0.00"
                                   disabled={!isClientSelected}
-                                  {...field}
-                                  onChange={(e) => {
-                                    field.onChange(
-                                      parseFloat(e.target.value) || 0
-                                    );
+                                  value={field.value}
+                                  onChange={(value) => {
+                                    field.onChange(value);
                                     setTimeout(
                                       () => updateItemAmount(index),
                                       0
                                     );
                                   }}
+                                  onBlur={field.onBlur}
+                                  name={field.name}
                                 />
                               </FormControl>
                               <FormMessage />
@@ -698,168 +711,201 @@ export function InvoiceForm({ invoiceId, defaultValues }: InvoiceFormProps) {
             </Card>
 
             {/* Tax & Discounts */}
-            <Card>
-              <CardHeader className="space-y-1 pb-4">
-                <CardTitle className="text-base font-medium">
-                  Tax & Discounts
-                </CardTitle>
-                <CardDescription className="text-xs">
-                  Configure tax rates and discounts
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="grid gap-6 sm:grid-cols-3">
-                  <FormField
-                    control={form.control}
-                    name="taxRate"
-                    render={({ field }) => (
-                      <FormItem className="space-y-1">
-                        <FormLabel className="text-sm font-medium">
-                          Tax Rate (%)
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            step="0.01"
-                            min="0"
-                            max="100"
-                            className="h-10"
-                            disabled={!isClientSelected}
-                            value={field.value ?? 0}
-                            onChange={(e) =>
-                              field.onChange(parseFloat(e.target.value) || 0)
-                            }
-                            onBlur={field.onBlur}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+            <Card className="pb-2">
+              <Collapsible defaultOpen={hasTaxOrDiscount}>
+                <CardHeader className="gap-0.5 pb-4">
+                  <CollapsibleTrigger className="flex items-center justify-between w-full group">
+                    <div className="text-left">
+                      <CardTitle className="text-base font-medium">
+                        Tax & Discounts
+                      </CardTitle>
+                      <CardDescription className="text-xs">
+                        Configure tax rates and discounts (optional)
+                      </CardDescription>
+                    </div>
+                    <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform duration-200 group-data-[state=open]:rotate-180" />
+                  </CollapsibleTrigger>
+                </CardHeader>
+                <CollapsibleContent>
+                  <CardContent className="space-y-2 pt-0">
+                    {/* Tax Rate */}
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-medium">Tax Rate</p>
+                          <p className="text-xs text-muted-foreground">
+                            Add tax percentage to invoice
+                          </p>
+                        </div>
+                      </div>
+                      <FormField
+                        control={form.control}
+                        name="taxRate"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormControl>
+                              <NumberInput
+                                className="h-11"
+                                placeholder="0.00"
+                                max={100}
+                                disabled={!isClientSelected}
+                                value={field.value}
+                                onChange={field.onChange}
+                                onBlur={field.onBlur}
+                                suffix="%"
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
 
-                  <FormField
-                    control={form.control}
-                    name="discountType"
-                    render={({ field }) => (
-                      <FormItem className="space-y-1">
-                        <FormLabel className="text-sm font-medium">
-                          Discount Type
-                        </FormLabel>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                          disabled={!isClientSelected}
-                        >
-                          <FormControl>
-                            <SelectTrigger className="h-10">
-                              <SelectValue placeholder="None" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="none">None</SelectItem>
-                            <SelectItem value="percentage">
-                              Percentage
-                            </SelectItem>
-                            <SelectItem value="fixed">Fixed Amount</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                    {/* Discount */}
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-medium">Discount</p>
+                          <p className="text-xs text-muted-foreground">
+                            Apply a discount to the invoice
+                          </p>
+                        </div>
+                      </div>
 
-                  <FormField
-                    control={form.control}
-                    name="discountValue"
-                    render={({ field }) => (
-                      <FormItem className="space-y-1">
-                        <FormLabel className="text-sm font-medium">
-                          Discount Value
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            step="0.01"
-                            min="0"
-                            className="h-10"
-                            value={field.value ?? 0}
-                            onChange={(e) =>
-                              field.onChange(parseFloat(e.target.value) || 0)
-                            }
-                            onBlur={field.onBlur}
-                            disabled={
-                              !isClientSelected ||
-                              !form.watch("discountType") ||
-                              form.watch("discountType") === "none"
-                            }
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              </CardContent>
+                      <div className="grid gap-3 sm:grid-cols-2">
+                        <FormField
+                          control={form.control}
+                          name="discountType"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormControl>
+                                <Select
+                                  onValueChange={field.onChange}
+                                  defaultValue={field.value}
+                                  disabled={!isClientSelected}
+                                >
+                                  <SelectTrigger className="h-11">
+                                    <SelectValue placeholder="Select type" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="none">
+                                      No Discount
+                                    </SelectItem>
+                                    <SelectItem value="percentage">
+                                      Percentage (%)
+                                    </SelectItem>
+                                    <SelectItem value="fixed">
+                                      Fixed Amount ($)
+                                    </SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={form.control}
+                          name="discountValue"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormControl>
+                                <NumberInput
+                                  className="h-11"
+                                  placeholder="0.00"
+                                  value={field.value}
+                                  onChange={field.onChange}
+                                  onBlur={field.onBlur}
+                                  disabled={
+                                    !isClientSelected ||
+                                    !form.watch("discountType") ||
+                                    form.watch("discountType") === "none"
+                                  }
+                                  suffix={
+                                    form.watch("discountType") === "percentage"
+                                      ? "%"
+                                      : "$"
+                                  }
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    </div>
+                  </CardContent>
+                </CollapsibleContent>
+              </Collapsible>
             </Card>
 
             {/* Additional Information */}
-            <Card>
-              <CardHeader className="space-y-1 pb-4">
-                <CardTitle className="flex items-center gap-2 text-base font-medium">
-                  <Info className="h-4 w-4 text-muted-foreground" />
-                  Additional Information
-                </CardTitle>
-                <CardDescription className="text-xs">
-                  Optional notes and terms
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <FormField
-                  control={form.control}
-                  name="notes"
-                  render={({ field }) => (
-                    <FormItem className="space-y-1">
-                      <FormLabel className="text-sm font-medium">
-                        Notes
-                      </FormLabel>
-                      <FormControl>
-                        <textarea
-                          className="flex min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-                          placeholder="Additional notes for the client..."
-                          disabled={!isClientSelected}
-                          value={field.value ?? ""}
-                          onChange={field.onChange}
-                          onBlur={field.onBlur}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+            <Card className="pb-2">
+              <Collapsible defaultOpen={hasAdditionalInfo}>
+                <CardHeader className="gap-0.5 pb-4">
+                  <CollapsibleTrigger className="flex items-center justify-between w-full group">
+                    <div className="text-left">
+                      <CardTitle className="text-base font-medium">
+                        Additional Information
+                      </CardTitle>
+                      <CardDescription className="text-xs">
+                        Optional notes and terms
+                      </CardDescription>
+                    </div>
+                    <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform duration-200 group-data-[state=open]:rotate-180" />
+                  </CollapsibleTrigger>
+                </CardHeader>
+                <CollapsibleContent>
+                  <CardContent className="space-y-2 pt-0">
+                    <FormField
+                      control={form.control}
+                      name="notes"
+                      render={({ field }) => (
+                        <FormItem className="space-y-1">
+                          <FormLabel className="text-sm font-medium">
+                            Notes
+                          </FormLabel>
+                          <FormControl>
+                            <textarea
+                              className="flex min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                              placeholder="Additional notes for the client..."
+                              disabled={!isClientSelected}
+                              value={field.value ?? ""}
+                              onChange={field.onChange}
+                              onBlur={field.onBlur}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
-                <FormField
-                  control={form.control}
-                  name="terms"
-                  render={({ field }) => (
-                    <FormItem className="space-y-1">
-                      <FormLabel className="text-sm font-medium">
-                        Terms & Conditions
-                      </FormLabel>
-                      <FormControl>
-                        <textarea
-                          className="flex min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-                          placeholder="Payment terms and conditions..."
-                          disabled={!isClientSelected}
-                          value={field.value ?? ""}
-                          onChange={field.onChange}
-                          onBlur={field.onBlur}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </CardContent>
+                    <FormField
+                      control={form.control}
+                      name="terms"
+                      render={({ field }) => (
+                        <FormItem className="space-y-1">
+                          <FormLabel className="text-sm font-medium">
+                            Terms & Conditions
+                          </FormLabel>
+                          <FormControl>
+                            <textarea
+                              className="flex min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                              placeholder="Payment terms and conditions..."
+                              disabled={!isClientSelected}
+                              value={field.value ?? ""}
+                              onChange={field.onChange}
+                              onBlur={field.onBlur}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </CardContent>
+                </CollapsibleContent>
+              </Collapsible>
             </Card>
           </div>
 
@@ -868,9 +914,8 @@ export function InvoiceForm({ invoiceId, defaultValues }: InvoiceFormProps) {
             {/* Invoice Summary */}
             <div className="sticky top-8 space-y-6">
               <Card>
-                <CardHeader className="space-y-1 pb-4">
+                <CardHeader className="gap-0.5 pb-2">
                   <CardTitle className="flex items-center gap-2 text-base font-medium">
-                    <DollarSign className="h-4 w-4 text-muted-foreground" />
                     Summary
                   </CardTitle>
                   <CardDescription className="text-xs">

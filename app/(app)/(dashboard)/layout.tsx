@@ -35,7 +35,7 @@ export default function DashboardLayout({
 
   return (
     <div className="flex h-screen md:overflow-hidden">
-      <aside className="hidden w-64 md:block">
+      <aside className="hidden w-56 md:block">
         <Sidebar />
       </aside>
       <div className="flex flex-1 md:flex-col md:overflow-hidden">

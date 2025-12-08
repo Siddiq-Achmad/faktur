@@ -1,11 +1,10 @@
 "use client";
 
 import { use } from "react";
-import Link from "next/link";
 import { trpc } from "@/lib/trpc/client";
 import { InvoiceForm } from "@/components/invoices/invoice-form";
-import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { NotFound } from "@/components/ui/not-found";
+import LoadingLogo from "@/components/loading-logo";
 
 export default function EditInvoicePage({
   params,
@@ -17,23 +16,19 @@ export default function EditInvoicePage({
 
   if (isLoading) {
     return (
-      <div className="flex min-h-[400px] items-center justify-center">
-        <p className="text-muted-foreground">Loading invoice...</p>
+      <div className="flex min-h-dvh items-center justify-center">
+        <LoadingLogo />
       </div>
     );
   }
 
   if (!invoice) {
     return (
-      <div className="flex min-h-[400px] flex-col items-center justify-center">
-        <p className="text-lg font-medium">Invoice not found</p>
-        <Button asChild className="mt-4">
-          <Link href="/dashboard/invoices">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Invoices
-          </Link>
-        </Button>
-      </div>
+      <NotFound
+        prefix="Invoice"
+        backHref="/dashboard/invoices"
+        backLabel="Back to Invoices"
+      />
     );
   }
 
@@ -43,7 +38,9 @@ export default function EditInvoicePage({
     dueDate: new Date(invoice.dueDate).toISOString().split("T")[0],
     status: invoice.status,
     taxRate: invoice.taxRate,
-    discountType: (invoice.discountType as "percentage" | "fixed" | "none" | undefined) || "none",
+    discountType:
+      (invoice.discountType as "percentage" | "fixed" | "none" | undefined) ||
+      "none",
     discountValue: invoice.discountValue || 0,
     notes: invoice.notes || "",
     terms: invoice.terms || "",
@@ -52,14 +49,11 @@ export default function EditInvoicePage({
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Edit Invoice</h1>
-        <p className="text-muted-foreground">
-          Update invoice {invoice.invoiceNumber}
-        </p>
-      </div>
-
-      <InvoiceForm invoiceId={id} defaultValues={defaultValues} />
+      <InvoiceForm
+        invoiceId={id}
+        invoiceNumber={invoice.invoiceNumber}
+        defaultValues={defaultValues}
+      />
     </div>
   );
 }

@@ -5,10 +5,7 @@ import { payments, invoices } from "@/lib/db/schema";
 import { eq, and, desc } from "drizzle-orm";
 
 const createPaymentSchema = z.object({
-  invoiceId: z
-    .string()
-    .min(1, "Invoice ID is required")
-    .uuid("Invalid invoice ID"),
+  invoiceId: z.string().min(1, "Invoice ID is required"),
   amount: z
     .number()
     .min(0.01, "Payment amount must be greater than 0")

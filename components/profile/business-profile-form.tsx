@@ -23,7 +23,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Loader2, X, ImageIcon } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
+import { processImageForUpload } from "@/lib/image-utils";
 
 const businessProfileSchema = z.object({
   companyName: z
@@ -229,7 +230,6 @@ const businessProfileSchema = z.object({
 type BusinessProfileFormData = z.infer<typeof businessProfileSchema>;
 
 export function BusinessProfileForm() {
-  const { toast } = useToast();
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
@@ -294,67 +294,32 @@ export function BusinessProfileForm() {
     try {
       await upsertMutation.mutateAsync(data);
       await utils.businessProfile.get.invalidate();
-      toast({
-        title: "Success",
-        description: "Business profile saved successfully",
-      });
+      toast.success("Business profile saved successfully");
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to save business profile",
-        variant: "destructive",
-      });
+      toast.error("Failed to save business profile");
     }
   };
 
   const processFile = async (file: File) => {
-    // Validate file size (max 2MB)
-    if (file.size > 2 * 1024 * 1024) {
-      toast({
-        title: "Error",
-        description: "Logo must be smaller than 2MB",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    // Validate file type
-    if (!file.type.startsWith("image/")) {
-      toast({
-        title: "Error",
-        description: "Only image files are allowed",
-        variant: "destructive",
-      });
-      return;
-    }
-
     setUploadingLogo(true);
 
-    // Convert to base64
-    const reader = new FileReader();
-    reader.onloadend = async () => {
-      const base64 = reader.result as string;
-      setLogoPreview(base64);
+    try {
+      // Process and validate image (handles WebP conversion automatically)
+      const base64Image = await processImageForUpload(file);
+      setLogoPreview(base64Image);
 
-      try {
-        await uploadLogoMutation.mutateAsync({ logo: base64 });
-        await utils.businessProfile.get.invalidate();
-        toast({
-          title: "Success",
-          description: "Logo uploaded successfully",
-        });
-      } catch (error) {
-        toast({
-          title: "Error",
-          description: "Failed to upload logo",
-          variant: "destructive",
-        });
-        setLogoPreview(null);
-      } finally {
-        setUploadingLogo(false);
-      }
-    };
-    reader.readAsDataURL(file);
+      // Upload to server
+      await uploadLogoMutation.mutateAsync({ logo: base64Image });
+      await utils.businessProfile.get.invalidate();
+      toast.success("Logo uploaded successfully");
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to upload logo";
+      toast.error(errorMessage);
+      setLogoPreview(null);
+    } finally {
+      setUploadingLogo(false);
+    }
   };
 
   const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -396,16 +361,9 @@ export function BusinessProfileForm() {
       await deleteLogoMutation.mutateAsync();
       await utils.businessProfile.get.invalidate();
       setLogoPreview(null);
-      toast({
-        title: "Success",
-        description: "Logo deleted successfully",
-      });
+      toast.success("Logo deleted successfully");
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to delete logo",
-        variant: "destructive",
-      });
+      toast.error("Failed to delete logo");
     }
   };
 
@@ -424,16 +382,16 @@ export function BusinessProfileForm() {
         className="mx-auto space-y-8"
       >
         {/* Logo Upload */}
-        <Card>
-          <CardHeader className="space-y-1 pb-4">
+        <Card className="gap-2">
+          <CardHeader className="pb-4 text-center gap-0">
             <CardTitle className="text-base font-medium">
               Company Logo
             </CardTitle>
             <CardDescription className="text-xs">
-              Upload your company logo (max 2MB)
+              Square ratio recommended for best results
             </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="mx-auto">
             {logoPreview ? (
               <div className="relative inline-block">
                 <div className="group relative overflow-hidden rounded-lg border border-border/50 bg-muted/30 p-4">
@@ -468,8 +426,8 @@ export function BusinessProfileForm() {
                 onDrop={handleDrop}
                 onClick={() => fileInputRef.current?.click()}
                 className={`
-                  group relative cursor-pointer overflow-hidden rounded-lg border-2 border-dashed
-                  transition-all duration-200
+                  group relative cursor-pointer overflow-hidden rounded-lg border-2 border-dashed dark:border-secondary/70
+                  transition-all duration-200 w-48 h-48
                   ${
                     isDragging
                       ? "border-primary bg-primary/5 scale-[1.02]"
@@ -478,42 +436,44 @@ export function BusinessProfileForm() {
                   ${uploadingLogo ? "pointer-events-none opacity-60" : ""}
                 `}
               >
-                <div className="flex flex-col items-center justify-center px-6 py-10">
+                <div className="flex flex-col items-center justify-center h-full px-4 py-6 pointer-events-none">
                   <div
                     className={`
-                    mb-4 flex h-16 w-16 items-center justify-center rounded-full
+                    mb-3 flex h-12 w-12 items-center justify-center rounded-full
                     transition-all duration-200
                     ${
                       isDragging
                         ? "bg-primary/20 text-primary scale-110"
-                        : "bg-muted text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary group-hover:animate-pulse"
+                        : "bg-muted text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary"
                     }
                   `}
                   >
                     {uploadingLogo ? (
-                      <Loader2 className="h-8 w-8 animate-spin" />
+                      <Loader2 className="h-6 w-6 animate-spin" />
                     ) : (
-                      <ImageIcon className="h-8 w-8" />
+                      <ImageIcon className="h-6 w-6" />
                     )}
                   </div>
 
-                  <div className="text-center">
-                    <p className="mb-1 text-sm font-medium">
+                  <div className="text-center space-y-1">
+                    <p className="text-xs font-medium">
                       {uploadingLogo
                         ? "Uploading..."
                         : isDragging
-                        ? "Drop your logo here"
-                        : "Click to upload or drag and drop"}
+                        ? "Drop here"
+                        : "Upload Logo"}
                     </p>
-                    <p className="text-xs text-muted-foreground">
-                      Square ratio recommended. PNG, JPG or WEBP (max 2MB)
+                    <p className="text-[10px] text-muted-foreground leading-tight">
+                      JPG, PNG, WebP
+                      <br />
+                      Max 2MB
                     </p>
                   </div>
 
                   <input
                     ref={fileInputRef}
                     type="file"
-                    accept="image/*"
+                    accept="image/jpeg,image/jpg,image/png,image/webp"
                     onChange={handleLogoUpload}
                     disabled={uploadingLogo}
                     className="hidden"
@@ -525,8 +485,8 @@ export function BusinessProfileForm() {
         </Card>
 
         {/* Company Information */}
-        <Card>
-          <CardHeader className="space-y-1 pb-4">
+        <Card className="gap-2">
+          <CardHeader className="gap-0 pb-4">
             <CardTitle className="text-base font-medium">
               Company Information
             </CardTitle>
@@ -619,8 +579,8 @@ export function BusinessProfileForm() {
         </Card>
 
         {/* Address */}
-        <Card>
-          <CardHeader className="space-y-1 pb-4">
+        <Card className="gap-2">
+          <CardHeader className="gap-0 pb-4">
             <CardTitle className="text-base font-medium">
               Business Address
             </CardTitle>
@@ -704,8 +664,8 @@ export function BusinessProfileForm() {
         </Card>
 
         {/* Tax Information */}
-        <Card>
-          <CardHeader className="space-y-1 pb-4">
+        <Card className="gap-2">
+          <CardHeader className="gap-0 pb-4">
             <CardTitle className="text-base font-medium">
               Tax Information
             </CardTitle>
@@ -746,8 +706,8 @@ export function BusinessProfileForm() {
         </Card>
 
         {/* Bank Information */}
-        <Card>
-          <CardHeader className="space-y-1 pb-4">
+        <Card className="gap-2">
+          <CardHeader className="gap-0 pb-4">
             <CardTitle className="text-base font-medium">
               Bank Information
             </CardTitle>

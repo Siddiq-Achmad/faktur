@@ -2,6 +2,7 @@
 
 import { use } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { format } from "date-fns";
 import { trpc } from "@/lib/trpc/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -15,7 +16,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ArrowLeft, Pencil } from "lucide-react";
+import { STATUS_COLORS } from "@/lib/constants/status-colors";
+import { NotFound } from "@/components/ui/not-found";
+import LoadingLogo from "@/components/loading-logo";
 
 const statusColors = {
   draft: "secondary",
@@ -38,6 +41,7 @@ export default function ClientDetailPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  const router = useRouter();
   const { id } = use(params);
   const { data: client, isLoading: clientLoading } =
     trpc.clients.getById.useQuery({ id });
@@ -49,23 +53,19 @@ export default function ClientDetailPage({
 
   if (clientLoading) {
     return (
-      <div className="flex min-h-[400px] items-center justify-center">
-        <p className="text-muted-foreground">Loading client...</p>
+      <div className="flex min-h-dvh items-center justify-center">
+        <LoadingLogo />
       </div>
     );
   }
 
   if (!client) {
     return (
-      <div className="flex min-h-[400px] flex-col items-center justify-center">
-        <p className="text-lg font-medium">Client not found</p>
-        <Button asChild className="mt-4">
-          <Link href="/dashboard/clients">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Clients
-          </Link>
-        </Button>
-      </div>
+      <NotFound
+        prefix="Client"
+        backHref="/dashboard/clients"
+        backLabel="Back to Clients"
+      />
     );
   }
 
@@ -79,31 +79,37 @@ export default function ClientDetailPage({
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" asChild>
-            <Link href="/dashboard/clients">
-              <ArrowLeft className="h-4 w-4" />
-            </Link>
-          </Button>
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">{client.name}</h1>
-            <p className="text-muted-foreground">Client Details</p>
+            <h1 className="text-2xl text-primary font-bold tracking-tight">
+              {client.name}
+            </h1>
+            <p className="text-muted-foreground text-sm">Client Details</p>
           </div>
         </div>
-        <Button size="sm" asChild>
-          <Link href={`/dashboard/clients/${id}/edit`}>
-            <Pencil className="mr-2 h-4 w-4" />
-            Edit
-          </Link>
-        </Button>
+        <div className="space-x-2">
+          <Button size="sm" variant={"outline"} asChild>
+            <Link href={`/dashboard/clients/${id}/edit`}>Edit</Link>
+          </Button>
+
+          <Button
+            size="sm"
+            asChild
+            onClick={() => {
+              localStorage.setItem("recentClientId", id);
+            }}
+          >
+            <Link href="/dashboard/invoices/new">Add Invoice</Link>
+          </Button>
+        </div>
       </div>
 
-      <div className="flex flex-wrap items-center gap-6 rounded-lg border border-border/50 bg-card p-4 shadow-sm">
-        {/* Total Invoiced */}
-        <div className="flex items-center gap-3">
-          <p className="text-xs font-medium text-muted-foreground">
+      {/* Mobile View - Cards */}
+      <div className="sm:hidden grid grid-cols-1 gap-3">
+        <div className="rounded-lg border border-border/50 bg-card p-4 shadow-sm">
+          <p className="text-xs font-medium text-muted-foreground mb-2">
             Total Invoiced
           </p>
-          <p className="text-sm font-bold">
+          <p className="text-xl font-bold font-mono">
             $
             {totalInvoiced.toLocaleString("en-US", {
               minimumFractionDigits: 2,
@@ -112,13 +118,64 @@ export default function ClientDetailPage({
           </p>
         </div>
 
-        {/* Divider */}
-        <div className="hidden h-6 w-px bg-border/50 md:block" />
+        <div className="grid grid-cols-2 gap-3">
+          <div className="rounded-lg border border-border/50 bg-card p-4 shadow-sm">
+            <p className="text-xs font-medium text-muted-foreground mb-2">
+              Paid
+            </p>
+            <p
+              className="text-lg font-bold font-mono"
+              style={{ color: STATUS_COLORS.paid }}
+            >
+              $
+              {totalPaid.toLocaleString("en-US", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}
+            </p>
+          </div>
 
-        {/* Paid */}
+          <div className="rounded-lg border border-border/50 bg-card p-4 shadow-sm">
+            <p className="text-xs font-medium text-muted-foreground mb-2">
+              Outstanding
+            </p>
+            <p
+              className="text-lg font-bold font-mono"
+              style={{ color: STATUS_COLORS.overdue }}
+            >
+              $
+              {outstanding.toLocaleString("en-US", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Desktop View */}
+      <div className="hidden sm:flex items-center gap-6 rounded-lg border border-border/50 bg-card p-4 shadow-sm">
+        <div className="flex items-center gap-3">
+          <p className="text-xs font-medium text-muted-foreground">
+            Total Invoiced
+          </p>
+          <p className="text-sm font-bold font-mono">
+            $
+            {totalInvoiced.toLocaleString("en-US", {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })}
+          </p>
+        </div>
+
+        <div className="h-6 w-px bg-border/50" />
+
         <div className="flex items-center gap-3">
           <p className="text-xs font-medium text-muted-foreground">Paid</p>
-          <p className="text-sm font-bold text-green-600">
+          <p
+            className="text-sm font-bold font-mono"
+            style={{ color: STATUS_COLORS.paid }}
+          >
             $
             {totalPaid.toLocaleString("en-US", {
               minimumFractionDigits: 2,
@@ -127,15 +184,16 @@ export default function ClientDetailPage({
           </p>
         </div>
 
-        {/* Divider */}
-        <div className="hidden h-6 w-px bg-border/50 md:block" />
+        <div className="h-6 w-px bg-border/50" />
 
-        {/* Outstanding */}
         <div className="flex items-center gap-3">
           <p className="text-xs font-medium text-muted-foreground">
             Outstanding
           </p>
-          <p className="text-sm font-bold text-orange-600">
+          <p
+            className="text-sm font-bold font-mono"
+            style={{ color: STATUS_COLORS.overdue }}
+          >
             $
             {outstanding.toLocaleString("en-US", {
               minimumFractionDigits: 2,
@@ -146,7 +204,7 @@ export default function ClientDetailPage({
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
-        <Card>
+        <Card className="gap-1">
           <CardHeader className="space-y-1 pb-3">
             <CardTitle className="text-sm font-semibold">
               Contact Information
@@ -197,7 +255,7 @@ export default function ClientDetailPage({
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="gap-1">
           <CardHeader className="space-y-1 pb-3">
             <CardTitle className="text-sm font-semibold">Address</CardTitle>
           </CardHeader>
@@ -261,7 +319,7 @@ export default function ClientDetailPage({
         </Card>
       )}
 
-      <Card>
+      <Card className="gap-0">
         <CardHeader className="space-y-1 pb-3">
           <CardTitle className="text-sm font-semibold">
             Invoice History
@@ -277,62 +335,120 @@ export default function ClientDetailPage({
               No invoices for this client yet
             </p>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow className="border-b border-border/30 hover:bg-transparent">
-                  <TableHead className="h-10 px-6 text-xs font-medium text-muted-foreground">
-                    Invoice #
-                  </TableHead>
-                  <TableHead className="h-10 px-4 text-xs font-medium text-muted-foreground">
-                    Issue Date
-                  </TableHead>
-                  <TableHead className="h-10 px-4 text-xs font-medium text-muted-foreground">
-                    Due Date
-                  </TableHead>
-                  <TableHead className="h-10 px-4 text-right text-xs font-medium text-muted-foreground">
-                    Amount
-                  </TableHead>
-                  <TableHead className="h-10 px-6 text-right text-xs font-medium text-muted-foreground">
-                    Status
-                  </TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
+            <>
+              {/* Mobile View - Cards */}
+              <div className="md:hidden space-y-3 p-4">
                 {clientInvoices.map((invoice) => (
-                  <TableRow
+                  <Link
                     key={invoice.id}
-                    className="border-b border-border/20 hover:bg-muted/50"
+                    href={`/dashboard/invoices/${invoice.id}`}
+                    className="block rounded-lg border border-border/50 bg-card p-4 hover:bg-muted/50 transition-colors"
                   >
-                    <TableCell className="px-6 py-3 font-mono text-sm">
-                      <Link
-                        href={`/dashboard/invoices/${invoice.id}`}
-                        className="hover:underline text-primary"
-                      >
-                        {invoice.invoiceNumber}
-                      </Link>
-                    </TableCell>
-                    <TableCell className="px-4 py-3 text-sm">
-                      {format(new Date(invoice.issueDate), "MMM dd")}
-                    </TableCell>
-                    <TableCell className="px-4 py-3 text-sm">
-                      {format(new Date(invoice.dueDate), "MMM dd")}
-                    </TableCell>
-                    <TableCell className="px-4 py-3 text-right font-mono text-sm font-medium">
-                      $
-                      {invoice.total.toLocaleString("en-US", {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                      })}
-                    </TableCell>
-                    <TableCell className="px-6 py-3 text-right">
+                    <div className="flex items-start justify-between mb-3">
+                      <div>
+                        <p className="text-xs text-muted-foreground mb-1">
+                          Invoice
+                        </p>
+                        <p className="font-mono text-sm font-medium text-primary">
+                          {invoice.invoiceNumber}
+                        </p>
+                      </div>
                       <Badge variant={statusColors[invoice.status]}>
                         {statusLabels[invoice.status]}
                       </Badge>
-                    </TableCell>
-                  </TableRow>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <p className="text-xs text-muted-foreground mb-1">
+                          Issue Date
+                        </p>
+                        <p className="text-sm">
+                          {format(new Date(invoice.issueDate), "MMM dd, yyyy")}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground mb-1">
+                          Due Date
+                        </p>
+                        <p className="text-sm">
+                          {format(new Date(invoice.dueDate), "MMM dd, yyyy")}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="mt-3 pt-3 border-t border-border/30">
+                      <p className="text-xs text-muted-foreground mb-1">
+                        Amount
+                      </p>
+                      <p className="text-lg font-bold font-mono">
+                        $
+                        {invoice.total.toLocaleString("en-US", {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })}
+                      </p>
+                    </div>
+                  </Link>
                 ))}
-              </TableBody>
-            </Table>
+              </div>
+
+              {/* Desktop View - Table */}
+              <div className="hidden md:block">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="border-b border-border/30 hover:bg-transparent">
+                      <TableHead className="h-10 px-6 text-xs font-medium text-muted-foreground">
+                        Invoice #
+                      </TableHead>
+                      <TableHead className="h-10 px-4 text-xs font-medium text-muted-foreground">
+                        Issue Date
+                      </TableHead>
+                      <TableHead className="h-10 px-4 text-xs font-medium text-muted-foreground">
+                        Due Date
+                      </TableHead>
+                      <TableHead className="h-10 px-4 text-right text-xs font-medium text-muted-foreground">
+                        Amount
+                      </TableHead>
+                      <TableHead className="h-10 px-6 text-right text-xs font-medium text-muted-foreground">
+                        Status
+                      </TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {clientInvoices.map((invoice) => (
+                      <TableRow
+                        key={invoice.id}
+                        className="border-b border-border/20 hover:bg-muted/50 cursor-pointer"
+                        onClick={() =>
+                          router.push(`/dashboard/invoices/${invoice.id}`)
+                        }
+                      >
+                        <TableCell className="px-6 py-3 font-mono text-sm text-primary">
+                          {invoice.invoiceNumber}
+                        </TableCell>
+                        <TableCell className="px-4 py-3 text-sm">
+                          {format(new Date(invoice.issueDate), "MMM dd")}
+                        </TableCell>
+                        <TableCell className="px-4 py-3 text-sm">
+                          {format(new Date(invoice.dueDate), "MMM dd")}
+                        </TableCell>
+                        <TableCell className="px-4 py-3 text-right font-mono text-sm font-medium">
+                          $
+                          {invoice.total.toLocaleString("en-US", {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })}
+                        </TableCell>
+                        <TableCell className="px-6 py-3 text-right">
+                          <Badge variant={statusColors[invoice.status]}>
+                            {statusLabels[invoice.status]}
+                          </Badge>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </>
           )}
         </CardContent>
       </Card>
