@@ -259,7 +259,10 @@ export function ElegantTemplate({ invoice }: { invoice: InvoiceData }) {
           {/* ITEMS TABLE */}
           <View style={styles.tableContainer}>
             <View style={styles.tableHeader}>
-              <Text style={[styles.headerText, styles.colDesc]} hyphenationCallback={(word) => [word]}>
+              <Text
+                style={[styles.headerText, styles.colDesc]}
+                hyphenationCallback={(word) => [word]}
+              >
                 Description
               </Text>
               <Text style={[styles.headerText, styles.colQty]}>Qty</Text>
@@ -269,7 +272,10 @@ export function ElegantTemplate({ invoice }: { invoice: InvoiceData }) {
 
             {invoice.items.map((item, index) => (
               <View key={index} style={styles.tableRow}>
-                <Text style={[styles.rowText, styles.colDesc]}>
+                <Text
+                  style={[styles.rowText, styles.colDesc]}
+                  hyphenationCallback={(word) => [word]}
+                >
                   {item.description}
                 </Text>
                 <Text style={[styles.rowText, styles.colQty]}>

@@ -9,435 +9,319 @@ import {
 import { format } from "date-fns";
 import { InvoiceData } from "../types";
 
-// Sakura Template - Japanese-inspired with soft colors
+// THEME: Sakura Bloom - Soft blush dominance with dynamic structure
+const colors = {
+  primaryInk: "#333333",
+  softBlush: "#f8f2f5", // Dominant background fill for accents
+  cherryBlossom: "#d898a9", // Strong accent for lines/totals
+  white: "#ffffff",
+  lightGray: "#aaaaaa",
+};
+
 const styles = StyleSheet.create({
   page: {
-    padding: 45,
+    padding: 40,
     fontSize: 10,
     fontFamily: "Helvetica",
-    backgroundColor: "#fdf8f6",
+    color: colors.primaryInk,
+    backgroundColor: colors.white,
   },
-  decorativeTop: {
-    height: 3,
-    backgroundColor: "#fca5a5",
-    marginBottom: 25,
-  },
+
+  // --- HEADER (Logo Left, Title Right) ---
   header: {
-    marginBottom: 35,
-    padding: 20,
-    backgroundColor: "#fff1f2",
-    borderLeftWidth: 4,
-    borderLeftColor: "#fca5a5",
-  },
-  titleRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 15,
-  },
-  title: {
-    fontSize: 28,
-    color: "#be123c",
-    fontWeight: "bold",
+    alignItems: "flex-start",
+    marginBottom: 20,
   },
   logo: {
     width: 60,
     height: 60,
+    marginBottom: 5,
   },
-  companySection: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-  companyInfo: {
-    flex: 1,
-  },
-  companyName: {
-    fontSize: 15,
-    fontWeight: "bold",
-    marginBottom: 6,
-    color: "#881337",
-  },
-  companyDetails: {
-    fontSize: 9,
-    color: "#9f1239",
-    lineHeight: 1.5,
-  },
-  invoiceInfo: {
+  titleBlock: {
     alignItems: "flex-end",
+    paddingBottom: 20,
+  },
+  mainTitle: {
+    fontSize: 24,
+    fontWeight: "bold",
+    marginBottom: 4,
+    color: colors.primaryInk,
   },
   invoiceNumber: {
-    fontSize: 13,
-    fontWeight: "bold",
-    color: "#be123c",
-    marginBottom: 8,
-  },
-  statusBadge: {
-    paddingHorizontal: 12,
-    paddingVertical: 5,
-    backgroundColor: "#fda4af",
-    borderRadius: 12,
-  },
-  statusText: {
-    fontSize: 9,
-    fontWeight: "bold",
-    textTransform: "uppercase",
-    color: "#881337",
-  },
-  detailsRow: {
-    flexDirection: "row",
-    marginTop: 25,
-    marginBottom: 25,
-    gap: 15,
-  },
-  detailCard: {
-    flex: 1,
-    padding: 15,
-    backgroundColor: "#ffffff",
-    borderWidth: 1,
-    borderColor: "#fecdd3",
-    borderRadius: 8,
-  },
-  detailCardTitle: {
-    fontSize: 10,
-    fontWeight: "bold",
-    marginBottom: 10,
-    color: "#be123c",
-    paddingBottom: 6,
-    borderBottomWidth: 1,
-    borderBottomColor: "#fecdd3",
-  },
-  detailLabel: {
-    fontSize: 8,
-    color: "#9f1239",
-    marginBottom: 3,
-  },
-  detailValue: {
-    fontSize: 10,
-    color: "#4c0519",
-    marginBottom: 8,
-  },
-  tableSection: {
-    marginTop: 15,
-    marginBottom: 25,
-  },
-  tableTitle: {
     fontSize: 12,
+    letterSpacing: 0.5,
+    color: colors.cherryBlossom,
+  },
+
+  // --- TOP INFORMATION GRID (Dynamic 2x2 Layout) ---
+  infoGrid: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 40,
+  },
+
+  // Bill To / Bill From Grouping (Aligned Left)
+  addressGroup: {
+    width: "50%",
+  },
+  addressBox: {
+    marginBottom: 25,
+  },
+
+  // Date Block (The Floating Sakura Box - Aligned Right)
+  dateBoxWrapper: {
+    width: "40%", // Narrower column for dates
+    padding: 15,
+    backgroundColor: colors.softBlush, // Dominant pink background
+    borderRadius: 4,
+    borderLeftWidth: 3, // Accent vertical line
+    borderLeftColor: colors.cherryBlossom,
+  },
+
+  label: {
+    fontSize: 8,
+    textTransform: "uppercase",
+    color: colors.primaryInk,
+    marginBottom: 5,
     fontWeight: "bold",
-    marginBottom: 12,
-    color: "#881337",
+  },
+  value: {
+    fontSize: 10,
+    lineHeight: 1.6,
+  },
+
+  // --- TABLE ---
+  tableContainer: {
+    marginBottom: 40,
+    borderTopWidth: 1, // Separator line below address blocks
+    borderTopColor: colors.lightGray,
+    paddingTop: 20,
   },
   tableHeader: {
     flexDirection: "row",
-    backgroundColor: "#ffe4e6",
-    paddingVertical: 10,
-    paddingHorizontal: 12,
-    borderTopWidth: 2,
     borderBottomWidth: 2,
-    borderColor: "#fda4af",
+    borderBottomColor: colors.cherryBlossom,
+    paddingBottom: 8,
+    marginBottom: 10,
   },
   tableRow: {
     flexDirection: "row",
     paddingVertical: 10,
-    paddingHorizontal: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: "#fecdd3",
-    backgroundColor: "#ffffff",
+    borderBottomWidth: 0.5,
+    borderBottomColor: colors.lightGray,
   },
-  tableRowAlt: {
-    backgroundColor: "#fff7f8",
-  },
-  tableColDescription: {
-    flex: 3,
-  },
-  tableColQuantity: {
-    flex: 1,
-    textAlign: "right",
-  },
-  tableColRate: {
-    flex: 1.5,
-    textAlign: "right",
-  },
-  tableColAmount: {
-    flex: 1.5,
-    textAlign: "right",
-  },
-  tableHeaderText: {
+
+  // Columns (consistent structure)
+  colDesc: { flex: 4 },
+  colQty: { flex: 1, textAlign: "center" },
+  colRate: { flex: 1.5, textAlign: "right" },
+  colAmount: { flex: 1.5, textAlign: "right" },
+
+  headerText: {
     fontSize: 9,
-    fontWeight: "bold",
-    color: "#9f1239",
     textTransform: "uppercase",
+    fontWeight: "bold",
+    color: colors.primaryInk,
   },
-  tableText: {
-    fontSize: 10,
-    color: "#4c0519",
+
+  // --- TOTALS ---
+  totalsContainer: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
   },
-  totalsSection: {
-    marginTop: 20,
-    marginLeft: "52%",
-    padding: 15,
-    backgroundColor: "#fff1f2",
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: "#fecdd3",
+  totalsBox: {
+    width: "40%",
   },
   totalRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     paddingVertical: 5,
   },
-  totalLabel: {
-    fontSize: 10,
-    color: "#9f1239",
-    marginRight: 40,
-  },
-  totalValue: {
-    fontSize: 10,
-    fontWeight: "bold",
-    textAlign: "right",
-    color: "#4c0519",
-  },
+
+  // Grand Total uses the soft pink fill
   grandTotal: {
-    borderTopWidth: 2,
-    borderTopColor: "#fca5a5",
-    paddingTop: 10,
-    marginTop: 8,
-    backgroundColor: "#ffe4e6",
-    paddingHorizontal: 10,
-    paddingVertical: 8,
-    marginHorizontal: -10,
-    borderRadius: 6,
+    backgroundColor: colors.softBlush,
+    padding: 10,
+    marginTop: 15,
+    flexDirection: "row",
+    justifyContent: "space-between",
   },
   grandTotalLabel: {
     fontSize: 12,
     fontWeight: "bold",
-    color: "#be123c",
   },
   grandTotalValue: {
-    fontSize: 13,
+    fontSize: 16,
     fontWeight: "bold",
-    color: "#be123c",
+    color: colors.cherryBlossom,
   },
+
+  // --- NOTES/FOOTER ---
   notesSection: {
-    marginTop: 30,
-    padding: 15,
-    backgroundColor: "#ffffff",
-    borderLeftWidth: 3,
-    borderLeftColor: "#fca5a5",
-    borderRadius: 4,
+    marginTop: 40,
   },
   notesTitle: {
-    fontSize: 10,
+    fontSize: 9,
     fontWeight: "bold",
-    marginBottom: 6,
-    color: "#881337",
+    marginBottom: 5,
+    color: colors.cherryBlossom,
   },
   notesText: {
     fontSize: 9,
-    color: "#9f1239",
-    lineHeight: 1.6,
-  },
-  footer: {
-    position: "absolute",
-    bottom: 30,
-    left: 45,
-    right: 45,
-    textAlign: "center",
-    color: "#fda4af",
-    fontSize: 8,
-    paddingTop: 10,
-    borderTopWidth: 1,
-    borderTopColor: "#fecdd3",
-  },
-  decorativeBottom: {
-    position: "absolute",
-    bottom: 20,
-    left: 45,
-    right: 45,
-    height: 2,
-    backgroundColor: "#fca5a5",
+    lineHeight: 1.4,
   },
 });
+
+const formatCurrency = (amount: number) => `USD ${amount.toFixed(2)}`;
 
 export function SakuraTemplate({ invoice }: { invoice: InvoiceData }) {
   return (
     <Document>
       <Page size="A4" style={styles.page}>
-        {/* Decorative Top */}
-        <View style={styles.decorativeTop} />
-
-        {/* Header */}
+        {/* --- 1. HEADER (Logo & Title) --- */}
         <View style={styles.header}>
-          <View style={styles.titleRow}>
-            <Text style={styles.title}>Invoice</Text>
+          <View>
             {invoice.businessProfile?.logo && (
               <Image src={invoice.businessProfile.logo} style={styles.logo} />
             )}
+            <Text style={{ fontSize: 16, fontWeight: "bold" }}>
+              {invoice.businessProfile?.companyName}
+            </Text>
           </View>
+          <View style={styles.titleBlock}>
+            <Text style={styles.mainTitle}>INVOICE</Text>
+            <Text style={styles.invoiceNumber}>#{invoice.invoiceNumber}</Text>
+          </View>
+        </View>
 
-          <View style={styles.companySection}>
-            <View style={styles.companyInfo}>
-              {invoice.businessProfile && (
-                <>
-                  <Text style={styles.companyName}>
-                    {invoice.businessProfile.companyName}
+        {/* --- 2. DYNAMIC INFO GRID --- */}
+        <View style={styles.infoGrid}>
+          {/* LEFT SIDE: Bill To / Bill From */}
+          <View style={styles.addressGroup}>
+            <View style={styles.addressBox}>
+              <Text style={styles.label}>Bill To</Text>
+              {invoice.client && (
+                <Text style={styles.value}>
+                  <Text style={{ fontWeight: "bold" }}>
+                    {invoice.client.name}
                   </Text>
-                  <Text style={styles.companyDetails}>
-                    {invoice.businessProfile.email}
-                  </Text>
-                  {invoice.businessProfile.phone && (
-                    <Text style={styles.companyDetails}>
-                      {invoice.businessProfile.phone}
-                    </Text>
-                  )}
-                  {invoice.businessProfile.address && (
-                    <Text style={styles.companyDetails}>
-                      {invoice.businessProfile.address}
-                      {invoice.businessProfile.city && `, ${invoice.businessProfile.city}`}
-                    </Text>
-                  )}
-                </>
+                  {"\n"}
+                  {invoice.client.company && `${invoice.client.company}\n`}
+                  {invoice.client.email}
+                </Text>
               )}
             </View>
 
-            <View style={styles.invoiceInfo}>
-              <Text style={styles.invoiceNumber}>{invoice.invoiceNumber}</Text>
-              <View style={styles.statusBadge}>
-                <Text style={styles.statusText}>{invoice.status}</Text>
-              </View>
+            <View style={styles.addressBox}>
+              <Text style={styles.label}>Bill From</Text>
+              {invoice.businessProfile && (
+                <Text style={styles.value}>
+                  {invoice.businessProfile.address}
+                  {"\n"}
+                  {invoice.businessProfile.city},{" "}
+                  {invoice.businessProfile.state}
+                  {"\n"}
+                  {invoice.businessProfile.email}
+                </Text>
+              )}
+            </View>
+          </View>
+
+          {/* RIGHT SIDE: Floating Sakura Date Box */}
+          <View style={styles.dateBoxWrapper}>
+            <View>
+              <Text style={styles.label}>Issue Date</Text>
+              <Text
+                style={[
+                  styles.value,
+                  { marginBottom: 15, fontSize: 11, fontWeight: "bold" },
+                ]}
+              >
+                {format(new Date(invoice.issueDate), "MMM dd, yyyy")}
+              </Text>
+            </View>
+            <View>
+              <Text style={styles.label}>Payment Due</Text>
+              <Text
+                style={[
+                  styles.value,
+                  {
+                    fontSize: 11,
+                    fontWeight: "bold",
+                    color: colors.cherryBlossom,
+                  },
+                ]}
+              >
+                {format(new Date(invoice.dueDate), "MMM dd, yyyy")}
+              </Text>
             </View>
           </View>
         </View>
 
-        {/* Details Cards */}
-        <View style={styles.detailsRow}>
-          <View style={styles.detailCard}>
-            <Text style={styles.detailCardTitle}>Invoice Details</Text>
-            <Text style={styles.detailLabel}>Issue Date</Text>
-            <Text style={styles.detailValue}>
-              {format(new Date(invoice.issueDate), "MMMM dd, yyyy")}
-            </Text>
-            <Text style={styles.detailLabel}>Due Date</Text>
-            <Text style={styles.detailValue}>
-              {format(new Date(invoice.dueDate), "MMMM dd, yyyy")}
-            </Text>
-          </View>
-
-          <View style={styles.detailCard}>
-            <Text style={styles.detailCardTitle}>Bill To</Text>
-            {invoice.client && (
-              <>
-                <Text style={styles.detailLabel}>Client Name</Text>
-                <Text style={styles.detailValue}>{invoice.client.name}</Text>
-                <Text style={styles.detailLabel}>Email</Text>
-                <Text style={styles.detailValue}>{invoice.client.email}</Text>
-                {invoice.client.company && (
-                  <>
-                    <Text style={styles.detailLabel}>Company</Text>
-                    <Text style={styles.detailValue}>{invoice.client.company}</Text>
-                  </>
-                )}
-              </>
-            )}
-          </View>
-        </View>
-
-        {/* Items Table */}
-        <View style={styles.tableSection}>
-          <Text style={styles.tableTitle}>Items</Text>
+        {/* --- 3. ITEMS TABLE --- */}
+        <View style={styles.tableContainer}>
           <View style={styles.tableHeader}>
-            <Text style={[styles.tableHeaderText, styles.tableColDescription]}>
-              Description
-            </Text>
-            <Text style={[styles.tableHeaderText, styles.tableColQuantity]}>
-              Qty
-            </Text>
-            <Text style={[styles.tableHeaderText, styles.tableColRate]}>
-              Rate
-            </Text>
-            <Text style={[styles.tableHeaderText, styles.tableColAmount]}>
-              Amount
-            </Text>
+            <Text style={[styles.headerText, styles.colDesc]}>Description</Text>
+            <Text style={[styles.headerText, styles.colQty]}>Qty</Text>
+            <Text style={[styles.headerText, styles.colRate]}>Rate</Text>
+            <Text style={[styles.headerText, styles.colAmount]}>Amount</Text>
           </View>
 
           {invoice.items.map((item, index) => (
-            <View
-              key={index}
-              style={[
-                styles.tableRow,
-                index % 2 === 1 ? styles.tableRowAlt : {}
-              ]}
-            >
-              <Text style={[styles.tableText, styles.tableColDescription]}>
+            <View key={index} style={styles.tableRow}>
+              <Text style={[styles.value, styles.colDesc]}>
                 {item.description}
               </Text>
-              <Text style={[styles.tableText, styles.tableColQuantity]}>
-                {item.quantity}
+              <Text style={[styles.value, styles.colQty]}>{item.quantity}</Text>
+              <Text style={[styles.value, styles.colRate]}>
+                {formatCurrency(item.rate)}
               </Text>
-              <Text style={[styles.tableText, styles.tableColRate]}>
-                ${item.rate.toFixed(2)}
-              </Text>
-              <Text style={[styles.tableText, styles.tableColAmount]}>
-                ${item.amount.toFixed(2)}
+              <Text style={[styles.value, styles.colAmount]}>
+                {formatCurrency(item.amount)}
               </Text>
             </View>
           ))}
         </View>
 
-        {/* Totals */}
-        <View style={styles.totalsSection}>
-          <View style={styles.totalRow}>
-            <Text style={styles.totalLabel}>Subtotal</Text>
-            <Text style={styles.totalValue}>
-              ${invoice.subtotal.toFixed(2)}
-            </Text>
-          </View>
-
-          {invoice.discountAmount > 0 && (
+        {/* --- 4. TOTALS --- */}
+        <View style={styles.totalsContainer}>
+          <View style={styles.totalsBox}>
             <View style={styles.totalRow}>
-              <Text style={styles.totalLabel}>Discount</Text>
-              <Text style={styles.totalValue}>
-                -${invoice.discountAmount.toFixed(2)}
+              <Text style={styles.label}>Subtotal</Text>
+              <Text style={styles.value}>
+                {formatCurrency(invoice.subtotal)}
               </Text>
             </View>
-          )}
 
-          <View style={styles.totalRow}>
-            <Text style={styles.totalLabel}>Tax ({invoice.taxRate}%)</Text>
-            <Text style={styles.totalValue}>
-              ${invoice.taxAmount.toFixed(2)}
-            </Text>
-          </View>
+            <View style={styles.totalRow}>
+              <Text style={styles.label}>Tax ({invoice.taxRate}%)</Text>
+              <Text style={styles.value}>
+                {formatCurrency(invoice.taxAmount)}
+              </Text>
+            </View>
 
-          <View style={[styles.totalRow, styles.grandTotal]}>
-            <Text style={styles.grandTotalLabel}>Total</Text>
-            <Text style={styles.grandTotalValue}>
-              ${invoice.total.toFixed(2)}
-            </Text>
+            {/* Grand Total Row with Soft Blush Background and Pink Text */}
+            <View style={styles.grandTotal}>
+              <Text style={styles.grandTotalLabel}>TOTAL DUE</Text>
+              <Text style={styles.grandTotalValue}>
+                {formatCurrency(invoice.total)}
+              </Text>
+            </View>
           </View>
         </View>
 
-        {/* Notes and Terms */}
-        {invoice.notes && (
+        {/* --- 5. NOTES/TERMS --- */}
+        {(invoice.notes || invoice.terms) && (
           <View style={styles.notesSection}>
-            <Text style={styles.notesTitle}>Notes</Text>
-            <Text style={styles.notesText}>{invoice.notes}</Text>
-          </View>
-        )}
-
-        {invoice.terms && (
-          <View style={[styles.notesSection, { marginTop: 12 }]}>
-            <Text style={styles.notesTitle}>Terms & Conditions</Text>
+            <Text style={styles.notesTitle}>PAYMENT NOTES</Text>
             <Text style={styles.notesText}>{invoice.terms}</Text>
+            <Text style={[styles.notesText, { marginTop: 5 }]}>
+              {invoice.notes}
+            </Text>
           </View>
         )}
-
-        {/* Footer */}
-        <Text style={styles.footer}>
-          Generated on {format(new Date(), "MMMM dd, yyyy")}
-        </Text>
-
-        {/* Decorative Bottom */}
-        <View style={styles.decorativeBottom} />
       </Page>
     </Document>
   );
