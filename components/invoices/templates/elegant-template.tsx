@@ -9,433 +9,307 @@ import {
 import { format } from "date-fns";
 import { InvoiceData } from "../types";
 
-// Elegant Template - Sophisticated editorial design inspired by high-end magazines
+// THEME: Sidebar - Uses a vertical layout with a prominent color column
+const colors = {
+  primary: "#374151", // Dark Slate
+  secondary: "#4b5563", // Text gray
+  border: "#e5e7eb",
+  white: "#ffffff",
+};
+
 const styles = StyleSheet.create({
   page: {
-    padding: 50,
+    flexDirection: "row", // Key for the sidebar layout
     fontSize: 10,
     fontFamily: "Helvetica",
-    backgroundColor: "#ffffff",
+    color: colors.secondary,
   },
-  // Elegant header with subtle sophistication
-  header: {
-    marginBottom: 50,
-    paddingBottom: 25,
-    borderBottomWidth: 1,
-    borderBottomColor: "#000000",
-  },
-  headerTop: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-    marginBottom: 30,
-  },
-  logoSection: {
-    flex: 1,
+
+  // --- 1. SIDEBAR (Left Column) ---
+  sidebar: {
+    width: 140, // Fixed width for the sidebar
+    backgroundColor: colors.primary,
+    color: colors.white,
+    padding: 20,
+    paddingTop: 30,
+    height: "100%",
   },
   logo: {
-    width: 60,
-    height: 60,
-    marginBottom: 20,
-  },
-  companyName: {
-    fontSize: 11,
-    fontWeight: "bold",
-    marginBottom: 6,
-    color: "#000000",
-    textTransform: "uppercase",
-    letterSpacing: 3,
-  },
-  companyDetails: {
-    fontSize: 8,
-    color: "#666666",
-    lineHeight: 1.8,
-    letterSpacing: 0.3,
-  },
-  titleSection: {
-    alignItems: "flex-end",
+    width: 40,
+    height: 40,
+    marginBottom: 15,
   },
   title: {
-    fontSize: 72,
-    fontWeight: "normal",
-    color: "#000000",
+    fontSize: 16,
+    fontWeight: "bold",
+    textTransform: "uppercase",
     marginBottom: 5,
-    letterSpacing: -2,
+    letterSpacing: 1,
+    color: colors.white,
   },
-  invoiceNumber: {
-    fontSize: 10,
-    color: "#666666",
-    letterSpacing: 2,
-    marginTop: 5,
+  subtitle: {
+    fontSize: 12,
+    color: colors.white,
+    marginBottom: 30,
   },
-  statusBadge: {
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    marginTop: 15,
-    alignSelf: "flex-end",
-    borderWidth: 1,
-    borderColor: "#000000",
-  },
-  statusText: {
-    fontSize: 7,
-    fontWeight: "bold",
-    textTransform: "uppercase",
-    color: "#000",
-    letterSpacing: 2,
-  },
-  // Sophisticated info section
-  metaSection: {
-    flexDirection: "row",
-    marginBottom: 60,
-    paddingTop: 30,
-  },
-  metaColumn: {
-    flex: 1,
-  },
-  metaColumnRight: {
-    flex: 1,
-    paddingLeft: 40,
-  },
-  metaTitle: {
-    fontSize: 8,
-    fontWeight: "bold",
-    marginBottom: 15,
-    color: "#000000",
-    textTransform: "uppercase",
-    letterSpacing: 2,
+
+  // Sidebar Text Grouping
+  metaGroup: {
+    marginBottom: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: "#4f5b6b", // Slightly lighter slate for internal divider
+    paddingBottom: 15,
   },
   metaLabel: {
     fontSize: 7,
-    color: "#999999",
-    marginBottom: 3,
     textTransform: "uppercase",
-    letterSpacing: 1,
+    fontWeight: "bold",
+    marginBottom: 4,
+    letterSpacing: 0.5,
+    color: "#e5e7eb",
   },
   metaValue: {
-    fontSize: 10,
-    color: "#000000",
-    marginBottom: 12,
-    letterSpacing: 0.3,
+    fontSize: 9,
+    lineHeight: 1.4,
+    color: colors.white,
   },
-  // Editorial-style table
-  table: {
-    marginTop: 10,
-    marginBottom: 50,
+
+  // --- 2. MAIN CONTENT (Right Column) ---
+  mainContent: {
+    flexGrow: 1, // Takes up remaining space
+    padding: 30,
+    paddingTop: 40,
+  },
+
+  // Addresses
+  addresses: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 40,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+    paddingBottom: 20,
+  },
+  addressBlock: {
+    width: "48%",
+  },
+  addressTitle: {
+    fontSize: 10,
+    fontWeight: "bold",
+    textTransform: "uppercase",
+    marginBottom: 8,
+    color: colors.primary,
+  },
+  addressText: {
+    fontSize: 10,
+    lineHeight: 1.5,
+  },
+
+  // Table
+  tableContainer: {
+    marginBottom: 40,
   },
   tableHeader: {
     flexDirection: "row",
-    paddingBottom: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: "#000000",
-    marginBottom: 15,
+    paddingVertical: 8,
+    borderBottomWidth: 2,
+    borderBottomColor: colors.primary, // Strong bottom border
   },
   tableRow: {
     flexDirection: "row",
-    paddingVertical: 15,
-    borderBottomWidth: 0.5,
-    borderBottomColor: "#e0e0e0",
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
   },
-  tableColDescription: {
-    flex: 3,
-  },
-  tableColQuantity: {
-    flex: 0.8,
-    textAlign: "center",
-  },
-  tableColRate: {
-    flex: 1.2,
-    textAlign: "right",
-  },
-  tableColAmount: {
-    flex: 1.2,
-    textAlign: "right",
-  },
-  tableHeaderText: {
-    fontSize: 7,
-    fontWeight: "bold",
-    color: "#000000",
+
+  // Columns
+  colDesc: { flex: 4 },
+  colQty: { flex: 1, textAlign: "center" },
+  colRate: { flex: 1.5, textAlign: "right" },
+  colAmount: { flex: 1.5, textAlign: "right", fontWeight: "bold" },
+
+  headerText: {
+    fontSize: 9,
     textTransform: "uppercase",
-    letterSpacing: 2,
+    fontWeight: "bold",
+    color: colors.primary,
+    whiteSpace: "nowrap",
   },
-  tableText: {
+  rowText: {
     fontSize: 10,
-    color: "#000000",
-    letterSpacing: 0.2,
   },
-  tableTextDescription: {
-    fontSize: 10,
-    color: "#000000",
-    letterSpacing: 0.2,
-    lineHeight: 1.4,
+
+  // Totals
+  totalsContainer: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
   },
-  // Refined totals section
-  totalsSection: {
-    marginTop: 30,
-    marginLeft: "60%",
+  totalsBox: {
+    width: "45%",
+    paddingRight: 10,
   },
   totalRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    paddingVertical: 8,
+    paddingVertical: 5,
   },
   totalLabel: {
-    fontSize: 9,
-    color: "#666666",
-    marginRight: 50,
-    textTransform: "uppercase",
-    letterSpacing: 1,
+    fontSize: 10,
+    color: colors.secondary,
   },
   totalValue: {
     fontSize: 10,
     textAlign: "right",
-    color: "#000000",
-    letterSpacing: 0.3,
+    fontWeight: "bold",
   },
   grandTotal: {
+    marginTop: 10,
+    paddingTop: 10,
     borderTopWidth: 2,
-    borderTopColor: "#000000",
-    paddingTop: 15,
-    marginTop: 12,
-  },
-  grandTotalLabel: {
-    fontSize: 10,
-    fontWeight: "bold",
-    color: "#000000",
-    textTransform: "uppercase",
-    letterSpacing: 2,
+    borderTopColor: colors.primary,
   },
   grandTotalValue: {
     fontSize: 14,
-    fontWeight: "bold",
-    color: "#000000",
-    letterSpacing: 0.5,
-  },
-  // Sophisticated notes section
-  notesSection: {
-    marginTop: 60,
-    paddingTop: 20,
-    borderTopWidth: 0.5,
-    borderTopColor: "#cccccc",
-  },
-  notesBlock: {
-    marginBottom: 20,
-  },
-  notesTitle: {
-    fontSize: 8,
-    fontWeight: "bold",
-    marginBottom: 10,
-    color: "#000000",
-    textTransform: "uppercase",
-    letterSpacing: 2,
-  },
-  notesText: {
-    fontSize: 9,
-    color: "#333333",
-    lineHeight: 1.8,
-    letterSpacing: 0.2,
-  },
-  // Minimal elegant footer
-  footer: {
-    position: "absolute",
-    bottom: 40,
-    left: 50,
-    right: 50,
-    paddingTop: 15,
-    borderTopWidth: 0.5,
-    borderTopColor: "#cccccc",
-  },
-  footerText: {
-    color: "#999999",
-    fontSize: 7,
-    textAlign: "center",
-    letterSpacing: 1,
-    textTransform: "uppercase",
+    color: colors.primary,
   },
 });
 
-const getStatusColor = (status: string) => {
-  // Sophisticated monochrome design
-  return { backgroundColor: "transparent" };
-};
+const formatCurrency = (amount: number) => `USD ${amount.toFixed(2)}`;
 
 export function ElegantTemplate({ invoice }: { invoice: InvoiceData }) {
-  const statusColors = getStatusColor(invoice.status);
-
   return (
     <Document>
       <Page size="A4" style={styles.page}>
-        {/* Elegant Editorial Header */}
-        <View style={styles.header}>
-          <View style={styles.headerTop}>
-            <View style={styles.logoSection}>
-              {invoice.businessProfile?.logo && (
-                <Image src={invoice.businessProfile.logo} style={styles.logo} />
-              )}
-              {invoice.businessProfile && (
-                <>
-                  <Text style={styles.companyName}>
-                    {invoice.businessProfile.companyName}
-                  </Text>
-                  <Text style={styles.companyDetails}>
-                    {invoice.businessProfile.email}
-                  </Text>
-                  {invoice.businessProfile.phone && (
-                    <Text style={styles.companyDetails}>
-                      {invoice.businessProfile.phone}
-                    </Text>
-                  )}
-                  {invoice.businessProfile.address && (
-                    <Text style={styles.companyDetails}>
-                      {invoice.businessProfile.address}
-                      {invoice.businessProfile.city && `, ${invoice.businessProfile.city}`}
-                      {invoice.businessProfile.state && `, ${invoice.businessProfile.state}`}
-                    </Text>
-                  )}
-                </>
-              )}
-            </View>
-
-            <View style={styles.titleSection}>
-              <Text style={styles.title}>Invoice</Text>
-              <Text style={styles.invoiceNumber}>{invoice.invoiceNumber}</Text>
-              <View style={[styles.statusBadge, statusColors]}>
-                <Text style={styles.statusText}>{invoice.status}</Text>
-              </View>
-            </View>
-          </View>
-        </View>
-
-        {/* Sophisticated Meta Information */}
-        <View style={styles.metaSection}>
-          <View style={styles.metaColumn}>
-            <Text style={styles.metaTitle}>Invoice Details</Text>
-            <Text style={styles.metaLabel}>Issue Date</Text>
-            <Text style={styles.metaValue}>
-              {format(new Date(invoice.issueDate), "MMMM dd, yyyy")}
-            </Text>
-            <Text style={styles.metaLabel}>Due Date</Text>
-            <Text style={styles.metaValue}>
-              {format(new Date(invoice.dueDate), "MMMM dd, yyyy")}
-            </Text>
-          </View>
-
-          <View style={styles.metaColumnRight}>
-            <Text style={styles.metaTitle}>Billed To</Text>
-            {invoice.client && (
-              <>
-                <Text style={styles.metaLabel}>Client</Text>
-                <Text style={styles.metaValue}>{invoice.client.name}</Text>
-                {invoice.client.company && (
-                  <>
-                    <Text style={styles.metaLabel}>Company</Text>
-                    <Text style={styles.metaValue}>{invoice.client.company}</Text>
-                  </>
-                )}
-                <Text style={styles.metaLabel}>Email</Text>
-                <Text style={styles.metaValue}>{invoice.client.email}</Text>
-                {invoice.client.phone && (
-                  <>
-                    <Text style={styles.metaLabel}>Phone</Text>
-                    <Text style={styles.metaValue}>{invoice.client.phone}</Text>
-                  </>
-                )}
-              </>
-            )}
-          </View>
-        </View>
-
-        {/* Editorial Table */}
-        <View style={styles.table}>
-          <View style={styles.tableHeader}>
-            <Text style={[styles.tableHeaderText, styles.tableColDescription]}>
-              Description
-            </Text>
-            <Text style={[styles.tableHeaderText, styles.tableColQuantity]}>
-              Qty
-            </Text>
-            <Text style={[styles.tableHeaderText, styles.tableColRate]}>
-              Rate
-            </Text>
-            <Text style={[styles.tableHeaderText, styles.tableColAmount]}>
-              Amount
-            </Text>
-          </View>
-
-          {invoice.items.map((item, index) => (
-            <View key={index} style={styles.tableRow}>
-              <Text style={[styles.tableTextDescription, styles.tableColDescription]}>
-                {item.description}
+        {/* --- 1. SIDEBAR (Brand/Metadata Column) --- */}
+        <View style={styles.sidebar}>
+          <Text style={styles.title}>INVOICE</Text>
+          <Text style={styles.subtitle}>DOCUMENT</Text>
+          {invoice.businessProfile?.logo && (
+            <Image src={invoice.businessProfile.logo} style={styles.logo} />
+          )}
+          {/* Business Info */}
+          {invoice.businessProfile && (
+            <View style={styles.metaGroup}>
+              <Text style={styles.metaLabel}>Bill From</Text>
+              <Text style={styles.metaValue}>
+                {invoice.businessProfile.companyName}
               </Text>
-              <Text style={[styles.tableText, styles.tableColQuantity]}>
-                {item.quantity}
+              <Text style={styles.metaValue}>
+                {invoice.businessProfile.address}
               </Text>
-              <Text style={[styles.tableText, styles.tableColRate]}>
-                ${item.rate.toFixed(2)}
-              </Text>
-              <Text style={[styles.tableText, styles.tableColAmount]}>
-                ${item.amount.toFixed(2)}
-              </Text>
-            </View>
-          ))}
-        </View>
-
-        {/* Refined Totals */}
-        <View style={styles.totalsSection}>
-          <View style={styles.totalRow}>
-            <Text style={styles.totalLabel}>Subtotal</Text>
-            <Text style={styles.totalValue}>
-              ${invoice.subtotal.toFixed(2)}
-            </Text>
-          </View>
-
-          {invoice.discountAmount > 0 && (
-            <View style={styles.totalRow}>
-              <Text style={styles.totalLabel}>Discount</Text>
-              <Text style={styles.totalValue}>
-                -${invoice.discountAmount.toFixed(2)}
+              <Text style={styles.metaValue}>
+                {invoice.businessProfile.email}
               </Text>
             </View>
           )}
-
-          <View style={styles.totalRow}>
-            <Text style={styles.totalLabel}>Tax ({invoice.taxRate}%)</Text>
-            <Text style={styles.totalValue}>
-              ${invoice.taxAmount.toFixed(2)}
+          {/* Invoice Details */}
+          <View style={styles.metaGroup}>
+            <Text style={styles.metaLabel}>Invoice No</Text>
+            <Text style={styles.metaValue}>#{invoice.invoiceNumber}</Text>
+          </View>
+          <View style={styles.metaGroup}>
+            <Text style={styles.metaLabel}>Issue Date</Text>
+            <Text style={styles.metaValue}>
+              {format(new Date(invoice.issueDate), "MMM dd, yyyy")}
             </Text>
           </View>
-
-          <View style={[styles.totalRow, styles.grandTotal]}>
-            <Text style={styles.grandTotalLabel}>Total</Text>
-            <Text style={styles.grandTotalValue}>
-              ${invoice.total.toFixed(2)}
+          <View style={styles.metaGroup}>
+            <Text style={styles.metaLabel}>Due Date</Text>
+            <Text style={styles.metaValue}>
+              {format(new Date(invoice.dueDate), "MMM dd, yyyy")}
             </Text>
           </View>
         </View>
 
-        {/* Sophisticated Notes */}
-        {(invoice.notes || invoice.terms) && (
-          <View style={styles.notesSection}>
-            {invoice.notes && (
-              <View style={styles.notesBlock}>
-                <Text style={styles.notesTitle}>Notes</Text>
-                <Text style={styles.notesText}>{invoice.notes}</Text>
-              </View>
-            )}
-
-            {invoice.terms && (
-              <View style={styles.notesBlock}>
-                <Text style={styles.notesTitle}>Terms & Conditions</Text>
-                <Text style={styles.notesText}>{invoice.terms}</Text>
-              </View>
-            )}
+        {/* --- 2. MAIN CONTENT (Client/Items/Total) --- */}
+        <View style={styles.mainContent}>
+          {/* Client Info (Bill To) */}
+          <View style={styles.addresses}>
+            <View style={styles.addressBlock}>
+              <Text style={styles.addressTitle}>Bill To</Text>
+              {invoice.client && (
+                <Text style={styles.addressText}>
+                  <Text style={{ fontWeight: "bold" }}>
+                    {invoice.client.name}
+                  </Text>
+                  {"\n"}
+                  {invoice.client.company && `${invoice.client.company}\n`}
+                  {invoice.client.email}
+                </Text>
+              )}
+            </View>
+            <View style={styles.addressBlock}>
+              {/* Status Badge */}
+              <Text style={styles.addressTitle}>Status</Text>
+              <Text
+                style={[
+                  styles.addressText,
+                  {
+                    fontWeight: "bold",
+                    color:
+                      invoice.status === "paid" ? "#059669" : colors.primary,
+                  },
+                ]}
+              >
+                {invoice.status.toUpperCase()}
+              </Text>
+            </View>
           </View>
-        )}
 
-        {/* Minimal Footer */}
-        <View style={styles.footer}>
-          <Text style={styles.footerText}>
-            {format(new Date(), "MMMM dd, yyyy")}
-          </Text>
+          {/* ITEMS TABLE */}
+          <View style={styles.tableContainer}>
+            <View style={styles.tableHeader}>
+              <Text style={[styles.headerText, styles.colDesc]} hyphenationCallback={(word) => [word]}>
+                Description
+              </Text>
+              <Text style={[styles.headerText, styles.colQty]}>Qty</Text>
+              <Text style={[styles.headerText, styles.colRate]}>Rate</Text>
+              <Text style={[styles.headerText, styles.colAmount]}>Amount</Text>
+            </View>
+
+            {invoice.items.map((item, index) => (
+              <View key={index} style={styles.tableRow}>
+                <Text style={[styles.rowText, styles.colDesc]}>
+                  {item.description}
+                </Text>
+                <Text style={[styles.rowText, styles.colQty]}>
+                  {item.quantity}
+                </Text>
+                <Text style={[styles.rowText, styles.colRate]}>
+                  {formatCurrency(item.rate)}
+                </Text>
+                <Text style={[styles.rowText, styles.colAmount]}>
+                  {formatCurrency(item.amount)}
+                </Text>
+              </View>
+            ))}
+          </View>
+
+          {/* TOTALS */}
+          <View style={styles.totalsContainer}>
+            <View style={styles.totalsBox}>
+              <View style={styles.totalRow}>
+                <Text style={styles.totalLabel}>Subtotal</Text>
+                <Text style={styles.totalValue}>
+                  {formatCurrency(invoice.subtotal)}
+                </Text>
+              </View>
+              {/* Discount/Tax Rows here... */}
+              <View style={styles.totalRow}>
+                <Text style={styles.totalLabel}>Tax ({invoice.taxRate}%)</Text>
+                <Text style={styles.totalValue}>
+                  {formatCurrency(invoice.taxAmount)}
+                </Text>
+              </View>
+
+              <View style={[styles.totalRow, styles.grandTotal]}>
+                <Text style={styles.totalLabel}>TOTAL DUE</Text>
+                <Text style={[styles.totalValue, styles.grandTotalValue]}>
+                  {formatCurrency(invoice.total)}
+                </Text>
+              </View>
+            </View>
+          </View>
         </View>
       </Page>
     </Document>

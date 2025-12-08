@@ -198,9 +198,9 @@ export default function InvoicePreviewPage({
                 size={"sm"}
                 onClick={() => setSelectedTemplate(template.value)}
                 className={cn(
-                  "px-3 py-1.5 bg-accent rounded-xl text-xs font-medium transition-all text-primary",
+                  "px-3 py-1.5 bg-accent/50 rounded-xl text-xs font-medium transition-all text-muted-foreground border border-transparent",
                   selectedTemplate === template.value &&
-                    "border-primary bg-accent/30 shadow-sm text-white"
+                    "border-primary/20 bg-accent/30 shadow-sm text-primary dark:text-white border"
                 )}
               >
                 {template.label}
