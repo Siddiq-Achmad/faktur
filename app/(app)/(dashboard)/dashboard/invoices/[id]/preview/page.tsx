@@ -17,8 +17,8 @@ import { SelectedTemplateComponent } from "@/components/invoices/selected-templa
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
 
-// Configure PDF.js worker (self-hosted)
-pdfjs.GlobalWorkerOptions.workerSrc = `/pdf-worker/pdf.worker.min.mjs`;
+// Configure PDF.js worker (CDN)
+pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@5.4.296/build/pdf.worker.min.mjs`;
 
 export default function InvoicePreviewPage({
   params,
