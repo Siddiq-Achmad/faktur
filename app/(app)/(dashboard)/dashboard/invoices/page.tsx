@@ -1,8 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { format } from "date-fns";
+import { useRouter, useSearchParams } from "next/navigation";
 import { trpc } from "@/lib/trpc/client";
 import {
   Card,
@@ -12,39 +11,61 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { FileText, MoreHorizontal } from "lucide-react";
-import { STATUS_COLORS, STATUS_LABELS } from "@/lib/constants/status-colors";
 import {
   DeleteConfirmationDialog,
   useDeleteConfirmation,
 } from "@/components/ui/delete-confirmation-dialog";
 import { toast } from "sonner";
+import LoadingLogo from "@/components/loading-logo";
+import { InvoiceFilters } from "@/components/invoices/invoice-filters";
+import {
+  InvoiceTable,
+  InvoiceTablePagination,
+} from "@/components/invoices/invoice-table";
+import {
+  InvoiceCards,
+  InvoiceCardsPagination,
+} from "@/components/invoices/invoice-cards";
+import { InvoiceEmptyState } from "@/components/invoices/invoice-empty-state";
+import { FileText } from "lucide-react";
 
 export default function InvoicesPage() {
   const router = useRouter();
-  const { data: invoices, isLoading } = trpc.invoices.list.useQuery();
+  const searchParams = useSearchParams();
   const utils = trpc.useUtils();
   const deleteConfirmation = useDeleteConfirmation();
+
+  // Get filter values from search params with defaults
+  const limit = parseInt(searchParams.get("limit") || "10");
+  const page = parseInt(searchParams.get("page") || "1");
+  const daysParam = searchParams.get("days");
+  const days =
+    daysParam === "all" ? undefined : daysParam ? parseInt(daysParam) : 30;
+
+  const { data, isLoading, isFetching } = trpc.invoices.list.useQuery(
+    {
+      limit,
+      page,
+      days,
+    },
+    {
+      placeholderData: (previousData) => previousData,
+    }
+  );
+
+  const invoices = data?.invoices;
+  const totalPages = data?.totalPages ?? 0;
+  const total = data?.total ?? 0;
+
+  const { data: hasAnyInvoices, isLoading: isLoadingHasAny } =
+    trpc.invoices.hasAny.useQuery(undefined, {
+      staleTime: Infinity, // This rarely changes, keep it cached
+    });
 
   const deleteMutation = trpc.invoices.delete.useMutation({
     onSuccess: () => {
       utils.invoices.list.invalidate();
+      utils.invoices.hasAny.invalidate();
     },
   });
 
@@ -59,15 +80,42 @@ export default function InvoicesPage() {
     });
   };
 
-  if (isLoading) {
+  // Update search params
+  const updateSearchParams = (key: string, value: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set(key, value);
+    router.push(`?${params.toString()}`);
+  };
+
+  const handleLimitChange = (value: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("limit", value);
+    params.set("page", "1"); // Reset to page 1 when changing limit
+    router.push(`?${params.toString()}`);
+  };
+
+  const handleDaysChange = (value: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("days", value);
+    params.set("page", "1"); // Reset to page 1 when changing period
+    router.push(`?${params.toString()}`);
+  };
+
+  const handlePageChange = (newPage: number) => {
+    updateSearchParams("page", newPage.toString());
+  };
+
+  // Only show full loading state on initial load
+  if ((isLoading || isLoadingHasAny) && !invoices) {
     return (
       <div className="flex min-h-[400px] items-center justify-center">
-        <p className="text-muted-foreground">Loading invoices...</p>
+        <LoadingLogo />
       </div>
     );
   }
 
-  if (!invoices || invoices.length === 0) {
+  // No invoices exist at all - show create first invoice
+  if (!hasAnyInvoices) {
     return (
       <div className="space-y-8">
         {/* Header Section */}
@@ -117,7 +165,7 @@ export default function InvoicesPage() {
   return (
     <div className="space-y-8">
       {/* Header Section */}
-      <div className="space-y-2">
+      <div className="space-y-4">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-lg font-bold tracking-tight text-primary">
@@ -131,203 +179,58 @@ export default function InvoicesPage() {
             <Link href="/dashboard/invoices/new">New Invoice</Link>
           </Button>
         </div>
+
+        {/* Filters */}
+        <InvoiceFilters
+          limit={limit}
+          days={days}
+          onLimitChange={handleLimitChange}
+          onDaysChange={handleDaysChange}
+        />
       </div>
+
+      {/* Empty state when no results from filters */}
+      {(!invoices || invoices.length === 0) && (
+        <InvoiceEmptyState type="no-results" />
+      )}
 
       {/* Desktop View - Table */}
-      <Card className="hidden lg:block">
-        <CardHeader className="space-y-1 pb-4">
-          <CardTitle className="text-base font-medium">All Invoices</CardTitle>
-          <CardDescription className="text-xs">
-            {invoices.length} invoice{invoices.length !== 1 ? "s" : ""} total
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Invoice #</TableHead>
-                <TableHead>Client</TableHead>
-                <TableHead>Issue Date</TableHead>
-                <TableHead>Due Date</TableHead>
-                <TableHead>Amount</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="w-[70px]"></TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {invoices.map((invoice) => (
-                <TableRow
-                  key={invoice.id}
-                  className="cursor-pointer"
-                  onClick={() =>
-                    router.push(`/dashboard/invoices/${invoice.id}`)
-                  }
-                >
-                  <TableCell className="font-mono text-sm font-semibold text-primary">
-                    {invoice.invoiceNumber}
-                  </TableCell>
-                  <TableCell>
-                    <div>
-                      <p className="text-sm font-medium">
-                        {invoice.clientName}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {invoice.clientEmail}
-                      </p>
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-sm">
-                    {format(new Date(invoice.issueDate), "MMM dd, yyyy")}
-                  </TableCell>
-                  <TableCell className="text-sm">
-                    {format(new Date(invoice.dueDate), "MMM dd, yyyy")}
-                  </TableCell>
-                  <TableCell className="font-mono text-sm font-medium">
-                    ${" "}
-                    {invoice.total.toLocaleString("en-US", {
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 2,
-                    })}
-                  </TableCell>
-                  <TableCell>
-                    <Badge
-                      className="text-xs font-medium"
-                      style={{
-                        backgroundColor: STATUS_COLORS[invoice.status],
-                        color: "white",
-                        border: "none",
-                      }}
-                    >
-                      {STATUS_LABELS[invoice.status]}
-                    </Badge>
-                  </TableCell>
-                  <TableCell onClick={(e) => e.stopPropagation()}>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
-                          <span className="sr-only">Open menu</span>
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem asChild>
-                          <Link href={`/dashboard/invoices/${invoice.id}/edit`}>
-                            Edit
-                          </Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem
-                          onClick={() => handleDelete(invoice.id)}
-                          className="text-destructive"
-                        >
-                          Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+      {invoices && invoices.length > 0 && (
+        <>
+          <InvoiceTable
+            invoices={invoices}
+            isFetching={isFetching}
+            onDelete={handleDelete}
+            currentPage={page}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+          />
+          <InvoiceTablePagination
+            currentPage={page}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+          />
+        </>
+      )}
 
       {/* Mobile View - Cards */}
-      <div className="lg:hidden space-y-4">
-        <div className="flex items-center justify-between px-1">
-          <p className="text-sm text-muted-foreground">
-            {invoices.length} invoice{invoices.length !== 1 ? "s" : ""} total
-          </p>
-        </div>
-        {invoices.map((invoice) => (
-          <Card
-            key={invoice.id}
-            className="overflow-hidden hover:shadow-md transition-shadow py-0"
-          >
-            <CardContent className="p-0 pt-4">
-              <Link
-                href={`/dashboard/invoices/${invoice.id}`}
-                className="block px-4 pb-3 pt-0"
-              >
-                <div className="flex items-start justify-between gap-4 mb-3">
-                  <div className="flex-1 min-w-0">
-                    <p className="font-mono text-sm font-semibold text-primary mb-1">
-                      {invoice.invoiceNumber}
-                    </p>
-                    <p className="text-sm font-medium text-foreground truncate">
-                      {invoice.clientName}
-                    </p>
-                    <p className="text-xs text-muted-foreground truncate">
-                      {invoice.clientEmail}
-                    </p>
-                  </div>
-                  <Badge
-                    className="text-xs font-medium shrink-0"
-                    style={{
-                      backgroundColor: STATUS_COLORS[invoice.status],
-                      color: "white",
-                      border: "none",
-                    }}
-                  >
-                    {STATUS_LABELS[invoice.status]}
-                  </Badge>
-                </div>
-
-                <div className="grid grid-cols-2 gap-3 mb-3">
-                  <div>
-                    <p className="text-xs text-muted-foreground mb-0.5">
-                      Issue Date
-                    </p>
-                    <p className="text-sm font-medium">
-                      {format(new Date(invoice.issueDate), "MMM dd, yyyy")}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground mb-0.5">
-                      Due Date
-                    </p>
-                    <p className="text-sm font-medium">
-                      {format(new Date(invoice.dueDate), "MMM dd, yyyy")}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="pt-3 border-t">
-                  <p className="text-xs text-muted-foreground mb-0.5">Amount</p>
-                  <p className="font-mono text-lg font-semibold">
-                    ${" "}
-                    {invoice.total.toLocaleString("en-US", {
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 2,
-                    })}
-                  </p>
-                </div>
-              </Link>
-
-              <div className="bg-muted/50 px-4 py-2 flex items-center justify-end">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-8 text-xs"
-                  asChild
-                >
-                  <Link href={`/dashboard/invoices/${invoice.id}/edit`}>
-                    Edit
-                  </Link>
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-8 text-xs text-destructive hover:text-destructive"
-                  onClick={() => handleDelete(invoice.id)}
-                >
-                  Delete
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+      {invoices && invoices.length > 0 && (
+        <>
+          <InvoiceCards
+            invoices={invoices}
+            isFetching={isFetching}
+            onDelete={handleDelete}
+            currentPage={page}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+          />
+          <InvoiceCardsPagination
+            currentPage={page}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+          />
+        </>
+      )}
 
       <DeleteConfirmationDialog
         open={deleteConfirmation.isOpen}

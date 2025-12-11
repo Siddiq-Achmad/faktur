@@ -2,7 +2,7 @@ import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { db } from "@/lib/db";
 import { invoices, invoiceItems, clients } from "@/lib/db/schema";
-import { eq, and, desc, sql } from "drizzle-orm";
+import { eq, and, desc, sql, gte } from "drizzle-orm";
 
 const invoiceItemSchema = z.object({
   description: z
@@ -97,27 +97,81 @@ const createInvoiceSchema = z
   );
 
 export const invoicesRouter = createTRPCRouter({
-  // Get all invoices for the current user with client info
-  list: protectedProcedure.query(async ({ ctx }) => {
-    return await db
-      .select({
-        id: invoices.id,
-        invoiceNumber: invoices.invoiceNumber,
-        status: invoices.status,
-        issueDate: invoices.issueDate,
-        dueDate: invoices.dueDate,
-        total: invoices.total,
-        amountPaid: invoices.amountPaid,
-        clientId: invoices.clientId,
-        clientName: clients.name,
-        clientEmail: clients.email,
-        createdAt: invoices.createdAt,
-      })
+  // Check if user has any invoices
+  hasAny: protectedProcedure.query(async ({ ctx }) => {
+    const result = await db
+      .select({ count: sql<number>`count(*)` })
       .from(invoices)
-      .leftJoin(clients, eq(invoices.clientId, clients.id))
-      .where(eq(invoices.userId, ctx.userId))
-      .orderBy(desc(invoices.createdAt));
+      .where(eq(invoices.userId, ctx.userId));
+
+    return (result[0]?.count ?? 0) > 0;
   }),
+
+  // Get all invoices for the current user with client info
+  list: protectedProcedure
+    .input(
+      z
+        .object({
+          limit: z.number().min(1).max(100).default(10),
+          page: z.number().min(1).default(1),
+          days: z.number().min(1).optional(),
+        })
+        .optional()
+    )
+    .query(async ({ ctx, input }) => {
+      const limit = input?.limit ?? 10;
+      const page = input?.page ?? 1;
+      const days = input?.days;
+      const offset = (page - 1) * limit;
+
+      // Build where conditions
+      const conditions = [eq(invoices.userId, ctx.userId)];
+
+      // Add date filter if days is provided (based on issue date)
+      if (days) {
+        const dateThreshold = new Date();
+        dateThreshold.setDate(dateThreshold.getDate() - days);
+        conditions.push(gte(invoices.issueDate, dateThreshold));
+      }
+
+      // Get total count
+      const countResult = await db
+        .select({ count: sql<number>`count(*)` })
+        .from(invoices)
+        .where(and(...conditions));
+
+      const total = countResult[0]?.count ?? 0;
+
+      // Get paginated invoices
+      const invoicesList = await db
+        .select({
+          id: invoices.id,
+          invoiceNumber: invoices.invoiceNumber,
+          status: invoices.status,
+          issueDate: invoices.issueDate,
+          dueDate: invoices.dueDate,
+          total: invoices.total,
+          amountPaid: invoices.amountPaid,
+          clientId: invoices.clientId,
+          clientName: clients.name,
+          clientEmail: clients.email,
+          createdAt: invoices.createdAt,
+        })
+        .from(invoices)
+        .leftJoin(clients, eq(invoices.clientId, clients.id))
+        .where(and(...conditions))
+        .orderBy(desc(invoices.createdAt))
+        .limit(limit)
+        .offset(offset);
+
+      return {
+        invoices: invoicesList,
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      };
+    }),
 
   // Get a single invoice with all details
   getById: protectedProcedure
