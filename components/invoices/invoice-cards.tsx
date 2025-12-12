@@ -30,6 +30,7 @@ interface Invoice {
 
 interface InvoiceCardsProps {
   invoices: Invoice[];
+  total: number;
   isFetching: boolean;
   onDelete: (id: string) => void;
   currentPage: number;
@@ -39,6 +40,7 @@ interface InvoiceCardsProps {
 
 export function InvoiceCards({
   invoices,
+  total,
   isFetching,
   onDelete,
   currentPage,
@@ -91,7 +93,7 @@ export function InvoiceCards({
       )}
       <div className="flex items-center justify-between px-1">
         <p className="text-sm text-muted-foreground">
-          {invoices.length} invoice{invoices.length !== 1 ? "s" : ""} found
+          {total} invoice{total !== 1 ? "s" : ""} found
         </p>
       </div>
       {invoices.map((invoice) => (

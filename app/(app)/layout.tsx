@@ -19,9 +19,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning className="h-full overflow-hidden">
       <body
-        className={`font-sans antialiased ${fontFamily.className} ${fontFamily.style}`}
+        className={`font-sans antialiased h-full overflow-hidden ${fontFamily.className} ${fontFamily.style}`}
       >
         <ThemeProvider attribute="class" defaultTheme="dark">
           <TRPCProvider>{children}</TRPCProvider>

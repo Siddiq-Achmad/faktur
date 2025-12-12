@@ -53,6 +53,7 @@ interface Invoice {
 
 interface InvoiceTableProps {
   invoices: Invoice[];
+  total: number;
   isFetching: boolean;
   onDelete: (id: string) => void;
   currentPage: number;
@@ -62,6 +63,7 @@ interface InvoiceTableProps {
 
 export function InvoiceTable({
   invoices,
+  total,
   isFetching,
   onDelete,
   currentPage,
@@ -112,7 +114,7 @@ export function InvoiceTable({
       <CardHeader className="space-y-1 pb-4">
         <CardTitle className="text-base font-medium">All Invoices</CardTitle>
         <CardDescription className="text-xs">
-          {invoices.length} invoice{invoices.length !== 1 ? "s" : ""} found
+          {total} invoice{total !== 1 ? "s" : ""} found
         </CardDescription>
       </CardHeader>
       <CardContent className="relative">
@@ -254,7 +256,7 @@ export function InvoiceTablePagination({
   if (totalPages <= 1) return null;
 
   return (
-    <div className="mt-4">
+    <div className="mt-4 hidden lg:block">
       <Pagination>
         <PaginationContent>
           <PaginationItem>

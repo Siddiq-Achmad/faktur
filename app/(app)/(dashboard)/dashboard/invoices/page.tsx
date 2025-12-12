@@ -41,12 +41,19 @@ export default function InvoicesPage() {
   const daysParam = searchParams.get("days");
   const days =
     daysParam === "all" ? undefined : daysParam ? parseInt(daysParam) : 30;
+  const statusParam = searchParams.get("status");
+  const status =
+    statusParam === "all"
+      ? undefined
+      : (statusParam as "draft" | "sent" | "paid" | "overdue" | "cancelled") ||
+        undefined;
 
   const { data, isLoading, isFetching } = trpc.invoices.list.useQuery(
     {
       limit,
       page,
       days,
+      status,
     },
     {
       placeholderData: (previousData) => previousData,
@@ -98,6 +105,13 @@ export default function InvoicesPage() {
     const params = new URLSearchParams(searchParams.toString());
     params.set("days", value);
     params.set("page", "1"); // Reset to page 1 when changing period
+    router.push(`?${params.toString()}`);
+  };
+
+  const handleStatusChange = (value: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("status", value);
+    params.set("page", "1"); // Reset to page 1 when changing status
     router.push(`?${params.toString()}`);
   };
 
@@ -184,8 +198,10 @@ export default function InvoicesPage() {
         <InvoiceFilters
           limit={limit}
           days={days}
+          status={status}
           onLimitChange={handleLimitChange}
           onDaysChange={handleDaysChange}
+          onStatusChange={handleStatusChange}
         />
       </div>
 
@@ -199,6 +215,7 @@ export default function InvoicesPage() {
         <>
           <InvoiceTable
             invoices={invoices}
+            total={total}
             isFetching={isFetching}
             onDelete={handleDelete}
             currentPage={page}
@@ -218,6 +235,7 @@ export default function InvoicesPage() {
         <>
           <InvoiceCards
             invoices={invoices}
+            total={total}
             isFetching={isFetching}
             onDelete={handleDelete}
             currentPage={page}
@@ -242,3 +260,9 @@ export default function InvoicesPage() {
     </div>
   );
 }
+
+// TODO: Future improvements
+// - Add client name search
+// - Add sorting by date/amount
+// - Add bulk operations
+// - Fix invoice payment records iteration decimal errors

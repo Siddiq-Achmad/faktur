@@ -115,6 +115,9 @@ export const invoicesRouter = createTRPCRouter({
           limit: z.number().min(1).max(100).default(10),
           page: z.number().min(1).default(1),
           days: z.number().min(1).optional(),
+          status: z
+            .enum(["draft", "sent", "paid", "overdue", "cancelled"])
+            .optional(),
         })
         .optional()
     )
@@ -122,6 +125,7 @@ export const invoicesRouter = createTRPCRouter({
       const limit = input?.limit ?? 10;
       const page = input?.page ?? 1;
       const days = input?.days;
+      const status = input?.status;
       const offset = (page - 1) * limit;
 
       // Build where conditions
@@ -132,6 +136,11 @@ export const invoicesRouter = createTRPCRouter({
         const dateThreshold = new Date();
         dateThreshold.setDate(dateThreshold.getDate() - days);
         conditions.push(gte(invoices.issueDate, dateThreshold));
+      }
+
+      // Add status filter if provided
+      if (status) {
+        conditions.push(eq(invoices.status, status));
       }
 
       // Get total count

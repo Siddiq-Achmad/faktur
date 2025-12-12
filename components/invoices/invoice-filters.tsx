@@ -7,22 +7,29 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { STATUS_COLORS, STATUS_LABELS } from "@/lib/constants/status-colors";
 
 interface InvoiceFiltersProps {
   limit: number;
   days: number | undefined;
+  status: string | undefined;
   onLimitChange: (value: string) => void;
   onDaysChange: (value: string) => void;
+  onStatusChange: (value: string) => void;
 }
+
+const STATUSES = ["draft", "sent", "paid", "overdue", "cancelled"] as const;
 
 export function InvoiceFilters({
   limit,
   days,
+  status,
   onLimitChange,
   onDaysChange,
+  onStatusChange,
 }: InvoiceFiltersProps) {
   return (
-    <div className="flex items-center gap-3">
+    <div className="flex flex-wrap items-center gap-3">
       <div className="flex items-center gap-2">
         <span className="text-sm text-muted-foreground">Show:</span>
         <Select value={limit.toString()} onValueChange={onLimitChange}>
@@ -50,6 +57,31 @@ export function InvoiceFilters({
             <SelectItem value="7">7 days</SelectItem>
             <SelectItem value="30">30 days</SelectItem>
             <SelectItem value="365">1 year</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="flex items-center gap-2">
+        <span className="text-sm text-muted-foreground">Status:</span>
+        <Select value={status || "all"} onValueChange={onStatusChange}>
+          <SelectTrigger className="w-[130px]">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Statuses</SelectItem>
+            {STATUSES.map((statusValue) => (
+              <SelectItem key={statusValue} value={statusValue}>
+                <div className="flex items-center gap-2">
+                  <div
+                    className="h-2.5 w-2.5 rounded-full"
+                    style={{
+                      backgroundColor: STATUS_COLORS[statusValue],
+                    }}
+                  />
+                  <span>{STATUS_LABELS[statusValue]}</span>
+                </div>
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
       </div>
