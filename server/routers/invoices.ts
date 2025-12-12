@@ -2,7 +2,8 @@ import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { db } from "@/lib/db";
 import { invoices, invoiceItems, clients } from "@/lib/db/schema";
-import { eq, and, desc, sql } from "drizzle-orm";
+import { eq, and, desc, sql, gte, ilike, or } from "drizzle-orm";
+import { sanitizeSearchInput, createILikePattern } from "@/lib/sanitize";
 
 const invoiceItemSchema = z.object({
   description: z
@@ -97,27 +98,114 @@ const createInvoiceSchema = z
   );
 
 export const invoicesRouter = createTRPCRouter({
-  // Get all invoices for the current user with client info
-  list: protectedProcedure.query(async ({ ctx }) => {
-    return await db
-      .select({
-        id: invoices.id,
-        invoiceNumber: invoices.invoiceNumber,
-        status: invoices.status,
-        issueDate: invoices.issueDate,
-        dueDate: invoices.dueDate,
-        total: invoices.total,
-        amountPaid: invoices.amountPaid,
-        clientId: invoices.clientId,
-        clientName: clients.name,
-        clientEmail: clients.email,
-        createdAt: invoices.createdAt,
-      })
+  // Check if user has any invoices
+  hasAny: protectedProcedure.query(async ({ ctx }) => {
+    const result = await db
+      .select({ count: sql<number>`count(*)` })
       .from(invoices)
-      .leftJoin(clients, eq(invoices.clientId, clients.id))
-      .where(eq(invoices.userId, ctx.userId))
-      .orderBy(desc(invoices.createdAt));
+      .where(eq(invoices.userId, ctx.userId));
+
+    return (result[0]?.count ?? 0) > 0;
   }),
+
+  // Get all invoices for the current user with client info
+  list: protectedProcedure
+    .input(
+      z
+        .object({
+          limit: z.number().min(1).max(100).default(10),
+          page: z.number().min(1).default(1),
+          days: z.number().min(1).optional(),
+          status: z
+            .enum(["draft", "sent", "paid", "overdue", "cancelled"])
+            .optional(),
+          search: z.string().optional(),
+          clientId: z.string().optional(),
+        })
+        .optional()
+    )
+    .query(async ({ ctx, input }) => {
+      const limit = input?.limit ?? 10;
+      const page = input?.page ?? 1;
+      const days = input?.days;
+      const status = input?.status;
+      const searchRaw = input?.search;
+      const clientId = input?.clientId;
+      const offset = (page - 1) * limit;
+
+      // Build where conditions
+      const conditions = [eq(invoices.userId, ctx.userId)];
+
+      // Add client filter if provided
+      if (clientId) {
+        conditions.push(eq(invoices.clientId, clientId));
+      }
+
+      // Add date filter if days is provided (based on issue date)
+      if (days) {
+        const dateThreshold = new Date();
+        dateThreshold.setDate(dateThreshold.getDate() - days);
+        conditions.push(gte(invoices.issueDate, dateThreshold));
+      }
+
+      // Add status filter if provided
+      if (status) {
+        conditions.push(eq(invoices.status, status));
+      }
+
+      // Add search filter if provided (sanitized)
+      if (searchRaw) {
+        const sanitizedSearch = sanitizeSearchInput(searchRaw);
+        if (sanitizedSearch) {
+          const pattern = createILikePattern(sanitizedSearch);
+          conditions.push(
+            or(
+              ilike(clients.name, pattern),
+              ilike(clients.company, pattern)
+            )!
+          );
+        }
+      }
+
+      // Get total count (need to join clients for search filter)
+      const countResult = await db
+        .select({ count: sql<number>`count(*)` })
+        .from(invoices)
+        .leftJoin(clients, eq(invoices.clientId, clients.id))
+        .where(and(...conditions));
+
+      const total = countResult[0]?.count ?? 0;
+
+      // Get paginated invoices
+      const invoicesList = await db
+        .select({
+          id: invoices.id,
+          invoiceNumber: invoices.invoiceNumber,
+          status: invoices.status,
+          issueDate: invoices.issueDate,
+          dueDate: invoices.dueDate,
+          total: invoices.total,
+          amountPaid: invoices.amountPaid,
+          clientId: invoices.clientId,
+          clientName: clients.name,
+          clientCompany: clients.company,
+          createdAt: invoices.createdAt,
+        })
+        .from(invoices)
+        .leftJoin(clients, eq(invoices.clientId, clients.id))
+        .where(and(...conditions))
+        .orderBy(desc(invoices.createdAt))
+        .limit(limit)
+        .offset(offset);
+
+      return {
+        invoices: invoicesList,
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      };
+    }),
 
   // Get a single invoice with all details
   getById: protectedProcedure

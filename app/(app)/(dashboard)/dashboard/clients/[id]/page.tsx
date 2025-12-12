@@ -45,11 +45,8 @@ export default function ClientDetailPage({
   const { id } = use(params);
   const { data: client, isLoading: clientLoading } =
     trpc.clients.getById.useQuery({ id });
-  const { data: invoices, isLoading: invoicesLoading } =
-    trpc.invoices.list.useQuery();
-
-  // Filter invoices for this client
-  const clientInvoices = invoices?.filter((inv) => inv.clientId === id) || [];
+  const { data: invoicesData } = trpc.invoices.list.useQuery({ clientId: id });
+  const clientInvoices = invoicesData?.invoices || [];
 
   if (clientLoading) {
     return (

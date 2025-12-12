@@ -34,11 +34,11 @@ export default function DashboardLayout({
   }
 
   return (
-    <div className="flex h-screen md:overflow-hidden">
+    <div className="flex h-screen overflow-hidden">
       <aside className="hidden w-56 md:block">
         <Sidebar />
       </aside>
-      <div className="flex flex-1 md:flex-col md:overflow-hidden">
+      <div className="flex flex-1 flex-col overflow-hidden">
         <MobileNav />
         <main className="flex-1 overflow-y-auto bg-background px-6 pt-20 md:pt-2.5 pb-24">
           {children}
