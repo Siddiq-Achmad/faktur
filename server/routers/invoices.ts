@@ -163,7 +163,7 @@ export const invoicesRouter = createTRPCRouter({
           amountPaid: invoices.amountPaid,
           clientId: invoices.clientId,
           clientName: clients.name,
-          clientEmail: clients.email,
+          clientCompany: clients.company,
           createdAt: invoices.createdAt,
         })
         .from(invoices)

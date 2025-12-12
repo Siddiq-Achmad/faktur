@@ -25,7 +25,7 @@ interface Invoice {
   dueDate: Date;
   total: number;
   clientName: string | null;
-  clientEmail: string | null;
+  clientCompany: string | null;
 }
 
 interface InvoiceCardsProps {
@@ -114,9 +114,11 @@ export function InvoiceCards({
                   <p className="text-sm font-medium text-foreground truncate">
                     {invoice.clientName}
                   </p>
-                  <p className="text-xs text-muted-foreground truncate">
-                    {invoice.clientEmail}
-                  </p>
+                  {invoice.clientCompany && (
+                    <p className="text-xs text-muted-foreground truncate">
+                      {invoice.clientCompany}
+                    </p>
+                  )}
                 </div>
                 <Badge
                   className="text-xs font-medium shrink-0"

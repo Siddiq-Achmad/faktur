@@ -48,7 +48,7 @@ interface Invoice {
   dueDate: Date;
   total: number;
   clientName: string | null;
-  clientEmail: string | null;
+  clientCompany: string | null;
 }
 
 interface InvoiceTableProps {
@@ -148,9 +148,11 @@ export function InvoiceTable({
                 <TableCell>
                   <div>
                     <p className="text-sm font-medium">{invoice.clientName}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {invoice.clientEmail}
-                    </p>
+                    {invoice.clientCompany && (
+                      <p className="text-xs text-muted-foreground">
+                        {invoice.clientCompany}
+                      </p>
+                    )}
                   </div>
                 </TableCell>
                 <TableCell className="text-sm">
