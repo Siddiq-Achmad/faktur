@@ -140,6 +140,18 @@ export default function ClientsPage() {
     setSearchInput(value);
   };
 
+  const handleSearchSubmit = () => {
+    // Immediately update the URL with current search value
+    const params = new URLSearchParams(searchParams.toString());
+    if (searchInput) {
+      params.set("search", searchInput);
+      params.set("page", "1");
+    } else {
+      params.delete("search");
+    }
+    router.replace(`?${params.toString()}`, { scroll: false });
+  };
+
   // Generate page numbers for pagination
   const getPageNumbers = () => {
     const pages: (number | "ellipsis")[] = [];
@@ -232,39 +244,43 @@ export default function ClientsPage() {
           search={searchInput}
           onLimitChange={handleLimitChange}
           onSearchChange={handleSearchChange}
+          onSearchSubmit={handleSearchSubmit}
         />
       </div>
 
-      {/* Empty state when no results from filters */}
+      {/* Mobile Empty state - Show only on mobile */}
       {(!clients || clients.length === 0) && (
-        <ClientEmptyState type="no-results" />
+        <div className="lg:hidden">
+          <ClientEmptyState type="no-results" />
+        </div>
       )}
 
-      {/* Desktop View - Table */}
-      {clients && clients.length > 0 && (
-        <Card className="hidden lg:block">
-          <CardHeader className="pb-4">
-            <div className="flex items-center justify-between gap-4">
-              <div className="space-y-1">
-                <CardTitle className="text-base font-medium">All Clients</CardTitle>
-                <CardDescription className="text-xs">
-                  {total} client{total !== 1 ? "s" : ""} total
-                </CardDescription>
-              </div>
-              <ClientFilters
-                limit={limit}
-                search={searchInput}
-                onLimitChange={handleLimitChange}
-                onSearchChange={handleSearchChange}
-              />
+      {/* Desktop View - Table (always show card with filters) */}
+      <Card className="hidden lg:block">
+        <CardHeader className="pb-4">
+          <div className="flex items-center justify-between gap-4">
+            <div className="space-y-1">
+              <CardTitle className="text-base font-medium">All Clients</CardTitle>
+              <CardDescription className="text-xs">
+                {total} client{total !== 1 ? "s" : ""} total
+              </CardDescription>
             </div>
-          </CardHeader>
-          <CardContent className="relative">
-            {isFetching && (
-              <div className="absolute inset-0 flex items-center justify-center bg-background/50 backdrop-blur-sm z-10">
-                <LoadingLogo className="scale-75 animate-pulse" />
-              </div>
-            )}
+            <ClientFilters
+              limit={limit}
+              search={searchInput}
+              onLimitChange={handleLimitChange}
+              onSearchChange={handleSearchChange}
+              onSearchSubmit={handleSearchSubmit}
+            />
+          </div>
+        </CardHeader>
+        <CardContent className="relative">
+          {isFetching && (
+            <div className="absolute inset-0 flex items-center justify-center bg-background/50 backdrop-blur-sm z-10">
+              <LoadingLogo className="scale-75 animate-pulse" />
+            </div>
+          )}
+          {clients && clients.length > 0 ? (
             <Table>
               <TableHeader>
                 <TableRow>
@@ -330,9 +346,13 @@ export default function ClientsPage() {
                 ))}
               </TableBody>
             </Table>
-          </CardContent>
-        </Card>
-      )}
+          ) : (
+            <div className="py-8">
+              <ClientEmptyState type="no-results" />
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Desktop Pagination */}
       {clients && clients.length > 0 && totalPages > 1 && (

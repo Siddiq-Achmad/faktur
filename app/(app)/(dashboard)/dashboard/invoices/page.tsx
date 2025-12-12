@@ -143,6 +143,27 @@ export default function InvoicesPage() {
     setSearchInput(value);
   };
 
+  const handleSearchSubmit = () => {
+    // Immediately update the URL with current search value
+    const params = new URLSearchParams(searchParams.toString());
+    if (searchInput) {
+      params.set("search", searchInput);
+      params.set("page", "1");
+    } else {
+      params.delete("search");
+    }
+    router.push(`?${params.toString()}`);
+  };
+
+  const handleFilterReset = () => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("limit", "10");
+    params.set("days", "30");
+    params.set("status", "all");
+    params.set("page", "1");
+    router.push(`?${params.toString()}`);
+  };
+
   const handlePageChange = (newPage: number) => {
     updateSearchParams("page", newPage.toString());
   };
@@ -234,38 +255,46 @@ export default function InvoicesPage() {
           onDaysChange={handleDaysChange}
           onStatusChange={handleStatusChange}
           onSearchChange={handleSearchChange}
+          onSearchSubmit={handleSearchSubmit}
+          onReset={handleFilterReset}
         />
       </div>
 
-      {/* Empty state when no results from filters */}
+      {/* Mobile Empty state - Show only on mobile */}
       {(!invoices || invoices.length === 0) && (
-        <InvoiceEmptyState type="no-results" />
+        <div className="lg:hidden">
+          <InvoiceEmptyState type="no-results" />
+        </div>
       )}
 
-      {/* Desktop View - Table */}
+      {/* Desktop View - Table (always show) */}
+      <InvoiceTable
+        invoices={invoices || []}
+        total={total}
+        isFetching={isFetching}
+        onDelete={handleDelete}
+        currentPage={page}
+        totalPages={totalPages}
+        onPageChange={handlePageChange}
+        filters={
+          <InvoiceFilters
+            limit={limit}
+            days={days}
+            status={status}
+            search={searchInput}
+            onLimitChange={handleLimitChange}
+            onDaysChange={handleDaysChange}
+            onStatusChange={handleStatusChange}
+            onSearchChange={handleSearchChange}
+            onSearchSubmit={handleSearchSubmit}
+            onReset={handleFilterReset}
+          />
+        }
+      />
+
+      {/* Desktop Pagination */}
       {invoices && invoices.length > 0 && (
         <>
-          <InvoiceTable
-            invoices={invoices}
-            total={total}
-            isFetching={isFetching}
-            onDelete={handleDelete}
-            currentPage={page}
-            totalPages={totalPages}
-            onPageChange={handlePageChange}
-            filters={
-              <InvoiceFilters
-                limit={limit}
-                days={days}
-                status={status}
-                search={searchInput}
-                onLimitChange={handleLimitChange}
-                onDaysChange={handleDaysChange}
-                onStatusChange={handleStatusChange}
-                onSearchChange={handleSearchChange}
-              />
-            }
-          />
           <InvoiceTablePagination
             currentPage={page}
             totalPages={totalPages}

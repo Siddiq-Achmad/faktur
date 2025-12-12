@@ -22,6 +22,7 @@ interface ClientFiltersProps {
   search: string | undefined;
   onLimitChange: (value: string) => void;
   onSearchChange: (value: string) => void;
+  onSearchSubmit?: () => void;
 }
 
 export function ClientFilters({
@@ -29,9 +30,17 @@ export function ClientFilters({
   search,
   onLimitChange,
   onSearchChange,
+  onSearchSubmit,
 }: ClientFiltersProps) {
   const handleClearSearch = () => {
     onSearchChange("");
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      onSearchSubmit?.();
+    }
   };
 
   return (
@@ -42,6 +51,7 @@ export function ClientFilters({
           placeholder="Search clients..."
           value={search || ""}
           onChange={(e) => onSearchChange(e.target.value)}
+          onKeyDown={handleKeyDown}
         />
         <InputGroupAddon>
           <Search className="h-4 w-4" />

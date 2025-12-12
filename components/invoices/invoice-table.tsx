@@ -31,6 +31,7 @@ import {
 import { MoreHorizontal } from "lucide-react";
 import { STATUS_COLORS, STATUS_LABELS } from "@/lib/constants/status-colors";
 import LoadingLogo from "@/components/loading-logo";
+import { InvoiceEmptyState } from "@/components/invoices/invoice-empty-state";
 import {
   Pagination,
   PaginationContent,
@@ -131,7 +132,8 @@ export function InvoiceTable({
             <LoadingLogo className="scale-75 animate-pulse" />
           </div>
         )}
-        <Table>
+        {invoices.length > 0 ? (
+          <Table>
           <TableHeader>
             <TableRow>
               <TableHead>Invoice #</TableHead>
@@ -216,6 +218,11 @@ export function InvoiceTable({
             ))}
           </TableBody>
         </Table>
+        ) : (
+          <div className="py-8">
+            <InvoiceEmptyState type="no-results" />
+          </div>
+        )}
       </CardContent>
     </Card>
   );

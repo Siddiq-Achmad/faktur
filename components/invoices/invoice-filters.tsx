@@ -40,6 +40,8 @@ interface InvoiceFiltersProps {
   onDaysChange: (value: string) => void;
   onStatusChange: (value: string) => void;
   onSearchChange: (value: string) => void;
+  onSearchSubmit?: () => void;
+  onReset?: () => void;
 }
 
 const STATUSES = ["draft", "sent", "paid", "overdue", "cancelled"] as const;
@@ -51,6 +53,7 @@ function FilterContent({
   onLimitChange,
   onDaysChange,
   onStatusChange,
+  onReset,
 }: Pick<
   InvoiceFiltersProps,
   | "limit"
@@ -59,12 +62,8 @@ function FilterContent({
   | "onLimitChange"
   | "onDaysChange"
   | "onStatusChange"
+  | "onReset"
 >) {
-  const handleReset = () => {
-    onLimitChange("10");
-    onDaysChange("30");
-    onStatusChange("all");
-  };
 
   const hasNonDefaultValues =
     limit !== 10 || days !== 30 || (status && status !== "all");
@@ -148,12 +147,12 @@ function FilterContent({
       </div>
 
       {/* Footer - Reset button */}
-      {hasNonDefaultValues && (
+      {hasNonDefaultValues && onReset && (
         <div className="border-t pt-4">
           <Button
             variant="ghost"
             size="sm"
-            onClick={handleReset}
+            onClick={onReset}
             className="w-full h-8 text-xs"
           >
             Reset to defaults
@@ -173,12 +172,21 @@ export function InvoiceFilters({
   onDaysChange,
   onStatusChange,
   onSearchChange,
+  onSearchSubmit,
+  onReset,
 }: InvoiceFiltersProps) {
   const [sheetOpen, setSheetOpen] = useState(false);
   const [popoverOpen, setPopoverOpen] = useState(false);
 
   const handleClearSearch = () => {
     onSearchChange("");
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      onSearchSubmit?.();
+    }
   };
 
   // Count active filters (excluding search)
@@ -196,6 +204,7 @@ export function InvoiceFilters({
           placeholder="Search by client or company..."
           value={search || ""}
           onChange={(e) => onSearchChange(e.target.value)}
+          onKeyDown={handleKeyDown}
         />
         <InputGroupAddon>
           <Search className="h-4 w-4" />
@@ -245,6 +254,7 @@ export function InvoiceFilters({
               onLimitChange={onLimitChange}
               onDaysChange={onDaysChange}
               onStatusChange={onStatusChange}
+              onReset={onReset}
             />
           </div>
         </PopoverContent>
@@ -282,6 +292,7 @@ export function InvoiceFilters({
               onLimitChange={onLimitChange}
               onDaysChange={onDaysChange}
               onStatusChange={onStatusChange}
+              onReset={onReset}
             />
           </div>
         </SheetContent>
