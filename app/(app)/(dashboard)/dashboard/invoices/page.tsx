@@ -1,8 +1,10 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { trpc } from "@/lib/trpc/client";
+import { useDebounce } from "@/lib/hooks/use-debounce";
 import {
   Card,
   CardContent,
@@ -48,12 +50,34 @@ export default function InvoicesPage() {
       : (statusParam as "draft" | "sent" | "paid" | "overdue" | "cancelled") ||
         undefined;
 
+  // Search state with debouncing
+  const [searchInput, setSearchInput] = useState(
+    searchParams.get("search") || ""
+  );
+  const debouncedSearch = useDebounce(searchInput, 300);
+
+  // Update URL when debounced search changes
+  useEffect(() => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (debouncedSearch) {
+      params.set("search", debouncedSearch);
+      params.set("page", "1"); // Reset to page 1 when searching
+    } else {
+      params.delete("search");
+    }
+    router.push(`?${params.toString()}`);
+  }, [debouncedSearch]);
+
+  // Get search value from URL for the query
+  const search = searchParams.get("search") || undefined;
+
   const { data, isLoading, isFetching } = trpc.invoices.list.useQuery(
     {
       limit,
       page,
       days,
       status,
+      search,
     },
     {
       placeholderData: (previousData) => previousData,
@@ -113,6 +137,10 @@ export default function InvoicesPage() {
     params.set("status", value);
     params.set("page", "1"); // Reset to page 1 when changing status
     router.push(`?${params.toString()}`);
+  };
+
+  const handleSearchChange = (value: string) => {
+    setSearchInput(value);
   };
 
   const handlePageChange = (newPage: number) => {
@@ -199,9 +227,11 @@ export default function InvoicesPage() {
           limit={limit}
           days={days}
           status={status}
+          search={searchInput}
           onLimitChange={handleLimitChange}
           onDaysChange={handleDaysChange}
           onStatusChange={handleStatusChange}
+          onSearchChange={handleSearchChange}
         />
       </div>
 
@@ -262,7 +292,6 @@ export default function InvoicesPage() {
 }
 
 // TODO: Future improvements
-// - Add client name search
 // - Add sorting by date/amount
 // - Add bulk operations
 // - Fix invoice payment records iteration decimal errors

@@ -1,5 +1,6 @@
 "use client";
 
+import { Search, X } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -7,15 +8,23 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupInput,
+} from "@/components/ui/input-group";
 import { STATUS_COLORS, STATUS_LABELS } from "@/lib/constants/status-colors";
 
 interface InvoiceFiltersProps {
   limit: number;
   days: number | undefined;
   status: string | undefined;
+  search: string | undefined;
   onLimitChange: (value: string) => void;
   onDaysChange: (value: string) => void;
   onStatusChange: (value: string) => void;
+  onSearchChange: (value: string) => void;
 }
 
 const STATUSES = ["draft", "sent", "paid", "overdue", "cancelled"] as const;
@@ -24,12 +33,41 @@ export function InvoiceFilters({
   limit,
   days,
   status,
+  search,
   onLimitChange,
   onDaysChange,
   onStatusChange,
+  onSearchChange,
 }: InvoiceFiltersProps) {
+  const handleClearSearch = () => {
+    onSearchChange("");
+  };
+
   return (
     <div className="flex flex-wrap items-center gap-3">
+      {/* Search Input */}
+      <InputGroup className="w-full sm:w-[280px]">
+        <InputGroupInput
+          placeholder="Search by client or company..."
+          value={search || ""}
+          onChange={(e) => onSearchChange(e.target.value)}
+        />
+        <InputGroupAddon>
+          <Search className="h-4 w-4" />
+        </InputGroupAddon>
+        {search && (
+          <InputGroupAddon align="inline-end">
+            <InputGroupButton
+              size="icon-xs"
+              onClick={handleClearSearch}
+              className="rounded-full"
+            >
+              <X className="h-3.5 w-3.5" />
+              <span className="sr-only">Clear search</span>
+            </InputGroupButton>
+          </InputGroupAddon>
+        )}
+      </InputGroup>
       <div className="flex items-center gap-2">
         <span className="text-sm text-muted-foreground">Show:</span>
         <Select value={limit.toString()} onValueChange={onLimitChange}>

@@ -2,7 +2,8 @@ import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { db } from "@/lib/db";
 import { invoices, invoiceItems, clients } from "@/lib/db/schema";
-import { eq, and, desc, sql, gte } from "drizzle-orm";
+import { eq, and, desc, sql, gte, ilike, or } from "drizzle-orm";
+import { sanitizeSearchInput, createILikePattern } from "@/lib/sanitize";
 
 const invoiceItemSchema = z.object({
   description: z
@@ -118,6 +119,8 @@ export const invoicesRouter = createTRPCRouter({
           status: z
             .enum(["draft", "sent", "paid", "overdue", "cancelled"])
             .optional(),
+          search: z.string().optional(),
+          clientId: z.string().optional(),
         })
         .optional()
     )
@@ -126,10 +129,17 @@ export const invoicesRouter = createTRPCRouter({
       const page = input?.page ?? 1;
       const days = input?.days;
       const status = input?.status;
+      const searchRaw = input?.search;
+      const clientId = input?.clientId;
       const offset = (page - 1) * limit;
 
       // Build where conditions
       const conditions = [eq(invoices.userId, ctx.userId)];
+
+      // Add client filter if provided
+      if (clientId) {
+        conditions.push(eq(invoices.clientId, clientId));
+      }
 
       // Add date filter if days is provided (based on issue date)
       if (days) {
@@ -143,10 +153,25 @@ export const invoicesRouter = createTRPCRouter({
         conditions.push(eq(invoices.status, status));
       }
 
-      // Get total count
+      // Add search filter if provided (sanitized)
+      if (searchRaw) {
+        const sanitizedSearch = sanitizeSearchInput(searchRaw);
+        if (sanitizedSearch) {
+          const pattern = createILikePattern(sanitizedSearch);
+          conditions.push(
+            or(
+              ilike(clients.name, pattern),
+              ilike(clients.company, pattern)
+            )!
+          );
+        }
+      }
+
+      // Get total count (need to join clients for search filter)
       const countResult = await db
         .select({ count: sql<number>`count(*)` })
         .from(invoices)
+        .leftJoin(clients, eq(invoices.clientId, clients.id))
         .where(and(...conditions));
 
       const total = countResult[0]?.count ?? 0;
