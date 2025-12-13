@@ -46,7 +46,7 @@ export function Sidebar() {
       .toUpperCase() || "U";
 
   return (
-    <div className="flex h-full flex-col bg-border/30">
+    <div className="flex h-full flex-col bg-accent/50">
       <div className="flex h-16 items-center px-6">
         <Link
           href="/dashboard"
