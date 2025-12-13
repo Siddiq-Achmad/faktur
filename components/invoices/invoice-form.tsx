@@ -407,7 +407,7 @@ export function InvoiceForm({
                   </div>
                 )}
 
-                <div className="grid gap-6 sm:grid-cols-2 pt-4">
+                <div className="grid gap-1 sm:grid-cols-2 sm:gap-6 pt-4">
                   <FormField
                     control={form.control}
                     name="clientId"
@@ -463,7 +463,7 @@ export function InvoiceForm({
 
                 {/* <Separator className="bg-border/50" /> */}
 
-                <div className="grid gap-6 sm:grid-cols-2">
+                <div className="grid gap-1 sm:grid-cols-2 sm:gap-6">
                   <FormField
                     control={form.control}
                     name="issueDate"
@@ -475,9 +475,13 @@ export function InvoiceForm({
                         </FormLabel>
                         <FormControl>
                           <DatePicker
-                            value={field.value ? new Date(field.value) : undefined}
+                            value={
+                              field.value ? new Date(field.value) : undefined
+                            }
                             onChange={(date) =>
-                              field.onChange(date?.toISOString().split("T")[0] || "")
+                              field.onChange(
+                                date?.toISOString().split("T")[0] || ""
+                              )
                             }
                             maxDate={new Date(Date.now() + 24 * 60 * 60 * 1000)}
                             disabled={!isClientSelected}
@@ -494,7 +498,9 @@ export function InvoiceForm({
                     name="dueDate"
                     render={({ field }) => {
                       const issueDate = form.watch("issueDate");
-                      const minDate = issueDate ? new Date(issueDate) : new Date();
+                      const minDate = issueDate
+                        ? new Date(issueDate)
+                        : new Date();
 
                       return (
                         <FormItem className="space-y-1">
@@ -504,9 +510,13 @@ export function InvoiceForm({
                           </FormLabel>
                           <FormControl>
                             <DatePicker
-                              value={field.value ? new Date(field.value) : undefined}
+                              value={
+                                field.value ? new Date(field.value) : undefined
+                              }
                               onChange={(date) =>
-                                field.onChange(date?.toISOString().split("T")[0] || "")
+                                field.onChange(
+                                  date?.toISOString().split("T")[0] || ""
+                                )
                               }
                               minDate={minDate}
                               disabled={!isClientSelected}
@@ -564,7 +574,7 @@ export function InvoiceForm({
                       index !== fields.length - 1 && "border-b"
                     )}
                   >
-                    <div className="grid gap-4 md:grid-cols-12">
+                    <div className="grid gap-1 sm:gap-4 md:grid-cols-12">
                       <div className="md:col-span-5">
                         <FormField
                           control={form.control}
