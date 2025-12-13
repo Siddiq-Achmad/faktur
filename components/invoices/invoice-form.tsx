@@ -50,6 +50,12 @@ import {
 } from "@/components/ui/collapsible";
 import { NumberInput } from "@/components/ui/number-input";
 import { DatePicker } from "@/components/ui/date-picker";
+import {
+  roundMoney,
+  moneyAdd,
+  moneySubtract,
+  moneyMultiply,
+} from "@/lib/utils/money";
 
 const invoiceItemSchema = z.object({
   description: z
@@ -276,53 +282,57 @@ export function InvoiceForm({
   useEffect(() => {
     const subscription = form.watch((value) => {
       const items = value.items || [];
-      const sub = items.reduce((sum, item) => sum + (item?.amount || 0), 0);
+      const sub = roundMoney(
+        items.reduce((sum, item) => sum + (item?.amount || 0), 0)
+      );
       setSubtotal(sub);
 
       let disc = 0;
       if (value.discountType === "percentage") {
-        disc = (sub * (value.discountValue || 0)) / 100;
+        disc = moneyMultiply(sub, (value.discountValue || 0) / 100);
       } else if (value.discountType === "fixed") {
-        disc = value.discountValue || 0;
+        disc = roundMoney(value.discountValue || 0);
       }
       setDiscountAmount(disc);
 
-      const afterDiscount = sub - disc;
-      const tax = (afterDiscount * (value.taxRate || 0)) / 100;
+      const afterDiscount = moneySubtract(sub, disc);
+      const tax = moneyMultiply(afterDiscount, (value.taxRate || 0) / 100);
       setTaxAmount(tax);
 
-      const tot = afterDiscount + tax;
+      const tot = moneyAdd(afterDiscount, tax);
       setTotal(tot);
     });
 
     // Calculate totals on mount with default values
     const values = form.getValues();
     const items = values.items || [];
-    const sub = items.reduce((sum, item) => sum + (item?.amount || 0), 0);
+    const sub = roundMoney(
+      items.reduce((sum, item) => sum + (item?.amount || 0), 0)
+    );
     setSubtotal(sub);
 
     let disc = 0;
     if (values.discountType === "percentage") {
-      disc = (sub * (values.discountValue || 0)) / 100;
+      disc = moneyMultiply(sub, (values.discountValue || 0) / 100);
     } else if (values.discountType === "fixed") {
-      disc = values.discountValue || 0;
+      disc = roundMoney(values.discountValue || 0);
     }
     setDiscountAmount(disc);
 
-    const afterDiscount = sub - disc;
-    const tax = (afterDiscount * (values.taxRate || 0)) / 100;
+    const afterDiscount = moneySubtract(sub, disc);
+    const tax = moneyMultiply(afterDiscount, (values.taxRate || 0) / 100);
     setTaxAmount(tax);
 
-    const tot = afterDiscount + tax;
+    const tot = moneyAdd(afterDiscount, tax);
     setTotal(tot);
 
     return () => subscription.unsubscribe();
   }, [form]);
 
-  // Update item amount when quantity or rate changes
+  // Update item amount when quantity or rate changes with proper rounding
   const updateItemAmount = (index: number) => {
     const item = form.getValues(`items.${index}`);
-    const amount = item.quantity * item.rate;
+    const amount = moneyMultiply(item.quantity, item.rate);
     form.setValue(`items.${index}.amount`, amount);
   };
 

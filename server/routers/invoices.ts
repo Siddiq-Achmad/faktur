@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { invoices, invoiceItems, clients } from "@/lib/db/schema";
 import { eq, and, desc, sql, gte, ilike, or } from "drizzle-orm";
 import { sanitizeSearchInput, createILikePattern } from "@/lib/sanitize";
+import { roundMoney, moneyAdd, moneySubtract, moneyMultiply } from "@/lib/utils/money";
 
 const invoiceItemSchema = z.object({
   description: z
@@ -279,18 +280,20 @@ export const invoicesRouter = createTRPCRouter({
       })
     )
     .query(({ input }) => {
-      const subtotal = input.items.reduce((sum, item) => sum + item.amount, 0);
+      const subtotal = roundMoney(
+        input.items.reduce((sum, item) => sum + item.amount, 0)
+      );
 
       let discountAmount = 0;
       if (input.discountType === "percentage") {
-        discountAmount = (subtotal * input.discountValue) / 100;
+        discountAmount = moneyMultiply(subtotal, input.discountValue / 100);
       } else if (input.discountType === "fixed") {
-        discountAmount = input.discountValue;
+        discountAmount = roundMoney(input.discountValue);
       }
 
-      const afterDiscount = subtotal - discountAmount;
-      const taxAmount = (afterDiscount * input.taxRate) / 100;
-      const total = afterDiscount + taxAmount;
+      const afterDiscount = moneySubtract(subtotal, discountAmount);
+      const taxAmount = moneyMultiply(afterDiscount, input.taxRate / 100);
+      const total = moneyAdd(afterDiscount, taxAmount);
 
       return {
         subtotal,
@@ -306,19 +309,21 @@ export const invoicesRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const { items, ...invoiceData } = input;
 
-      // Calculate totals
-      const subtotal = items.reduce((sum, item) => sum + item.amount, 0);
+      // Calculate totals with proper rounding
+      const subtotal = roundMoney(
+        items.reduce((sum, item) => sum + item.amount, 0)
+      );
 
       let discountAmount = 0;
       if (invoiceData.discountType === "percentage") {
-        discountAmount = (subtotal * invoiceData.discountValue) / 100;
+        discountAmount = moneyMultiply(subtotal, invoiceData.discountValue / 100);
       } else if (invoiceData.discountType === "fixed") {
-        discountAmount = invoiceData.discountValue;
+        discountAmount = roundMoney(invoiceData.discountValue);
       }
 
-      const afterDiscount = subtotal - discountAmount;
-      const taxAmount = (afterDiscount * invoiceData.taxRate) / 100;
-      const total = afterDiscount + taxAmount;
+      const afterDiscount = moneySubtract(subtotal, discountAmount);
+      const taxAmount = moneyMultiply(afterDiscount, invoiceData.taxRate / 100);
+      const total = moneyAdd(afterDiscount, taxAmount);
 
       // Generate invoice number
       const result = await db
@@ -368,19 +373,21 @@ export const invoicesRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const { items, ...invoiceData } = input.data;
 
-      // Calculate totals
-      const subtotal = items.reduce((sum, item) => sum + item.amount, 0);
+      // Calculate totals with proper rounding
+      const subtotal = roundMoney(
+        items.reduce((sum, item) => sum + item.amount, 0)
+      );
 
       let discountAmount = 0;
       if (invoiceData.discountType === "percentage") {
-        discountAmount = (subtotal * invoiceData.discountValue) / 100;
+        discountAmount = moneyMultiply(subtotal, invoiceData.discountValue / 100);
       } else if (invoiceData.discountType === "fixed") {
-        discountAmount = invoiceData.discountValue;
+        discountAmount = roundMoney(invoiceData.discountValue);
       }
 
-      const afterDiscount = subtotal - discountAmount;
-      const taxAmount = (afterDiscount * invoiceData.taxRate) / 100;
-      const total = afterDiscount + taxAmount;
+      const afterDiscount = moneySubtract(subtotal, discountAmount);
+      const taxAmount = moneyMultiply(afterDiscount, invoiceData.taxRate / 100);
+      const total = moneyAdd(afterDiscount, taxAmount);
 
       // Update invoice
       const [invoice] = await db

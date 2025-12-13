@@ -21,6 +21,7 @@ import { STATUS_COLORS, STATUS_LABELS } from "@/lib/constants/status-colors";
 import { NotFound } from "@/components/ui/not-found";
 import LoadingLogo from "@/components/loading-logo";
 import { FileCog, FileDown } from "lucide-react";
+import { moneySubtract } from "@/lib/utils/money";
 
 export default function InvoiceDetailPage({
   params,
@@ -65,7 +66,10 @@ export default function InvoiceDetailPage({
           invoice.status !== "cancelled" ? (
             <RecordPaymentDialog
               invoiceId={id}
-              remainingBalance={invoice.total - invoice.amountPaid}
+              remainingBalance={moneySubtract(
+                invoice.total,
+                invoice.amountPaid
+              )}
               buttonLabel="Payment"
             />
           ) : null}
@@ -240,7 +244,10 @@ export default function InvoiceDetailPage({
                   Balance Due
                 </span>
                 <span className="text-sm font-mono font-bold text-primary">
-                  ${(invoice.total - invoice.amountPaid).toFixed(2)}
+                  $
+                  {moneySubtract(invoice.total, invoice.amountPaid).toFixed(
+                    2
+                  )}
                 </span>
               </div>
             </div>

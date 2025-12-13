@@ -20,6 +20,7 @@ import { STATUS_COLORS } from "@/lib/constants/status-colors";
 import { NotFound } from "@/components/ui/not-found";
 import LoadingLogo from "@/components/loading-logo";
 import { Cog, FilePlusCorner } from "lucide-react";
+import { roundMoney, moneySubtract } from "@/lib/utils/money";
 
 const statusColors = {
   draft: "secondary",
@@ -67,11 +68,15 @@ export default function ClientDetailPage({
     );
   }
 
-  const totalInvoiced = clientInvoices.reduce((sum, inv) => sum + inv.total, 0);
-  const totalPaid = clientInvoices
-    .filter((inv) => inv.status === "paid")
-    .reduce((sum, inv) => sum + inv.total, 0);
-  const outstanding = totalInvoiced - totalPaid;
+  const totalInvoiced = roundMoney(
+    clientInvoices.reduce((sum, inv) => sum + inv.total, 0)
+  );
+  const totalPaid = roundMoney(
+    clientInvoices
+      .filter((inv) => inv.status === "paid")
+      .reduce((sum, inv) => sum + inv.total, 0)
+  );
+  const outstanding = moneySubtract(totalInvoiced, totalPaid);
 
   return (
     <div className="space-y-6">

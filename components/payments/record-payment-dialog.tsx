@@ -34,12 +34,20 @@ import { Input } from "@/components/ui/input";
 import { HandCoins, Loader2 } from "lucide-react";
 import { NumberInput } from "@/components/ui/number-input";
 import { DatePicker } from "@/components/ui/date-picker";
+import { roundMoney, moneyGreaterThanOrEqual } from "@/lib/utils/money";
 
-const paymentSchema = z.object({
-  amount: z
-    .number()
-    .min(0.01, "Payment amount must be greater than 0")
-    .max(100000000, "Payment amount must not exceed 100,000,000"),
+const createPaymentSchema = (maxAmount: number) =>
+  z.object({
+    amount: z
+      .number()
+      .min(0.01, "Payment amount must be greater than 0")
+      .max(100000000, "Payment amount must not exceed 100,000,000")
+      .refine(
+        (val) => moneyGreaterThanOrEqual(maxAmount, val),
+        {
+          message: `Payment amount cannot exceed remaining balance ($${roundMoney(maxAmount).toFixed(2)})`,
+        }
+      ),
   paymentDate: z
     .string()
     .min(1, "Payment date is required")
@@ -82,9 +90,7 @@ const paymentSchema = z.object({
     .transform((val) => val.trim())
     .optional()
     .or(z.literal("")),
-});
-
-type PaymentFormData = z.infer<typeof paymentSchema>;
+  });
 
 interface RecordPaymentDialogProps {
   invoiceId: string;
@@ -113,6 +119,13 @@ export function RecordPaymentDialog({
   const utils = trpc.useUtils();
   const createPaymentMutation = trpc.payments.create.useMutation();
 
+  // Round remaining balance to avoid float errors
+  const roundedRemainingBalance = roundMoney(remainingBalance);
+
+  // Create schema with dynamic max amount validation
+  const paymentSchema = createPaymentSchema(roundedRemainingBalance);
+  type PaymentFormData = z.infer<typeof paymentSchema>;
+
   const form = useForm<PaymentFormData>({
     resolver: zodResolver(paymentSchema),
     defaultValues: {
@@ -129,7 +142,7 @@ export function RecordPaymentDialog({
     setOpen(newOpen);
     if (newOpen) {
       form.reset({
-        amount: Math.round(remainingBalance * 100) / 100,
+        amount: roundedRemainingBalance,
         paymentDate: new Date().toISOString().split("T")[0],
         paymentMethod: "bank_transfer",
         reference: "",
@@ -181,7 +194,7 @@ export function RecordPaymentDialog({
           </DialogTitle>
           <DialogDescription className="text-xs">
             Record a payment received for this invoice. Remaining balance: ${" "}
-            {remainingBalance.toFixed(2)}
+            {roundedRemainingBalance.toFixed(2)}
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -207,7 +220,7 @@ export function RecordPaymentDialog({
                           value={field.value}
                           onChange={field.onChange}
                           onBlur={field.onBlur}
-                          max={remainingBalance}
+                          max={roundedRemainingBalance}
                           placeholder="0.00"
                           className="pl-8 h-10"
                         />
@@ -230,7 +243,9 @@ export function RecordPaymentDialog({
                       <DatePicker
                         value={field.value ? new Date(field.value) : undefined}
                         onChange={(date) =>
-                          field.onChange(date?.toISOString().split("T")[0] || "")
+                          field.onChange(
+                            date?.toISOString().split("T")[0] || ""
+                          )
                         }
                         maxDate={new Date(Date.now() + 24 * 60 * 60 * 1000)}
                         placeholder="Select payment date"
