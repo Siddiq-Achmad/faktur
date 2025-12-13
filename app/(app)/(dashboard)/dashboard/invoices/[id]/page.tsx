@@ -20,6 +20,7 @@ import { PaymentHistory } from "@/components/payments/payment-history";
 import { STATUS_COLORS, STATUS_LABELS } from "@/lib/constants/status-colors";
 import { NotFound } from "@/components/ui/not-found";
 import LoadingLogo from "@/components/loading-logo";
+import { FileCog, FileDown } from "lucide-react";
 
 export default function InvoiceDetailPage({
   params,
@@ -70,12 +71,16 @@ export default function InvoiceDetailPage({
           ) : null}
           <Button variant="outline" asChild>
             <Link href={`/dashboard/invoices/${id}/preview`}>
+              <FileDown />
               <span className="hidden sm:inline">Preview & Download</span>
               <span className="sm:hidden">Download</span>
             </Link>
           </Button>
           <Button asChild variant={"outline"}>
-            <Link href={`/dashboard/invoices/${id}/edit`}>Edit</Link>
+            <Link href={`/dashboard/invoices/${id}/edit`}>
+              <FileCog />
+              Edit
+            </Link>
           </Button>
         </div>
       </div>
@@ -243,7 +248,7 @@ export default function InvoiceDetailPage({
         </Card>
       </div>
 
-      <Card className="gap-1">
+      <Card className="gap-1 pb-0">
         <CardHeader className="space-y-1 pb-3">
           <CardTitle className="text-sm font-semibold">Line Items</CardTitle>
         </CardHeader>

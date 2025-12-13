@@ -31,7 +31,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Loader2 } from "lucide-react";
+import { HandCoins, Loader2 } from "lucide-react";
 import { NumberInput } from "@/components/ui/number-input";
 
 const paymentSchema = z.object({
@@ -168,7 +168,10 @@ export function RecordPaymentDialog({
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <Button variant={"outline"}>{buttonLabel || "Record Payment"}</Button>
+        <Button variant={"outline"}>
+          <HandCoins />
+          {buttonLabel || "Record Payment"}
+        </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
         <DialogHeader className="gap-0">

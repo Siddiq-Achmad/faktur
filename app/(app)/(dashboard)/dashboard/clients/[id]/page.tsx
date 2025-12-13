@@ -19,6 +19,7 @@ import {
 import { STATUS_COLORS } from "@/lib/constants/status-colors";
 import { NotFound } from "@/components/ui/not-found";
 import LoadingLogo from "@/components/loading-logo";
+import { Cog, FilePlusCorner } from "lucide-react";
 
 const statusColors = {
   draft: "secondary",
@@ -85,17 +86,24 @@ export default function ClientDetailPage({
         </div>
         <div className="space-x-2">
           <Button size="sm" variant={"outline"} asChild>
-            <Link href={`/dashboard/clients/${id}/edit`}>Edit</Link>
+            <Link href={`/dashboard/clients/${id}/edit`}>
+              <Cog />
+              Edit
+            </Link>
           </Button>
 
           <Button
             size="sm"
             asChild
+            variant={"outline"}
             onClick={() => {
               localStorage.setItem("recentClientId", id);
             }}
           >
-            <Link href="/dashboard/invoices/new">Add Invoice</Link>
+            <Link href="/dashboard/invoices/new">
+              <FilePlusCorner />
+              Add Invoice
+            </Link>
           </Button>
         </div>
       </div>

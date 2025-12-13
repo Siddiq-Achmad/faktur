@@ -29,7 +29,7 @@ import {
   InvoiceCardsPagination,
 } from "@/components/invoices/invoice-cards";
 import { InvoiceEmptyState } from "@/components/invoices/invoice-empty-state";
-import { FileText } from "lucide-react";
+import { FilePlusCorner, FileText } from "lucide-react";
 
 export default function InvoicesPage() {
   const router = useRouter();
@@ -192,8 +192,11 @@ export default function InvoicesPage() {
                 Manage and track all your invoices
               </p>
             </div>
-            <Button asChild>
-              <Link href="/dashboard/invoices/new">New Invoice</Link>
+            <Button asChild variant={"outline"}>
+              <Link href="/dashboard/invoices/new">
+                <FilePlusCorner />
+                Add Invoice
+              </Link>
             </Button>
           </div>
         </div>
@@ -216,7 +219,8 @@ export default function InvoicesPage() {
             </p>
             <Button asChild className="h-10">
               <Link href="/dashboard/invoices/new">
-                Create Your First Invoice
+                <FilePlusCorner />
+                Create First Invoice
               </Link>
             </Button>
           </CardContent>
@@ -238,8 +242,11 @@ export default function InvoicesPage() {
               Manage and track all your invoices
             </p>
           </div>
-          <Button asChild>
-            <Link href="/dashboard/invoices/new">New Invoice</Link>
+          <Button asChild variant={"outline"}>
+            <Link href="/dashboard/invoices/new">
+              <FilePlusCorner />
+              Add Invoice
+            </Link>
           </Button>
         </div>
       </div>
