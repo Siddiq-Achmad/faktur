@@ -33,6 +33,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { HandCoins, Loader2 } from "lucide-react";
 import { NumberInput } from "@/components/ui/number-input";
+import { DatePicker } from "@/components/ui/date-picker";
 
 const paymentSchema = z.object({
   amount: z
@@ -226,15 +227,13 @@ export function RecordPaymentDialog({
                       Payment Date
                     </FormLabel>
                     <FormControl>
-                      <Input
-                        {...field}
-                        type="date"
-                        className="h-10"
-                        max={
-                          new Date(Date.now() + 24 * 60 * 60 * 1000)
-                            .toISOString()
-                            .split("T")[0]
+                      <DatePicker
+                        value={field.value ? new Date(field.value) : undefined}
+                        onChange={(date) =>
+                          field.onChange(date?.toISOString().split("T")[0] || "")
                         }
+                        maxDate={new Date(Date.now() + 24 * 60 * 60 * 1000)}
+                        placeholder="Select payment date"
                       />
                     </FormControl>
                     <FormMessage />

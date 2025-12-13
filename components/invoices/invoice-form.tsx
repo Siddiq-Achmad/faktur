@@ -49,6 +49,7 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { NumberInput } from "@/components/ui/number-input";
+import { DatePicker } from "@/components/ui/date-picker";
 
 const invoiceItemSchema = z.object({
   description: z
@@ -221,7 +222,7 @@ export function InvoiceForm({
     defaultValues: defaultValues || {
       clientId: "",
       issueDate: new Date().toISOString().split("T")[0],
-      dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+      dueDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000)
         .toISOString()
         .split("T")[0],
       status: "draft",
@@ -473,11 +474,14 @@ export function InvoiceForm({
                           Issue Date
                         </FormLabel>
                         <FormControl>
-                          <Input
-                            type="date"
-                            className="h-10"
+                          <DatePicker
+                            value={field.value ? new Date(field.value) : undefined}
+                            onChange={(date) =>
+                              field.onChange(date?.toISOString().split("T")[0] || "")
+                            }
+                            maxDate={new Date(Date.now() + 24 * 60 * 60 * 1000)}
                             disabled={!isClientSelected}
-                            {...field}
+                            placeholder="Select issue date"
                           />
                         </FormControl>
                         <FormMessage />
@@ -488,23 +492,31 @@ export function InvoiceForm({
                   <FormField
                     control={form.control}
                     name="dueDate"
-                    render={({ field }) => (
-                      <FormItem className="space-y-1">
-                        <FormLabel className="flex items-center gap-2 text-sm font-medium">
-                          <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
-                          Due Date
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            type="date"
-                            className="h-10"
-                            disabled={!isClientSelected}
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
+                    render={({ field }) => {
+                      const issueDate = form.watch("issueDate");
+                      const minDate = issueDate ? new Date(issueDate) : new Date();
+
+                      return (
+                        <FormItem className="space-y-1">
+                          <FormLabel className="flex items-center gap-2 text-sm font-medium">
+                            <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
+                            Due Date
+                          </FormLabel>
+                          <FormControl>
+                            <DatePicker
+                              value={field.value ? new Date(field.value) : undefined}
+                              onChange={(date) =>
+                                field.onChange(date?.toISOString().split("T")[0] || "")
+                              }
+                              minDate={minDate}
+                              disabled={!isClientSelected}
+                              placeholder="Select due date"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      );
+                    }}
                   />
                 </div>
               </CardContent>
