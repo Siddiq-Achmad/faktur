@@ -18,7 +18,7 @@ if (!globalForAuth.auth) {
       },
     }),
     emailAndPassword: {
-      enabled: true,
+      enabled: false,
     },
     socialProviders: {
       google: {
