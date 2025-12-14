@@ -5,6 +5,7 @@ import { clientsRouter } from "./routers/clients";
 import { dashboardRouter } from "./routers/dashboard";
 import { businessProfileRouter } from "./routers/business-profile";
 import { paymentsRouter } from "./routers/payments";
+import { userRouter } from "./routers/user";
 
 /**
  * Main tRPC router
@@ -17,6 +18,7 @@ export const appRouter = createTRPCRouter({
   dashboard: dashboardRouter,
   businessProfile: businessProfileRouter,
   payments: paymentsRouter,
+  user: userRouter,
 });
 
 export type AppRouter = typeof appRouter;

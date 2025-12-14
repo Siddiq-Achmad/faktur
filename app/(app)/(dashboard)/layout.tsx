@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useSessionSafe } from "@/lib/hooks/use-session-safe";
+import { trpc } from "@/lib/trpc/client";
 import { Sidebar } from "@/components/dashboard/sidebar";
 import LoadingLogo from "@/components/loading-logo";
 import MobileNav from "@/components/dashboard/mobile-nav";
@@ -14,6 +15,10 @@ export default function DashboardLayout({
 }) {
   const { data: session, isPending } = useSessionSafe();
   const router = useRouter();
+  const { data: onboardingStatus, isLoading: isLoadingOnboarding } =
+    trpc.user.getOnboardingStatus.useQuery(undefined, {
+      enabled: !!session,
+    });
 
   useEffect(() => {
     if (!isPending && !session) {
@@ -21,7 +26,19 @@ export default function DashboardLayout({
     }
   }, [session, isPending, router]);
 
-  if (isPending) {
+  useEffect(() => {
+    if (
+      session &&
+      !isLoadingOnboarding &&
+      onboardingStatus &&
+      !onboardingStatus.hasCompletedOnboarding
+    ) {
+      router.push("/onboarding");
+    }
+  }, [session, isLoadingOnboarding, onboardingStatus, router]);
+
+  // Show loading while checking session or onboarding status
+  if (isPending || isLoadingOnboarding) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <LoadingLogo />
@@ -31,6 +48,15 @@ export default function DashboardLayout({
 
   if (!session) {
     return null;
+  }
+
+  // Show loading while redirecting to onboarding
+  if (onboardingStatus && !onboardingStatus.hasCompletedOnboarding) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <LoadingLogo />
+      </div>
+    );
   }
 
   return (
