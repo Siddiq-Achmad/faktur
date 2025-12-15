@@ -121,24 +121,18 @@ export function Sidebar() {
             <Button variant="ghost" className="text-left pl-2 w-full h-12">
               <Avatar>
                 <AvatarImage
-                  src={
-                    businessProfile?.logo || session?.user?.image || undefined
-                  }
-                  alt={
-                    businessProfile?.companyName ||
-                    session?.user?.name ||
-                    "user avatar"
-                  }
+                  src={businessProfile?.logo || undefined}
+                  alt={businessProfile?.companyName || "user avatar"}
                 />
                 <AvatarFallback>{initials}</AvatarFallback>
               </Avatar>
 
               <div className="flex flex-col space-y-1 w-full">
-                <p className="text-sm font-medium leading-none">
-                  {session?.user?.name}
+                <p className="text-sm font-medium leading-5">
+                  {businessProfile?.companyName ?? "Guest"}
                 </p>
-                <p className="text-xs leading-none text-muted-foreground max-w-full overflow-hidden truncate">
-                  {businessProfile?.companyName ?? session?.user?.email}
+                <p className="text-[10px] leading-none text-muted-foreground max-w-full overflow-hidden truncate">
+                  {businessProfile?.email ?? "Guest Company"}
                 </p>
               </div>
             </Button>

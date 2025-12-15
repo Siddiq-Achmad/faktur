@@ -49,7 +49,7 @@ export function RecentActivity() {
   if (activities.length === 0) {
     return (
       <Card className="border-muted/40 backdrop-blur-sm">
-        <div className="px-5 py-4">
+        <div className="px-5">
           <h3 className="font-semibold tracking-tight">Recent Activity</h3>
           <p className="text-xs text-muted-foreground/80">
             Latest invoice updates
@@ -72,7 +72,7 @@ export function RecentActivity() {
 
   return (
     <Card className="border-muted/40 backdrop-blur-sm px-4">
-      <div className="px-4 pt-3">
+      <div className="px-4">
         <h3 className="font-semibold tracking-tight">Recent Activity</h3>
         <p className="text-xs text-muted-foreground/80">
           Latest invoice updates
