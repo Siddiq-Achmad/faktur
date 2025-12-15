@@ -347,7 +347,7 @@ export function BusinessProfileForm() {
         className="mx-auto space-y-8"
       >
         {/* Logo Upload */}
-        <Card className="gap-2">
+        <Card className="gap-2 min-w-min">
           <CardHeader className="pb-4 text-center gap-0">
             <CardTitle className="text-base font-medium">
               Company Logo
@@ -357,15 +357,18 @@ export function BusinessProfileForm() {
             </CardDescription>
           </CardHeader>
           <CardContent className="mx-auto">
-            <LogoUpload
-              preview={logoPreview}
-              onUpload={handleLogoUpload}
-              onDelete={handleDeleteLogo}
-              uploading={uploadingLogo}
-              deleting={deleteLogoMutation.isPending}
-              className="w-48 h-48"
-              previewClassName="w-32 h-32"
-            />
+            <div className="animate-in fade-in slide-in-from-top-4 duration-300">
+              <div className="py-2 flex justify-center sm:justify-center">
+                <LogoUpload
+                  preview={logoPreview}
+                  onUpload={handleLogoUpload}
+                  onDelete={handleDeleteLogo}
+                  uploading={uploadingLogo}
+                  className="h-44 w-44 sm:w-64 sm:h-64"
+                  previewClassName="h-44 w-44 sm:w-64 sm:h-64"
+                />
+              </div>
+            </div>
           </CardContent>
         </Card>
 

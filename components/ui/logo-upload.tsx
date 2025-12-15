@@ -136,7 +136,7 @@ export function LogoUpload({
             <ImageIcon className="h-8 w-8" />
           )}
         </div>
-        <p className="text-sm font-semibold mb-1">
+        <p className="text-sm font-semibold mb-1 hidden sm:block">
           {uploading
             ? "Uploading..."
             : isDragging
