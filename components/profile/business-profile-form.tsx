@@ -22,7 +22,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Loader2, X, ImageIcon } from "lucide-react";
+import { LogoUpload } from "@/components/ui/logo-upload";
+import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { processImageForUpload } from "@/lib/image-utils";
 
@@ -232,8 +233,6 @@ type BusinessProfileFormData = z.infer<typeof businessProfileSchema>;
 export function BusinessProfileForm() {
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [uploadingLogo, setUploadingLogo] = useState(false);
-  const [isDragging, setIsDragging] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { data: profile, isLoading } = trpc.businessProfile.get.useQuery();
   const upsertMutation = trpc.businessProfile.upsert.useMutation();
@@ -300,7 +299,7 @@ export function BusinessProfileForm() {
     }
   };
 
-  const processFile = async (file: File) => {
+  const handleLogoUpload = async (file: File) => {
     setUploadingLogo(true);
 
     try {
@@ -319,40 +318,6 @@ export function BusinessProfileForm() {
       setLogoPreview(null);
     } finally {
       setUploadingLogo(false);
-    }
-  };
-
-  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    await processFile(file);
-  };
-
-  const handleDragEnter = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragging(true);
-  };
-
-  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragging(false);
-  };
-
-  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-  };
-
-  const handleDrop = async (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragging(false);
-
-    const file = e.dataTransfer.files?.[0];
-    if (file) {
-      await processFile(file);
     }
   };
 
@@ -382,7 +347,7 @@ export function BusinessProfileForm() {
         className="mx-auto space-y-8"
       >
         {/* Logo Upload */}
-        <Card className="gap-2">
+        <Card className="gap-2 min-w-min">
           <CardHeader className="pb-4 text-center gap-0">
             <CardTitle className="text-base font-medium">
               Company Logo
@@ -392,95 +357,18 @@ export function BusinessProfileForm() {
             </CardDescription>
           </CardHeader>
           <CardContent className="mx-auto">
-            {logoPreview ? (
-              <div className="relative inline-block">
-                <div className="group relative overflow-hidden rounded-lg border border-border/50 bg-muted/30 p-4">
-                  <img
-                    src={logoPreview}
-                    alt="Company logo"
-                    className="h-32 w-32 object-contain"
-                  />
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/60 opacity-0 transition-opacity group-hover:opacity-100">
-                    <Button
-                      type="button"
-                      variant="destructive"
-                      size="sm"
-                      onClick={handleDeleteLogo}
-                      disabled={deleteLogoMutation.isPending}
-                    >
-                      {deleteLogoMutation.isPending ? (
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      ) : (
-                        <X className="mr-2 h-4 w-4" />
-                      )}
-                      Remove
-                    </Button>
-                  </div>
-                </div>
+            <div className="animate-in fade-in slide-in-from-top-4 duration-300">
+              <div className="py-2 flex justify-center sm:justify-center">
+                <LogoUpload
+                  preview={logoPreview}
+                  onUpload={handleLogoUpload}
+                  onDelete={handleDeleteLogo}
+                  uploading={uploadingLogo}
+                  className="h-44 w-44 sm:w-64 sm:h-64"
+                  previewClassName="h-44 w-44 sm:w-64 sm:h-64"
+                />
               </div>
-            ) : (
-              <div
-                onDragEnter={handleDragEnter}
-                onDragLeave={handleDragLeave}
-                onDragOver={handleDragOver}
-                onDrop={handleDrop}
-                onClick={() => fileInputRef.current?.click()}
-                className={`
-                  group relative cursor-pointer overflow-hidden rounded-lg border-2 border-dashed dark:border-secondary/70
-                  transition-all duration-200 w-48 h-48
-                  ${
-                    isDragging
-                      ? "border-primary bg-primary/5 scale-[1.02]"
-                      : "border-border/50 bg-muted/20 hover:border-primary/50 hover:bg-muted/40"
-                  }
-                  ${uploadingLogo ? "pointer-events-none opacity-60" : ""}
-                `}
-              >
-                <div className="flex flex-col items-center justify-center h-full px-4 py-6 pointer-events-none">
-                  <div
-                    className={`
-                    mb-3 flex h-12 w-12 items-center justify-center rounded-full
-                    transition-all duration-200
-                    ${
-                      isDragging
-                        ? "bg-primary/20 text-primary scale-110"
-                        : "bg-muted text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary"
-                    }
-                  `}
-                  >
-                    {uploadingLogo ? (
-                      <Loader2 className="h-6 w-6 animate-spin" />
-                    ) : (
-                      <ImageIcon className="h-6 w-6" />
-                    )}
-                  </div>
-
-                  <div className="text-center space-y-1">
-                    <p className="text-xs font-medium">
-                      {uploadingLogo
-                        ? "Uploading..."
-                        : isDragging
-                        ? "Drop here"
-                        : "Upload Logo"}
-                    </p>
-                    <p className="text-[10px] text-muted-foreground leading-tight">
-                      JPG, PNG, WebP
-                      <br />
-                      Max 2MB
-                    </p>
-                  </div>
-
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/jpeg,image/jpg,image/png,image/webp"
-                    onChange={handleLogoUpload}
-                    disabled={uploadingLogo}
-                    className="hidden"
-                  />
-                </div>
-              </div>
-            )}
+            </div>
           </CardContent>
         </Card>
 

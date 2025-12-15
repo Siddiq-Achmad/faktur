@@ -1,79 +1,22 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { FakturLogo } from "@/components/ui/faktur-logo";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
 import { signIn } from "@/lib/auth/client";
 import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Separator } from "@/components/ui/separator";
-
-const loginSchema = z.object({
-  email: z.string().email({ message: "Invalid email address" }),
-  password: z
-    .string()
-    .min(8, { message: "Password must be at least 8 characters" }),
-});
-
-type LoginFormValues = z.infer<typeof loginSchema>;
 
 export default function LoginPage() {
-  const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-
-  const form = useForm<LoginFormValues>({
-    resolver: zodResolver(loginSchema),
-    defaultValues: {
-      email: "",
-      password: "",
-    },
-  });
-
-  async function onSubmit(values: LoginFormValues) {
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const result = await signIn.email({
-        email: values.email,
-        password: values.password,
-      });
-
-      if (result.error) {
-        setError(result.error.message || "Failed to sign in");
-        return;
-      }
-
-      router.push("/dashboard");
-    } catch (err) {
-      setError("An unexpected error occurred");
-      console.error(err);
-    } finally {
-      setIsLoading(false);
-    }
-  }
 
   async function handleGoogleSignIn() {
     setIsLoading(true);
@@ -109,115 +52,125 @@ export default function LoginPage() {
 
   return (
     <div className="flex min-h-screen items-center justify-center p-4 animate-in fade-in duration-300">
-      <Card className="w-full max-w-sm bg-transparent border-0 shadow-none">
-        <CardHeader className="gap-1">
+      <Card className="w-full max-w-sm shadow-none relative">
+        {/* pattern */}
+        <div
+          className="absolute inset-0 z-0 animate-pulse dark:opacity-10"
+          style={{
+            backgroundImage: `
+      linear-gradient(to right, rgb(176, 176, 176) 1px, transparent 1px),
+      linear-gradient(to bottom, rgb(176, 176, 176) 1px, transparent 1px)
+    `,
+            backgroundSize: "43px 33px",
+            backgroundPosition: "0 0, 0 0",
+            maskImage: `
+      repeating-linear-gradient(
+        to right,
+        black 0px,
+        black 3px,
+        transparent 3px,
+        transparent 8px
+      ),
+      repeating-linear-gradient(
+        to bottom,
+        black 0px,
+        black 3px,
+        transparent 3px,
+        transparent 8px
+      ),
+      radial-gradient(
+        ellipse 80% 80% at 100% 0%,
+        #000 50%,
+        transparent 90%
+      )
+    `,
+            WebkitMaskImage: `
+      repeating-linear-gradient(
+        to right,
+        black 0px,
+        black 3px,
+        transparent 3px,
+        transparent 8px
+      ),
+      repeating-linear-gradient(
+        to bottom,
+        black 0px,
+        black 3px,
+        transparent 3px,
+        transparent 8px
+      ),
+      radial-gradient(
+        ellipse 80% 80% at 100% 0%,
+        #000 50%,
+        transparent 90%
+      )
+    `,
+            maskComposite: "intersect",
+            WebkitMaskComposite: "source-in",
+          }}
+        />
+
+        <CardHeader className="gap-1 z-10">
           <Link
             href={"/"}
-            className="flex w-fit p-4 pl-0 mb-4 items-center justify-center"
+            className="flex w-fit p-4 pl-0 items-center justify-center"
           >
             <FakturLogo width={24} height={24} />
           </Link>
           <CardTitle className="text-2xl font-bold">Welcome back!</CardTitle>
-          <CardDescription>
-            Choose your preferred sign-in method
+          <CardDescription className="text-base font-medium">
+            Log in to your Faktur account
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4 pt-4">
+        <CardContent className="space-y-4 pt-4 z-10">
           <Button
             type="button"
-            className="w-full bg-primary hover:bg-primary/90"
+            variant={"outline"}
+            className="w-full"
             onClick={handleGoogleSignIn}
             disabled={isLoading}
           >
             <Image src="/g.webp" alt="Google" width={16} height={16} />
-            Sign in with Google
+            Continue with Google
           </Button>
           <Button
             type="button"
-            className="w-full bg-primary hover:bg-primary/90"
+            variant={"outline"}
+            className="w-full"
             onClick={handleGithubSignIn}
             disabled={isLoading}
           >
             <Image
               src="/github-mark-white.svg"
-              alt="Google"
+              alt="GitHub"
               width={16}
               height={16}
-              className="dark:invert-100"
+              className="invert-100 dark:invert-0"
             />
-            Sign in with GitHub
+            Continue with GitHub
           </Button>
-          <div className="relative my-6">
-            <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t" />
+          {error && (
+            <div className="rounded-md bg-destructive/15 p-3 text-sm text-destructive animate-in fade-in">
+              {error}
             </div>
-            <div className="relative flex justify-center text-xs">
-              <span className="bg-background px-2 text-muted-foreground">
-                Or continue with email
-              </span>
-            </div>
-          </div>{" "}
-          <Form {...form}>
-            <form
-              onSubmit={form.handleSubmit(onSubmit)}
-              className="space-y-0.5"
-            >
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem className="space-y-1">
-                    <FormLabel>Email</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="email"
-                        placeholder="Enter your email"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem className="space-y-1">
-                    <FormLabel>Password</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="password"
-                        placeholder="Enter your password"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              {error && (
-                <div className="rounded-md bg-destructive/15 p-3 text-sm text-destructive -mt-5 mb-2 animate-in fade-in">
-                  {error}
-                </div>
-              )}
-              <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? "Signing in..." : "Sign In"}
-              </Button>
-            </form>
-          </Form>
-        </CardContent>
-        <CardFooter className="flex flex-col space-y-2">
-          <div className="text-sm text-muted-foreground">
-            Don&apos;t have an account?&nbsp;
+          )}
+          <p className="text-xs text-center text-muted-foreground mt-4">
+            By continuing, you acknowledge that you understand and agree to the{" "}
             <Link
-              href="/signup"
-              className="text-primary underline hover:underline-offset-2 font-semibold transition-all"
+              href="/trust/terms"
+              className="font-medium text-accent-foreground hover:underline"
             >
-              Sign up
+              Terms & Conditions
+            </Link>{" "}
+            and{" "}
+            <Link
+              href="/trust/privacy"
+              className="text-accent-foreground font-medium hover:underline"
+            >
+              Privacy Policy
             </Link>
-          </div>
-        </CardFooter>
+          </p>
+        </CardContent>
       </Card>
     </div>
   );
