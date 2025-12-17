@@ -185,7 +185,7 @@ export function InvoiceStatusChart() {
   );
 
   const dateRangeText = useMemo(
-    () => getChartDateRangeText(data, "Last 12 months"),
+    () => getChartDateRangeText(data, "No data found"),
     [data]
   );
 
@@ -216,17 +216,19 @@ export function InvoiceStatusChart() {
             {dateRangeText}
           </p>
         </div>
-        <Tabs
-          value={metric}
-          onValueChange={(v) => setMetric(v as "count" | "amount")}
-        >
-          <TabsList>
-            <TabsTrigger value="count">Count</TabsTrigger>
-            <TabsTrigger value="amount">Amount</TabsTrigger>
-          </TabsList>
-        </Tabs>
+        {hasData && (
+          <Tabs
+            value={metric}
+            onValueChange={(v) => setMetric(v as "count" | "amount")}
+          >
+            <TabsList>
+              <TabsTrigger value="count">Count</TabsTrigger>
+              <TabsTrigger value="amount">Amount</TabsTrigger>
+            </TabsList>
+          </Tabs>
+        )}
       </div>
-      <div className="h-80">
+      <div className="h-80 outline-none **:outline-none">
         {hasData && data ? (
           <ResponsiveContainer width="100%" height="100%">
             <BarChart

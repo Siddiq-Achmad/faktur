@@ -73,35 +73,45 @@ export const dashboardRouter = createTRPCRouter({
       const monthsAgo = subMonths(new Date(), input.months);
       const startDate = startOfMonth(monthsAgo);
 
-      // Get all paid invoices from the start date
-      const paidInvoices = await db
+      // Get all paid and sent invoices from the start date
+      const allInvoices = await db
         .select({
           total: invoices.total,
           issueDate: invoices.issueDate,
+          status: invoices.status,
         })
         .from(invoices)
         .where(
           and(
             eq(invoices.userId, ctx.userId),
-            eq(invoices.status, "paid"),
             gte(invoices.issueDate, startDate)
           )
         )
         .orderBy(invoices.issueDate);
 
-      if (!paidInvoices.length) return null;
+      if (!allInvoices.length) return null;
 
       // Group by month
-      const revenueByMonth = new Map<string, number>();
+      const paidByMonth = new Map<string, number>();
+      const sentByMonth = new Map<string, number>();
 
-      paidInvoices.forEach((invoice) => {
+      allInvoices.forEach((invoice) => {
         if (invoice.issueDate) {
           const monthKey = format(invoice.issueDate, "MMM yyyy");
-          const currentRevenue = revenueByMonth.get(monthKey) || 0;
-          revenueByMonth.set(
-            monthKey,
-            moneyAdd(currentRevenue, invoice.total || 0)
-          );
+
+          if (invoice.status === "paid") {
+            const currentPaid = paidByMonth.get(monthKey) || 0;
+            paidByMonth.set(
+              monthKey,
+              moneyAdd(currentPaid, invoice.total || 0)
+            );
+          } else if (invoice.status === "sent") {
+            const currentSent = sentByMonth.get(monthKey) || 0;
+            sentByMonth.set(
+              monthKey,
+              moneyAdd(currentSent, invoice.total || 0)
+            );
+          }
         }
       });
 
@@ -112,7 +122,8 @@ export const dashboardRouter = createTRPCRouter({
         const monthKey = format(date, "MMM yyyy");
         result.push({
           month: monthKey,
-          revenue: revenueByMonth.get(monthKey) || 0,
+          paid: paidByMonth.get(monthKey) || 0,
+          sent: sentByMonth.get(monthKey) || 0,
         });
       }
 

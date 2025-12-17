@@ -81,7 +81,7 @@ export function RevenueChart() {
           </Select>
         )}
       </div>
-      <div className="h-80">
+      <div className="h-80 outline-none **:outline-none">
         {data ? (
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart
@@ -109,7 +109,7 @@ export function RevenueChart() {
 
                 <linearGradient id="fadeMask" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0%" stopColor="white" stopOpacity="1" />
-                  <stop offset="70%" stopColor="white" stopOpacity="0.07" />
+                  <stop offset="70%" stopColor="white" stopOpacity="0.2" />
                   <stop offset="100%" stopColor="white" stopOpacity="0" />
                 </linearGradient>
 
@@ -173,14 +173,24 @@ export function RevenueChart() {
                   letterSpacing: "0.05em",
                   marginBottom: "2px",
                 }}
-                formatter={(value: number) => [
+                formatter={(value: number, name: string) => [
                   formatCurrencyForChart(value),
-                  "Revenue",
+                  name === "paid" ? "Paid" : "Sent",
                 ]}
               />
               <Area
-                type="monotone"
-                dataKey="revenue"
+                type="linear"
+                dataKey="sent"
+                stroke={CHART_COLOR}
+                strokeWidth={2}
+                strokeDasharray="5 5"
+                strokeOpacity={0.5}
+                fillOpacity={0}
+                fill="transparent"
+              />
+              <Area
+                type="linear"
+                dataKey="paid"
                 stroke={CHART_COLOR}
                 strokeWidth={2}
                 fillOpacity={1}
