@@ -2,63 +2,189 @@ import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { db } from "@/lib/db";
 import { invoices, clients } from "@/lib/db/schema";
-import { eq, and, sql, desc, gte } from "drizzle-orm";
-import { startOfMonth, subMonths, format } from "date-fns";
+import { eq, and, sql, desc, gte, lt } from "drizzle-orm";
+import { startOfMonth, subMonths, format, subDays, startOfDay, endOfDay } from "date-fns";
 import { roundMoney, moneyAdd, moneySubtract } from "@/lib/utils/money";
 
 export const dashboardRouter = createTRPCRouter({
   // Get overall statistics
   getStats: protectedProcedure.query(async ({ ctx }) => {
+    const now = new Date();
+    const currentMonthStart = startOfMonth(now);
+    const currentPeriodEnd = endOfDay(now);
+
+    // Previous month, same day range (e.g., if today is Dec 17, compare Dec 1-17 vs Nov 1-17)
+    const previousMonthStart = startOfMonth(subMonths(now, 1));
+    const previousPeriodEnd = endOfDay(subMonths(now, 1));
+
     // Get all invoices for the user
     const userInvoices = await db
       .select({
         total: invoices.total,
         amountPaid: invoices.amountPaid,
         status: invoices.status,
+        issueDate: invoices.issueDate,
       })
       .from(invoices)
       .where(eq(invoices.userId, ctx.userId));
 
-    // Calculate statistics with proper rounding
-    const totalRevenue = roundMoney(
-      userInvoices
-        .filter((inv) => inv.status === "paid")
-        .reduce((sum, inv) => sum + (inv.total || 0), 0)
+    // Helper to calculate stats for a period
+    const calculatePeriodStats = (
+      invoicesList: typeof userInvoices,
+      startDate?: Date,
+      endDate?: Date
+    ) => {
+      const filteredInvoices = startDate
+        ? invoicesList.filter((inv) => {
+            if (!inv.issueDate) return false;
+            const issueDate = new Date(inv.issueDate);
+            return issueDate >= startDate && issueDate < (endDate || now);
+          })
+        : invoicesList;
+
+      const totalRevenue = roundMoney(
+        filteredInvoices
+          .filter((inv) => inv.status === "paid")
+          .reduce((sum, inv) => sum + (inv.total || 0), 0)
+      );
+
+      const outstandingAmount = roundMoney(
+        filteredInvoices
+          .filter((inv) => inv.status !== "paid" && inv.status !== "cancelled")
+          .reduce(
+            (sum, inv) => sum + ((inv.total || 0) - (inv.amountPaid || 0)),
+            0
+          )
+      );
+
+      const paidInvoicesCount = filteredInvoices.filter(
+        (inv) => inv.status === "paid"
+      ).length;
+
+      const overdueInvoicesCount = filteredInvoices.filter(
+        (inv) => inv.status === "overdue"
+      ).length;
+
+      const overdueAmount = roundMoney(
+        filteredInvoices
+          .filter((inv) => inv.status === "overdue")
+          .reduce(
+            (sum, inv) => sum + ((inv.total || 0) - (inv.amountPaid || 0)),
+            0
+          )
+      );
+
+      const totalInvoicesInPeriod = filteredInvoices.filter(
+        (inv) => inv.status !== "cancelled"
+      ).length;
+
+      const paymentRate =
+        totalInvoicesInPeriod > 0
+          ? Math.round((paidInvoicesCount / totalInvoicesInPeriod) * 100)
+          : 0;
+
+      return {
+        totalRevenue,
+        outstandingAmount,
+        paidInvoicesCount,
+        overdueInvoicesCount,
+        overdueAmount,
+        paymentRate,
+      };
+    };
+
+    // Calculate period stats for current month-to-date and previous month-to-same-date
+    const currentPeriodStats = calculatePeriodStats(
+      userInvoices,
+      currentMonthStart,
+      currentPeriodEnd
+    );
+    const previousPeriodStats = calculatePeriodStats(
+      userInvoices,
+      previousMonthStart,
+      previousPeriodEnd
     );
 
-    const outstandingAmount = roundMoney(
-      userInvoices
-        .filter((inv) => inv.status !== "paid" && inv.status !== "cancelled")
-        .reduce(
-          (sum, inv) => sum + ((inv.total || 0) - (inv.amountPaid || 0)),
-          0
-        )
+    // Calculate percentage change helper
+    const calculateTrend = (current: number, previous: number) => {
+      if (previous === 0) return current > 0 ? 100 : 0;
+      return Math.round(((current - previous) / previous) * 100);
+    };
+
+    // Calculate trends
+    const revenueTrend = calculateTrend(
+      currentPeriodStats.totalRevenue,
+      previousPeriodStats.totalRevenue
+    );
+    const outstandingTrend = calculateTrend(
+      currentPeriodStats.outstandingAmount,
+      previousPeriodStats.outstandingAmount
+    );
+    const paymentRateTrend = calculateTrend(
+      currentPeriodStats.paymentRate,
+      previousPeriodStats.paymentRate
+    );
+    const overdueTrend = calculateTrend(
+      currentPeriodStats.overdueInvoicesCount,
+      previousPeriodStats.overdueInvoicesCount
     );
 
-    const paidInvoicesCount = userInvoices.filter(
-      (inv) => inv.status === "paid"
-    ).length;
+    // Count unpaid and draft from current month-to-date only
+    const currentPeriodInvoices = userInvoices.filter((inv) => {
+      if (!inv.issueDate) return false;
+      const issueDate = new Date(inv.issueDate);
+      return issueDate >= currentMonthStart && issueDate <= currentPeriodEnd;
+    });
 
-    const unpaidInvoicesCount = userInvoices.filter(
+    const unpaidInvoicesCount = currentPeriodInvoices.filter(
       (inv) => inv.status !== "paid" && inv.status !== "cancelled"
     ).length;
 
-    const overdueInvoicesCount = userInvoices.filter(
-      (inv) => inv.status === "overdue"
-    ).length;
-
-    const draftInvoicesCount = userInvoices.filter(
+    const draftInvoicesCount = currentPeriodInvoices.filter(
       (inv) => inv.status === "draft"
     ).length;
 
+    // Calculate overdue percentage of outstanding
+    const overduePercentage =
+      currentPeriodStats.outstandingAmount > 0
+        ? Math.round(
+            (currentPeriodStats.overdueAmount /
+              currentPeriodStats.outstandingAmount) *
+              100
+          )
+        : 0;
+
     return {
-      totalRevenue,
-      outstandingAmount,
-      totalInvoices: userInvoices.length,
-      paidInvoicesCount,
+      totalRevenue: currentPeriodStats.totalRevenue,
+      outstandingAmount: currentPeriodStats.outstandingAmount,
+      overdueAmount: currentPeriodStats.overdueAmount,
+      overduePercentage,
+      totalInvoices: currentPeriodInvoices.length,
+      paidInvoicesCount: currentPeriodStats.paidInvoicesCount,
+      paymentRate: currentPeriodStats.paymentRate,
       unpaidInvoicesCount,
-      overdueInvoicesCount,
+      overdueInvoicesCount: currentPeriodStats.overdueInvoicesCount,
       draftInvoicesCount,
+      trends: {
+        revenue: revenueTrend,
+        outstanding: outstandingTrend,
+        paymentRate: paymentRateTrend,
+        overdue: overdueTrend,
+      },
+      absoluteDeltas: {
+        revenue: roundMoney(
+          currentPeriodStats.totalRevenue - previousPeriodStats.totalRevenue
+        ),
+        outstanding: roundMoney(
+          currentPeriodStats.outstandingAmount -
+            previousPeriodStats.outstandingAmount
+        ),
+        paymentRate:
+          currentPeriodStats.paymentRate - previousPeriodStats.paymentRate,
+        overdue:
+          currentPeriodStats.overdueInvoicesCount -
+          previousPeriodStats.overdueInvoicesCount,
+      },
     };
   }),
 
