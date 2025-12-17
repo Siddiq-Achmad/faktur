@@ -418,12 +418,12 @@ export function InvoiceForm({
                   </div>
                 )}
 
-                <div className="grid gap-1 sm:grid-cols-2 sm:gap-6 pt-4">
+                <div className="grid gap-1 pt-4 sm:grid-cols-2 sm:gap-6">
                   <FormField
                     control={form.control}
                     name="clientId"
                     render={({ field }) => (
-                      <FormItem className="space-y-1">
+                      <FormItem className="space-y-1 min-w-0">
                         <FormLabel className="text-sm font-medium">
                           Client
                         </FormLabel>
@@ -444,7 +444,7 @@ export function InvoiceForm({
                     control={form.control}
                     name="status"
                     render={({ field }) => (
-                      <FormItem className="space-y-1">
+                      <FormItem className="space-y-1 min-w-0">
                         <FormLabel className="text-sm font-medium">
                           Status
                         </FormLabel>
@@ -454,7 +454,7 @@ export function InvoiceForm({
                           disabled={!isClientSelected}
                         >
                           <FormControl>
-                            <SelectTrigger className="h-10">
+                            <SelectTrigger className="h-10 w-full">
                               <SelectValue />
                             </SelectTrigger>
                           </FormControl>
