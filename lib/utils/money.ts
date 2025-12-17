@@ -58,3 +58,21 @@ export function moneySubtract(a: number, b: number): number {
 export function moneyMultiply(a: number, b: number): number {
   return roundMoney(a * b);
 }
+
+/**
+ * Formats a monetary value for chart display
+ * Shows values like $1.5M, $600K, or $150 depending on magnitude
+ */
+export function formatCurrencyForChart(value: number): string {
+  if (value >= 1000000) {
+    return `$${(value / 1000000).toFixed(1)}M`;
+  }
+  if (value >= 1000) {
+    return `$${(value / 1000).toFixed(1)}K`;
+  }
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    minimumFractionDigits: 0,
+  }).format(value);
+}

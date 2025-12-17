@@ -21,6 +21,7 @@ import {
 } from "../ui/select";
 import { ChartNoAxesColumn } from "lucide-react";
 import EmptyState from "../ui/empty-state";
+import { formatCurrencyForChart } from "@/lib/utils/money";
 
 const CHART_COLOR = "var(--primary)";
 
@@ -43,20 +44,6 @@ export function RevenueChart() {
       </Card>
     );
   }
-
-  const formatCurrency = (value: number) => {
-    if (value >= 1000000) {
-      return `$${(value / 1000000).toFixed(1)}M`;
-    }
-    if (value >= 1000) {
-      return `$${(value / 1000).toFixed(1)}K`;
-    }
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-      minimumFractionDigits: 0,
-    }).format(value);
-  };
 
   return (
     <Card className="p-6">
@@ -151,7 +138,7 @@ export function RevenueChart() {
                   dx: -2,
                   fontSize: 12,
                 }}
-                tickFormatter={formatCurrency}
+                tickFormatter={formatCurrencyForChart}
                 width={55}
               />
               <Tooltip
@@ -178,7 +165,7 @@ export function RevenueChart() {
                   marginBottom: "2px",
                 }}
                 formatter={(value: number) => [
-                  formatCurrency(value),
+                  formatCurrencyForChart(value),
                   "Revenue",
                 ]}
               />

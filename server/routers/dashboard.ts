@@ -138,6 +138,134 @@ export const dashboardRouter = createTRPCRouter({
     }));
   }),
 
+  // Get invoice status over time (monthly)
+  getStatusOverTime: protectedProcedure
+    .input(
+      z.object({
+        months: z.number().min(1).max(24).default(6),
+        metric: z.enum(["count", "amount"]).default("count"),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const monthsAgo = subMonths(new Date(), input.months);
+      const startDate = startOfMonth(monthsAgo);
+
+      // Get all invoices from the start date
+      const userInvoices = await db
+        .select({
+          status: invoices.status,
+          total: invoices.total,
+          issueDate: invoices.issueDate,
+        })
+        .from(invoices)
+        .where(
+          and(
+            eq(invoices.userId, ctx.userId),
+            gte(invoices.issueDate, startDate)
+          )
+        )
+        .orderBy(invoices.issueDate);
+
+      if (!userInvoices.length) return null;
+
+      // Group by month and status
+      const dataByMonth = new Map<
+        string,
+        {
+          paid: number;
+          sent: number;
+          overdue: number;
+          draft: number;
+          cancelled: number;
+        }
+      >();
+
+      userInvoices.forEach((invoice) => {
+        if (invoice.issueDate) {
+          const monthKey = format(invoice.issueDate, "MMM yyyy");
+          if (!dataByMonth.has(monthKey)) {
+            dataByMonth.set(monthKey, {
+              paid: 0,
+              sent: 0,
+              overdue: 0,
+              draft: 0,
+              cancelled: 0,
+            });
+          }
+
+          const monthData = dataByMonth.get(monthKey)!;
+          const value = input.metric === "amount" ? invoice.total || 0 : 1;
+
+          if (invoice.status === "paid") {
+            monthData.paid =
+              input.metric === "amount"
+                ? moneyAdd(monthData.paid, value)
+                : monthData.paid + value;
+          } else if (invoice.status === "sent") {
+            monthData.sent =
+              input.metric === "amount"
+                ? moneyAdd(monthData.sent, value)
+                : monthData.sent + value;
+          } else if (invoice.status === "overdue") {
+            monthData.overdue =
+              input.metric === "amount"
+                ? moneyAdd(monthData.overdue, value)
+                : monthData.overdue + value;
+          } else if (invoice.status === "draft") {
+            monthData.draft =
+              input.metric === "amount"
+                ? moneyAdd(monthData.draft, value)
+                : monthData.draft + value;
+          } else if (invoice.status === "cancelled") {
+            monthData.cancelled =
+              input.metric === "amount"
+                ? moneyAdd(monthData.cancelled, value)
+                : monthData.cancelled + value;
+          }
+        }
+      });
+
+      // Create array for all months in range
+      const result = [];
+      for (let i = input.months - 1; i >= 0; i--) {
+        const date = subMonths(new Date(), i);
+        const monthKey = format(date, "MMM yyyy");
+        const monthData = dataByMonth.get(monthKey) || {
+          paid: 0,
+          sent: 0,
+          overdue: 0,
+          draft: 0,
+          cancelled: 0,
+        };
+
+        result.push({
+          month: monthKey,
+          paid:
+            input.metric === "amount"
+              ? roundMoney(monthData.paid)
+              : monthData.paid,
+          sent:
+            input.metric === "amount"
+              ? roundMoney(monthData.sent)
+              : monthData.sent,
+          overdue:
+            input.metric === "amount"
+              ? roundMoney(monthData.overdue)
+              : monthData.overdue,
+          draft:
+            input.metric === "amount"
+              ? roundMoney(monthData.draft)
+              : monthData.draft,
+          cancelled:
+            input.metric === "amount"
+              ? roundMoney(monthData.cancelled)
+              : monthData.cancelled,
+        });
+      }
+
+      return result;
+    }),
+
   // Get recent activity (recent invoices)
   getRecentActivity: protectedProcedure
     .input(
