@@ -8,6 +8,7 @@ import Link from "next/link";
 import { ChevronRight, Shredder } from "lucide-react";
 import { STATUS_COLORS, STATUS_LABELS } from "@/lib/constants/status-colors";
 import EmptyState from "../ui/empty-state";
+import { formatCurrency } from "@/lib/utils/money";
 
 export function RecentActivity() {
   const { data: activities, isLoading } =
@@ -39,13 +40,6 @@ export function RecentActivity() {
       </Card>
     );
   }
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-    }).format(amount);
-  };
 
   const getTimeGroup = (date: Date) => {
     if (isToday(date)) return "Today";
