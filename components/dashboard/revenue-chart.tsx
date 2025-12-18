@@ -26,6 +26,71 @@ import { getChartDateRangeText } from "@/lib/utils/chart";
 
 const CHART_COLOR = "var(--primary)";
 
+const CustomTooltip = ({ active, payload, label }: any) => {
+  if (!active || !payload || !payload.length) return null;
+
+  return (
+    <div
+      style={{
+        backgroundColor: "var(--popover)",
+        border: "1px solid var(--border)",
+        borderRadius: "var(--radius-lg)",
+        boxShadow: "var(--shadow-lg)",
+        padding: "8px 12px",
+        color: "var(--popover-foreground)",
+      }}
+    >
+      <p
+        style={{
+          color: "var(--muted-foreground)",
+          fontSize: "11px",
+          fontWeight: "500",
+          textTransform: "uppercase",
+          letterSpacing: "0.05em",
+          marginBottom: "4px",
+        }}
+      >
+        {label}
+      </p>
+      {payload.map((entry: any, index: number) => {
+        const isPaid = entry.dataKey === "paid";
+        return (
+          <div
+            key={index}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+              padding: "2px 0",
+            }}
+          >
+            <svg width="20" height="2" style={{ flexShrink: 0 }}>
+              <line
+                x1="0"
+                y1="1"
+                x2="20"
+                y2="1"
+                stroke={CHART_COLOR}
+                strokeWidth="2"
+                strokeDasharray={isPaid ? "0" : "4 2"}
+              />
+            </svg>
+            <span
+              style={{
+                color: "var(--popover-foreground)",
+                fontSize: "13px",
+                fontWeight: "500",
+              }}
+            >
+              {isPaid ? "Paid" : "Sent"}: {formatCurrencyForChart(entry.value)}
+            </span>
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
 export function RevenueChart() {
   const [months, setMonths] = useState(6);
   const { data, isLoading } = trpc.dashboard.getRevenueOverTime.useQuery(
@@ -150,34 +215,7 @@ export function RevenueChart() {
                 tickFormatter={formatCurrencyForChart}
                 width={55}
               />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: "var(--popover)",
-                  border: "1px solid var(--border)",
-                  borderRadius: "var(--radius-lg)",
-                  boxShadow: "var(--shadow-lg)",
-                  padding: "8px 12px",
-                  color: "var(--popover-foreground)",
-                }}
-                itemStyle={{
-                  color: "var(--popover-foreground)",
-                  fontSize: "13px",
-                  fontWeight: "500",
-                  padding: "2px 0",
-                }}
-                labelStyle={{
-                  color: "var(--muted-foreground)",
-                  fontSize: "11px",
-                  fontWeight: "500",
-                  textTransform: "uppercase",
-                  letterSpacing: "0.05em",
-                  marginBottom: "2px",
-                }}
-                formatter={(value: number, name: string) => [
-                  formatCurrencyForChart(value),
-                  name === "paid" ? "Paid" : "Sent",
-                ]}
-              />
+              <Tooltip content={<CustomTooltip />} />
               <Area
                 type="linear"
                 dataKey="sent"

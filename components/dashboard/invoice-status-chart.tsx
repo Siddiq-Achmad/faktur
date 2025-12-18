@@ -36,11 +36,25 @@ const CustomTooltip = memo(
     metric: "count" | "amount";
   }) => {
     if (active && payload && payload.length) {
+      // Reverse the payload to match visual stacking order (top to bottom)
+      const reversedPayload = [...payload].reverse();
+
       return (
         <div className="rounded-md border border-border/50 bg-popover/95 px-3 py-2 text-sm shadow-lg">
-          <p className="mb-2 font-medium text-foreground">{label}</p>
+          <p
+            style={{
+              color: "var(--muted-foreground)",
+              fontSize: "11px",
+              fontWeight: "500",
+              textTransform: "uppercase",
+              letterSpacing: "0.05em",
+              marginBottom: "4px",
+            }}
+          >
+            {label}
+          </p>
           <div className="flex flex-col gap-1">
-            {payload.map((entry: any, index: number) => (
+            {reversedPayload.map((entry: any, index: number) => (
               <div
                 key={index}
                 className="flex items-center justify-between gap-4"
