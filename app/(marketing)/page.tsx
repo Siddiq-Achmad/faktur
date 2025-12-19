@@ -3,15 +3,8 @@
 import Link from "next/link";
 import { FakturLogo } from "@/components/ui/faktur-logo";
 import { Button } from "@/components/ui/button";
-import { motion } from "framer-motion";
-import {
-  ArrowBigRightDash,
-  ArrowRight,
-  ArrowRightFromLine,
-  ArrowRightSquare,
-  ChevronRight,
-  Sparkles,
-} from "lucide-react";
+import * as motion from "motion/react-client";
+import { Sparkles } from "lucide-react";
 import { DecoratedText } from "@/components/landing/decorated-text";
 
 const containerVariants = {
@@ -26,10 +19,11 @@ const containerVariants = {
 };
 
 const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
+  hidden: { opacity: 0, y: 20, filter: "blur(12px)" },
   visible: {
     opacity: 1,
     y: 0,
+    filter: "blur(0px)",
     transition: {
       duration: 0.6,
       ease: [0.22, 1, 0.36, 1] as const,
@@ -256,8 +250,6 @@ export default function Home() {
                 </Button>
               </motion.div>
             </motion.div>
-
-            {/* Bento Grid Illustration */}
             <motion.div
               variants={itemVariants}
               className="relative max-w-6xl mx-auto mt-12 md:mt-16"

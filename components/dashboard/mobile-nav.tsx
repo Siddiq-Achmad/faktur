@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import { Button } from "../ui/button";
 import Link from "next/link";
 import { FakturLogo } from "@/components/ui/faktur-logo";
