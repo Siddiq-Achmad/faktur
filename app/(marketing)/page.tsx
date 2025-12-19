@@ -1,5 +1,3 @@
-"use client";
-
 import Link from "next/link";
 import Image from "next/image";
 import { FakturLogo } from "@/components/ui/faktur-logo";

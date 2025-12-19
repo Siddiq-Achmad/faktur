@@ -1,5 +1,4 @@
-import React from "react";
-import { motion } from "motion/react";
+import * as motion from "motion/react-client";
 import { cn } from "@/lib/utils";
 import { CornerIcons } from "@/components/ui/corner-icons";
 
@@ -12,7 +11,7 @@ interface DecoratedTextProps {
   iconClassName?: string;
   glowEffect?: boolean;
   flicker?: boolean;
-  delay?: number; // new prop
+  delay?: number;
 }
 
 function DecoratedText({
