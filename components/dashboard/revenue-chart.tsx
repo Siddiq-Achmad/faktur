@@ -146,9 +146,9 @@ export function RevenueChart() {
           </Select>
         )}
       </div>
-      <div className="h-80 outline-none **:outline-none">
+      <div className="outline-none **:outline-none">
         {data ? (
-          <ResponsiveContainer width="100%" height="100%">
+          <ResponsiveContainer width="100%" height={320}>
             <AreaChart
               data={data}
               margin={{ top: 10, right: 10, left: 5, bottom: 0 }}

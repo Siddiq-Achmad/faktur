@@ -35,16 +35,14 @@ const imageVariants = {
     opacity: 0,
     y: 20,
     filter: "blur(12px)",
-    skewX: 2,
   },
   visible: {
     opacity: 1,
     y: 0,
-    skewX: 0,
     filter: "blur(0px)",
     transition: {
       duration: 0.8,
-      delay: 0.8,
+      delay: 1,
     },
   },
 };
@@ -271,7 +269,7 @@ export default function Home() {
             <motion.div
               variants={imageVariants}
               className="relative max-w-6xl mx-auto mt-12 md:mt-16"
-              style={{ perspective: 1000, transformStyle: "preserve-3d" }}
+              style={{ perspective: 1400, transformStyle: "preserve-3d" }}
             >
               <div className="p-2 rounded-lg relative overflow-hidden bg-linear-to-tl from-primary/50 via-primary/50 to-primary/20">
                 <div
@@ -293,8 +291,6 @@ export default function Home() {
             </motion.div>
           </div>
         </motion.div>
-
-        {/* <div className="h-9 w-full border bg-[repeating-linear-gradient(45deg,transparent,transparent_8px,var(--primary)_8px,var(--primary)_9px)] opacity-30 border-primary/70" /> */}
       </div>
     </header>
   );
