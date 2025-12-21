@@ -146,7 +146,7 @@ export function RevenueChart() {
           </Select>
         )}
       </div>
-      <div className="outline-none **:outline-none">
+      <div className="outline-none **:outline-none min-h-80">
         {data ? (
           <ResponsiveContainer width="100%" height={320}>
             <AreaChart

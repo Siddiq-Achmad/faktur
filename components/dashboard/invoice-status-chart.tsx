@@ -242,7 +242,7 @@ export function InvoiceStatusChart() {
           </Tabs>
         )}
       </div>
-      <div className="outline-none **:outline-none">
+      <div className="outline-none **:outline-none min-h-80">
         {hasData && data ? (
           <ResponsiveContainer width="100%" height={320}>
             <BarChart

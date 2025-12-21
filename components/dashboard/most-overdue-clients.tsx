@@ -25,7 +25,7 @@ export function MostOverdueClients() {
 
   if (isLoading || !overdueClients) {
     return (
-      <Card className="border-muted/40 backdrop-blur-sm">
+      <Card>
         <div className="px-5">
           <h3 className="font-semibold tracking-tight">Most Overdue Clients</h3>
           <p className="text-xs text-muted-foreground/80">
@@ -50,7 +50,7 @@ export function MostOverdueClients() {
 
   if (!overdueClients.length) {
     return (
-      <Card className="border-muted/40 backdrop-blur-sm">
+      <Card>
         <div className="px-5">
           <h3 className="font-semibold tracking-tight">Most Overdue Clients</h3>
           <p className="text-xs text-muted-foreground/80">
@@ -68,7 +68,7 @@ export function MostOverdueClients() {
   }
 
   return (
-    <Card className="border-muted/40 backdrop-blur-sm">
+    <Card>
       <div className="px-5">
         <h3 className="font-semibold tracking-tight">Most Overdue Clients</h3>
         <p className="text-xs text-muted-foreground/80">

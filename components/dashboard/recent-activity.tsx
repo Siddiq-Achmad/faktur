@@ -18,7 +18,7 @@ export function RecentActivity() {
 
   if (isLoading || !activities) {
     return (
-      <Card className="border-muted/40 backdrop-blur-sm">
+      <Card>
         <div className="border-b border-border/40 px-5 py-4">
           <h3 className="font-semibold tracking-tight">Recent Activity</h3>
           <p className="text-xs text-muted-foreground/80">
@@ -43,7 +43,7 @@ export function RecentActivity() {
 
   if (activities.length === 0) {
     return (
-      <Card className="border-muted/40 backdrop-blur-sm">
+      <Card>
         <div className="px-5">
           <h3 className="font-semibold tracking-tight">Recent Activity</h3>
           <p className="text-xs text-muted-foreground/80">
@@ -61,7 +61,7 @@ export function RecentActivity() {
   }
 
   return (
-    <Card className="border-muted/40 backdrop-blur-sm">
+    <Card>
       <div className="px-5">
         <Link
           href="/dashboard/invoices"
