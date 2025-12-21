@@ -6,7 +6,7 @@ import { LogOut, Moon, Sun, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { FakturLogo } from "@/components/ui/faktur-logo";
 import { NavAccent } from "@/components/ui/nav-accent";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import { useState } from "react";
 import {
   DropdownMenu,

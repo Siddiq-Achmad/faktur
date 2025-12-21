@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import { Button } from "../ui/button";
 import Link from "next/link";
 import { FakturLogo } from "@/components/ui/faktur-logo";
@@ -72,6 +72,7 @@ const MobileNav = () => {
               stroke="currentColor"
               strokeWidth="3"
               strokeLinecap="round"
+              initial={{ x1: 0, y1: 6, x2: 24, y2: 6 }}
               animate={
                 isOpen
                   ? { x1: 4, y1: 4, x2: 20, y2: 20 }
@@ -83,6 +84,7 @@ const MobileNav = () => {
               stroke="currentColor"
               strokeWidth="3"
               strokeLinecap="round"
+              initial={{ x1: 0, y1: 18, x2: 24, y2: 18 }}
               animate={
                 isOpen
                   ? { x1: 20, y1: 4, x2: 4, y2: 20 }
