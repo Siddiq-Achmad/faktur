@@ -96,8 +96,12 @@ export function RecentActivity() {
                 style={{
                   backgroundColor: STATUS_COLORS[activity.status],
                 }}
-                title="Status indicator marker"
-                aria-label="Status indicator marker"
+                title={`Status: ${
+                  STATUS_LABELS[activity.status] || activity.status
+                }`}
+                aria-label={`Status: ${
+                  STATUS_LABELS[activity.status] || activity.status
+                }`}
               />
             </div>
 
